@@ -13,6 +13,20 @@
 		<connection>scm:git:https://github.com/andrewheald/code-heatmap.git</connection>
 	</scm>
 
+	<distributionManagement>
+		<repository>
+			<id>sappho.deploy</id>
+			<name>Sappho Generated Releases</name>
+			<url>dav:https://heald.co.uk/nexus/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>sappho.deploy</id>
+			<name>Sappho Generated Snapshots</name>
+			<url>dav:https://heald.co.uk/nexus/content/repositories/snapshots</url>
+			<uniqueVersion>false</uniqueVersion>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
