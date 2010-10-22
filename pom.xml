@@ -17,12 +17,14 @@
 		<repository>
 			<id>sappho.deploy</id>
 			<name>Sappho Generated Releases</name>
-			<url>dav:https://heald.co.uk/nexus/content/repositories/releases</url>
+			<url>dav:https://heald.co.uk/nexus/content/repositories/releases
+			</url>
 		</repository>
 		<snapshotRepository>
 			<id>sappho.deploy</id>
 			<name>Sappho Generated Snapshots</name>
-			<url>dav:https://heald.co.uk/nexus/content/repositories/snapshots</url>
+			<url>dav:https://heald.co.uk/nexus/content/repositories/snapshots
+			</url>
 			<uniqueVersion>false</uniqueVersion>
 		</snapshotRepository>
 	</distributionManagement>
@@ -58,6 +60,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.1</version>
 				<configuration>
 					<source>1.5</source>
 					<target>1.5</target>
