@@ -54,6 +54,7 @@
 	</dependencyManagement>
 
 	<modules>
+		<module>code-heatmap-engine</module>
 	</modules>
 
 </project>
