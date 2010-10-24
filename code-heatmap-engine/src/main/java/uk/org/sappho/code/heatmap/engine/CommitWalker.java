@@ -313,7 +313,7 @@ public class CommitWalker {
         RevisionRange[] revisionRange = new RevisionRange[] { new RevisionRange(Revision.getInstance(startRevision),
                 Revision.getInstance(endRevision)) };
         String[] revProps = new String[] { "svn:log" };
-        svnClient.logMessages(url, Revision.getInstance(endRevision), revisionRange, false, true, false,
+        svnClient.logMessages(url, Revision.getInstance(endRevision), revisionRange, false, true, true,
                 revProps, 0, logData);
         return logData;
     }
