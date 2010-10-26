@@ -9,10 +9,20 @@
 		<version>0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>code-heatmap-engine</artifactId>
-	<name>Code Heatmap Engine</name>
+	<artifactId>code-heatmap-subversion</artifactId>
+	<name>Code Heatmap Subversion Plugin</name>
 
 	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>code-heatmap-engine</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tmatesoft.svnkit</groupId>
+			<artifactId>svnkit-javahl</artifactId>
+			<version>1.3.4</version>
+		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
