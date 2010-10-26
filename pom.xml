@@ -78,6 +78,7 @@
 
 	<modules>
 		<module>code-heatmap-engine</module>
+		<module>code-heatmap-subversion</module>
 	</modules>
 
 </project>
