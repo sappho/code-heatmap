@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.scm.subversion;
+package uk.org.sappho.code.heatmap.scm;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +14,8 @@ import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.javahl.RevisionRange;
 import org.tigris.subversion.javahl.SVNClient;
 
+import com.google.inject.Inject;
+
 import uk.org.sappho.code.heatmap.engine.Change;
 import uk.org.sappho.code.heatmap.engine.Filename;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
@@ -28,12 +30,13 @@ public class Subversion implements SCM {
     private final SVNClient svnClient = new SVNClient();
     private static final Logger LOG = Logger.getLogger(Subversion.class);
 
-    public Subversion(String url, String basePath, long startRevision, long endRevision) {
+    @Inject
+    public Subversion() {
 
-        this.url = url;
-        this.basePath = basePath;
-        this.startRevision = startRevision;
-        this.endRevision = endRevision;
+        this.url = System.getProperty("svn.url");
+        this.basePath = System.getProperty("svn.path");
+        this.startRevision = Long.parseLong(System.getProperty("svn.start.rev"));
+        this.endRevision = Long.parseLong(System.getProperty("svn.end.rev"));
     }
 
     private class SubversionRevision {
@@ -82,8 +85,9 @@ public class Subversion implements SCM {
         }
     }
 
-    public void processChanges(HeatMapCollection heatMapCollection) {
+    public HeatMapCollection processChanges() {
 
+        HeatMapCollection heatMapCollection = new HeatMapCollection();
         List<SubversionRevision> revisions = new Vector<SubversionRevision>();
         LOG.debug("Attempting to read Subversion history at " + url + basePath + " from rev. " + startRevision
                 + " to rev. " + endRevision);
@@ -118,5 +122,6 @@ public class Subversion implements SCM {
             }
             heatMapCollection.update(new Change(Long.toString(revision.getRevision()), comment, changedFiles));
         }
+        return heatMapCollection;
     }
 }

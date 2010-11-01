@@ -2,22 +2,28 @@ package uk.org.sappho.code.heatmap.engine;
 
 import org.apache.log4j.Logger;
 
+import com.google.inject.Inject;
+
+import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.scm.SCM;
 
-public class CodeHeatMapEngine {
+public class CodeHeatMapEngine implements Engine {
 
     private final SCM scm;
+    private final Report report;
     private static final Logger LOG = Logger.getLogger(CodeHeatMapEngine.class);
 
-    public CodeHeatMapEngine(SCM scm) {
+    @Inject
+    public CodeHeatMapEngine(SCM scm, Report report) {
 
         this.scm = scm;
+        this.report = report;
     }
 
-    public HeatMapCollection processChanges() {
+    public void writeReport() {
 
-        HeatMapCollection hmc = new HeatMapCollection();
-        scm.processChanges(hmc);
-        return hmc;
+        LOG.debug("Engine starting");
+        report.writeReport(scm.processChanges());
+        LOG.debug("Engine finished");
     }
 }
