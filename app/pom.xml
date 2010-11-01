@@ -9,7 +9,7 @@
 		<version>0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>code-heatmap-engine</artifactId>
-	<name>Code Heatmap Engine</name>
+	<artifactId>code-heatmap-app</artifactId>
+	<name>Code Heatmap App</name>
 
 </project>

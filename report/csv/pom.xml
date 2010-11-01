@@ -5,11 +5,11 @@
 
 	<parent>
 		<groupId>uk.org.sappho.code.heatmap</groupId>
-		<artifactId>code-heatmap</artifactId>
+		<artifactId>code-heatmap-report</artifactId>
 		<version>0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>code-heatmap-engine</artifactId>
-	<name>Code Heatmap Engine</name>
+	<artifactId>code-heatmap-csv</artifactId>
+	<name>Code Heatmap CSV Report Plugin</name>
 
 </project>

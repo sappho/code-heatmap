@@ -57,6 +57,10 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
@@ -85,7 +89,9 @@
 
 	<modules>
 		<module>engine</module>
+		<module>app</module>
 		<module>scm</module>
+		<module>report</module>
 	</modules>
 
 </project>
