@@ -21,7 +21,6 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>code-heatmap-engine</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 
