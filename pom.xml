@@ -77,8 +77,8 @@
 	</build>
 
 	<modules>
-		<module>code-heatmap-engine</module>
-		<module>code-heatmap-subversion</module>
+		<module>engine</module>
+		<module>scm</module>
 	</modules>
 
 </project>
