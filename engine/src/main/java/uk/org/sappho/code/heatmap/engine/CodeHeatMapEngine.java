@@ -7,7 +7,7 @@ import com.google.inject.Inject;
 import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.scm.SCM;
 
-public class CodeHeatMapEngine implements Engine {
+public class CodeHeatMapEngine {
 
     private final SCM scm;
     private final Report report;
