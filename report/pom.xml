@@ -9,7 +9,20 @@
 		<version>0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>code-heatmap-engine</artifactId>
-	<name>Code Heatmap Engine</name>
+	<artifactId>code-heatmap-report</artifactId>
+	<name>Code Heatmap Report Parent POM</name>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>csv</module>
+	</modules>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>code-heatmap-engine</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 
 </project>

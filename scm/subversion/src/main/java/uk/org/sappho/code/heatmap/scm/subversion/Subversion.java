@@ -15,7 +15,6 @@ import org.tigris.subversion.javahl.RevisionRange;
 import org.tigris.subversion.javahl.SVNClient;
 
 import uk.org.sappho.code.heatmap.engine.Change;
-import uk.org.sappho.code.heatmap.engine.CodeHeatMapEngine;
 import uk.org.sappho.code.heatmap.engine.Filename;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
 import uk.org.sappho.code.heatmap.scm.SCM;
@@ -118,19 +117,6 @@ public class Subversion implements SCM {
                 }
             }
             heatMapCollection.update(new Change(Long.toString(revision.getRevision()), comment, changedFiles));
-        }
-    }
-
-    public static void main(String[] args) {
-
-        // TODO: remove this stuff when tests are written 
-        try {
-            SCM svn = new Subversion("http://svn.catlin.com/dev", "/projects/Frame/branches/10.06", 86603, 88053);
-            CodeHeatMapEngine engine = new CodeHeatMapEngine(svn);
-            HeatMapCollection hmc = engine.processChanges();
-            LOG.info(hmc.toString());
-        } catch (Throwable e) {
-            LOG.info("No can do!", e);
         }
     }
 }
