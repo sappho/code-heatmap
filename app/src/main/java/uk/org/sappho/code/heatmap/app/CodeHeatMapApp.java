@@ -7,7 +7,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import uk.org.sappho.code.heatmap.engine.CodeHeatMapEngine;
-import uk.org.sappho.code.heatmap.engine.Engine;
 import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.scm.SCM;
 
@@ -34,7 +33,7 @@ public class CodeHeatMapApp extends AbstractModule {
     public static void main(String[] args) {
 
         Injector injector = Guice.createInjector(new CodeHeatMapApp());
-        Engine engine = injector.getInstance(CodeHeatMapEngine.class);
+        CodeHeatMapEngine engine = injector.getInstance(CodeHeatMapEngine.class);
         engine.writeReport();
     }
 }
