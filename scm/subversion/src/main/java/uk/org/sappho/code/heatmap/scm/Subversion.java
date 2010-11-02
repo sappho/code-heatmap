@@ -32,6 +32,7 @@ public class Subversion implements SCM {
     @Inject
     public Subversion() {
 
+        LOG.debug("Using Subversion SCM plugin");
         url = System.getProperty("svn.url");
         basePath = System.getProperty("svn.path");
         startRevision = Long.parseLong(System.getProperty("svn.start.rev"));
@@ -40,13 +41,12 @@ public class Subversion implements SCM {
             try {
                 Info2[] info = svnClient.info2(url + basePath, Revision.HEAD, Revision.HEAD, false);
                 endRevision = info[0].getLastChangedRev();
-                LOG.debug("Using HEAD revision of " + endRevision + " for " + url + basePath);
+                LOG.debug("Using HEAD revision because svn.end.rev property not set");
             } catch (ClientException e) {
                 LOG.error("Unable to determine head revision of " + url + basePath, e);
             }
         }
         this.endRevision = endRevision;
-        LOG.debug("Using Subversion SCM plugin");
         LOG.debug("url:           " + url);
         LOG.debug("basePath:      " + basePath);
         LOG.debug("startRevision: " + startRevision);
