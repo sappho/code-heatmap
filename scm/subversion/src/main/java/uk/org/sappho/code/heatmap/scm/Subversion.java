@@ -19,7 +19,6 @@ import com.google.inject.Inject;
 import uk.org.sappho.code.heatmap.engine.Change;
 import uk.org.sappho.code.heatmap.engine.Filename;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
-import uk.org.sappho.code.heatmap.scm.SCM;
 
 public class Subversion implements SCM {
 
@@ -33,10 +32,25 @@ public class Subversion implements SCM {
     @Inject
     public Subversion() {
 
-        this.url = System.getProperty("svn.url");
-        this.basePath = System.getProperty("svn.path");
-        this.startRevision = Long.parseLong(System.getProperty("svn.start.rev"));
-        this.endRevision = Long.parseLong(System.getProperty("svn.end.rev"));
+        url = System.getProperty("svn.url");
+        basePath = System.getProperty("svn.path");
+        startRevision = Long.parseLong(System.getProperty("svn.start.rev"));
+        long endRevision = Long.parseLong(System.getProperty("svn.end.rev", "-1"));
+        if (endRevision < 0) {
+            try {
+                Info2[] info = svnClient.info2(url + basePath, Revision.HEAD, Revision.HEAD, false);
+                endRevision = info[0].getLastChangedRev();
+                LOG.debug("Using HEAD revision of " + endRevision + " for " + url + basePath);
+            } catch (ClientException e) {
+                LOG.error("Unable to determine head revision of " + url + basePath, e);
+            }
+        }
+        this.endRevision = endRevision;
+        LOG.debug("Using Subversion SCM plugin");
+        LOG.debug("url:           " + url);
+        LOG.debug("basePath:      " + basePath);
+        LOG.debug("startRevision: " + startRevision);
+        LOG.debug("endRevision:   " + endRevision);
     }
 
     private class SubversionRevision {
@@ -89,7 +103,7 @@ public class Subversion implements SCM {
 
         HeatMapCollection heatMapCollection = new HeatMapCollection();
         List<SubversionRevision> revisions = new Vector<SubversionRevision>();
-        LOG.debug("Attempting to read Subversion history at " + url + basePath + " from rev. " + startRevision
+        LOG.info("Reading Subversion history for " + url + basePath + " from rev. " + startRevision
                 + " to rev. " + endRevision);
         RevisionRange[] revisionRange = new RevisionRange[] { new RevisionRange(Revision.getInstance(startRevision),
                 Revision.getInstance(endRevision)) };
