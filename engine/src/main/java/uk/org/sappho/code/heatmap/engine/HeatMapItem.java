@@ -3,6 +3,7 @@ package uk.org.sappho.code.heatmap.engine;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 public class HeatMapItem implements Comparable<HeatMapItem> {
@@ -24,6 +25,16 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
             jiras.put(jiraId, jira);
         }
         jira.add(change);
+    }
+
+    public String getName() {
+
+        return name;
+    }
+
+    public Set<String> getJiras() {
+
+        return jiras.keySet();
     }
 
     public int jiraCount() {
