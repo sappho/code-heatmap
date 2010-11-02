@@ -23,10 +23,6 @@ import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
 
 public class Subversion implements SCM {
 
-    private final String url;
-    private final String basePath;
-    private final long startRevision;
-    private final long endRevision;
     private final SVNClient svnClient = new SVNClient();
     private static final Logger LOG = Logger.getLogger(Subversion.class);
 
@@ -34,25 +30,6 @@ public class Subversion implements SCM {
     public Subversion() {
 
         LOG.debug("Using Subversion SCM plugin");
-        url = Config.getConfig().getProperty("svn.url", "http://unconfigured");
-        basePath = Config.getConfig().getProperty("svn.path", "/");
-        long endRevision = Long.parseLong(Config.getConfig().getProperty("svn.end.rev", "-1"));
-        if (endRevision < 0) {
-            try {
-                Info2[] info = svnClient.info2(url + basePath, Revision.HEAD, Revision.HEAD, false);
-                endRevision = info[0].getLastChangedRev();
-                LOG.debug("Using HEAD revision because svn.end.rev property not set");
-            } catch (ClientException e) {
-                LOG.error("Unable to determine head revision of " + url + basePath, e);
-            }
-        }
-        this.endRevision = endRevision;
-        startRevision = Long
-                .parseLong(Config.getConfig().getProperty("svn.start.rev", Long.toString(endRevision - 49)));
-        LOG.debug("url:           " + url);
-        LOG.debug("basePath:      " + basePath);
-        LOG.debug("startRevision: " + startRevision);
-        LOG.debug("endRevision:   " + endRevision);
     }
 
     private class SubversionRevision {
@@ -101,43 +78,65 @@ public class Subversion implements SCM {
         }
     }
 
-    public HeatMapCollection processChanges() {
+    public HeatMapCollection processChanges() throws SCMException {
 
-        HeatMapCollection heatMapCollection = new HeatMapCollection();
-        List<SubversionRevision> revisions = new Vector<SubversionRevision>();
-        LOG.info("Reading Subversion history for " + url + basePath + " from rev. " + startRevision
-                + " to rev. " + endRevision);
-        RevisionRange[] revisionRange = new RevisionRange[] { new RevisionRange(Revision.getInstance(startRevision),
-                Revision.getInstance(endRevision)) };
-        String[] revProps = new String[] { "svn:log" };
+        String errorMessage = "Unable to find Subversion session parameters";
         try {
-            svnClient.logMessages(url + basePath, Revision.getInstance(endRevision), revisionRange,
-                    false, true, true, revProps, 0, new LogMessageProcessor(revisions));
-        } catch (ClientException e) {
-            LOG.error("Unable to read Subversion history at " + url + basePath + " from rev. " + startRevision
-                    + " to rev. " + endRevision, e);
-        }
-        for (SubversionRevision revision : revisions) {
-            String comment = (String) revision.getRevprops().get("svn:log");
-            LOG.debug("Processing rev. " + revision.getRevision() + " " + comment);
-            List<Filename> changedFiles = new Vector<Filename>();
-            for (ChangePath changePath : revision.getChangedPaths()) {
-                String filename = changePath.getPath();
+            String url = Config.getConfig().getProperty("svn.url");
+            String basePath = Config.getConfig().getProperty("svn.path");
+            long endRevision = Long.parseLong(Config.getConfig().getProperty("svn.end.rev", "-1"));
+            if (endRevision < 0) {
                 try {
-                    Revision revisionId = Revision.getInstance(revision.getRevision());
-                    Info2[] info = svnClient.info2(url + filename, revisionId, revisionId, false);
-                    if (info.length == 1 && info[0].getKind() == NodeKind.file) {
-                        LOG.debug("Processing changed file " + filename);
-                        changedFiles.add(new Filename(filename));
-                    } else {
-                        LOG.debug("Presuming " + filename + " is a directory");
-                    }
+                    Info2[] info = svnClient.info2(url + basePath, Revision.HEAD, Revision.HEAD, false);
+                    endRevision = info[0].getLastChangedRev();
+                    LOG.debug("Using HEAD revision because svn.end.rev property requires it");
                 } catch (ClientException e) {
-                    LOG.debug("Unable to determine type of " + filename + " so presuming it deleted");
+                    LOG.error("Unable to determine head revision of " + url + basePath, e);
                 }
             }
-            heatMapCollection.update(new Change(Long.toString(revision.getRevision()), comment, changedFiles));
+            long startRevision = Long
+                    .parseLong(Config.getConfig().getProperty("svn.start.rev", Long.toString(endRevision - 49)));
+            errorMessage = "Unable to read Subversion history for " + url + basePath + " from rev. " + startRevision
+                    + " to rev. " + endRevision;
+            LOG.debug("Subversion history scan parameters:");
+            LOG.debug("url:           " + url);
+            LOG.debug("basePath:      " + basePath);
+            LOG.debug("startRevision: " + startRevision);
+            LOG.debug("endRevision:   " + endRevision);
+            List<SubversionRevision> revisions = new Vector<SubversionRevision>();
+            LOG.info("Reading Subversion history for " + url + basePath + " from rev. " + startRevision
+                    + " to rev. " + endRevision);
+            RevisionRange[] revisionRange = new RevisionRange[] { new RevisionRange(
+                    Revision.getInstance(startRevision),
+                    Revision.getInstance(endRevision)) };
+            String[] revProps = new String[] { "svn:log" };
+            svnClient.logMessages(url + basePath, Revision.getInstance(endRevision), revisionRange,
+                    false, true, true, revProps, 0, new LogMessageProcessor(revisions));
+            HeatMapCollection heatMapCollection = new HeatMapCollection();
+            for (SubversionRevision revision : revisions) {
+                String comment = (String) revision.getRevprops().get("svn:log");
+                LOG.debug("Processing rev. " + revision.getRevision() + " " + comment);
+                List<Filename> changedFiles = new Vector<Filename>();
+                for (ChangePath changePath : revision.getChangedPaths()) {
+                    String filename = changePath.getPath();
+                    try {
+                        Revision revisionId = Revision.getInstance(revision.getRevision());
+                        Info2[] info = svnClient.info2(url + filename, revisionId, revisionId, false);
+                        if (info.length == 1 && info[0].getKind() == NodeKind.file) {
+                            LOG.debug("Processing changed file " + filename);
+                            changedFiles.add(new Filename(filename));
+                        } else {
+                            LOG.debug("Presuming " + filename + " is a directory");
+                        }
+                    } catch (ClientException e) {
+                        LOG.debug("Unable to determine type of " + filename + " so presuming it deleted");
+                    }
+                }
+                heatMapCollection.update(new Change(Long.toString(revision.getRevision()), comment, changedFiles));
+            }
+            return heatMapCollection;
+        } catch (Throwable t) {
+            throw new SCMException(errorMessage, t);
         }
-        return heatMapCollection;
     }
 }

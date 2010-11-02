@@ -41,7 +41,7 @@ public class CodeHeatMapApp extends AbstractModule {
                 CodeHeatMapEngine engine = injector.getInstance(CodeHeatMapEngine.class);
                 engine.writeReport();
             } catch (Throwable t) {
-                LOG.error("Application error!", t);
+                LOG.error("Application error", t);
             }
         } else {
             LOG.error("A configuration filename must be passed as a parameter");
