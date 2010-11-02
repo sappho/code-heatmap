@@ -112,6 +112,7 @@ public class Subversion implements SCM {
             String[] revProps = new String[] { "svn:log" };
             svnClient.logMessages(url + basePath, Revision.getInstance(endRevision), revisionRange,
                     false, true, true, revProps, 0, new LogMessageProcessor(revisions));
+            LOG.info("Processing Subversion history");
             HeatMapCollection heatMapCollection = new HeatMapCollection();
             for (SubversionRevision revision : revisions) {
                 String comment = (String) revision.getRevprops().get("svn:log");
