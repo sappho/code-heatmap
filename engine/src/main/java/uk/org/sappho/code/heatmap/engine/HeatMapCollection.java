@@ -5,11 +5,11 @@ import java.util.Map;
 
 public class HeatMapCollection {
 
-    public static final String DIRECTORY = "Directories";
-    public static final String FILENAME = "File names";
-    public static final String FULLFILENAME = "Full file names";
-    public static final String CLASSNAME = "Class names";
-    public static final String PACKAGENAME = "Package names";
+    public static final String DIRECTORY = "directories";
+    public static final String FILENAME = "filenames";
+    public static final String FULLFILENAME = "fullfilenames";
+    public static final String CLASSNAME = "classnames";
+    public static final String PACKAGENAME = "packagenames";
     public static final String[] HEATMAPS = { DIRECTORY, FILENAME, FULLFILENAME, CLASSNAME, PACKAGENAME };
 
     private final Map<String, HeatMap> heatMaps = new HashMap<String, HeatMap>();
