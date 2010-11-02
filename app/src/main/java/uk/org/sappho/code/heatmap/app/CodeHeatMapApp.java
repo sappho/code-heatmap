@@ -1,14 +1,12 @@
 package uk.org.sappho.code.heatmap.app;
 
-import java.io.FileReader;
-import java.util.Properties;
-
 import org.apache.log4j.Logger;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import uk.org.sappho.code.heatmap.config.Config;
 import uk.org.sappho.code.heatmap.engine.CodeHeatMapEngine;
 import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.scm.SCM;
@@ -24,9 +22,9 @@ public class CodeHeatMapApp extends AbstractModule {
         try {
             LOG.debug("Loading plugins");
             bind(SCM.class).to(
-                    (Class<? extends SCM>) Class.forName(System.getProperty("scm.implementation")));
+                    (Class<? extends SCM>) Class.forName(Config.getConfig().getProperty("scm.implementation")));
             bind(Report.class).to(
-                    (Class<? extends Report>) Class.forName(System.getProperty("report.implementation")));
+                    (Class<? extends Report>) Class.forName(Config.getConfig().getProperty("report.implementation")));
             LOG.debug("All plugins loaded");
         } catch (Throwable t) {
             LOG.error("Unable to bind plugin classes", t);
@@ -38,8 +36,7 @@ public class CodeHeatMapApp extends AbstractModule {
         if (args.length == 1) {
             try {
                 String configFilename = args[0];
-                Properties props = System.getProperties();
-                props.load(new FileReader(configFilename));
+                Config.getConfig().load(configFilename);
                 Injector injector = Guice.createInjector(new CodeHeatMapApp());
                 CodeHeatMapEngine engine = injector.getInstance(CodeHeatMapEngine.class);
                 engine.writeReport();
