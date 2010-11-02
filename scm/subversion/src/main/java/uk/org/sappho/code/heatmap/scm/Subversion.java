@@ -16,6 +16,7 @@ import org.tigris.subversion.javahl.SVNClient;
 
 import com.google.inject.Inject;
 
+import uk.org.sappho.code.heatmap.config.Config;
 import uk.org.sappho.code.heatmap.engine.Change;
 import uk.org.sappho.code.heatmap.engine.Filename;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
@@ -33,10 +34,9 @@ public class Subversion implements SCM {
     public Subversion() {
 
         LOG.debug("Using Subversion SCM plugin");
-        url = System.getProperty("svn.url");
-        basePath = System.getProperty("svn.path");
-        startRevision = Long.parseLong(System.getProperty("svn.start.rev"));
-        long endRevision = Long.parseLong(System.getProperty("svn.end.rev", "-1"));
+        url = Config.getConfig().getProperty("svn.url", "http://unconfigured");
+        basePath = Config.getConfig().getProperty("svn.path", "/");
+        long endRevision = Long.parseLong(Config.getConfig().getProperty("svn.end.rev", "-1"));
         if (endRevision < 0) {
             try {
                 Info2[] info = svnClient.info2(url + basePath, Revision.HEAD, Revision.HEAD, false);
@@ -47,6 +47,8 @@ public class Subversion implements SCM {
             }
         }
         this.endRevision = endRevision;
+        startRevision = Long
+                .parseLong(Config.getConfig().getProperty("svn.start.rev", Long.toString(endRevision - 49)));
         LOG.debug("url:           " + url);
         LOG.debug("basePath:      " + basePath);
         LOG.debug("startRevision: " + startRevision);
