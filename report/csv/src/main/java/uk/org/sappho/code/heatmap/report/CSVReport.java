@@ -15,32 +15,29 @@ import uk.org.sappho.code.heatmap.engine.HeatMapItem;
 
 public class CSVReport implements Report {
 
-    private final String basePath;
-    private final String extension;
-    private final String seperator;
-    private final String header;
     private static final Logger LOG = Logger.getLogger(CSVReport.class);
 
     @Inject
     public CSVReport() {
 
         LOG.debug("Using CSV Report plugin");
-        basePath = Config.getConfig().getProperty("report.path", "heatmap-");
-        extension = Config.getConfig().getProperty("report.extension", ".csv");
-        seperator = Config.getConfig().getProperty("csv.seperator", ",");
-        header = Config.getConfig().getProperty("csv.header",
-                "Item Name" + seperator + "Change Issue Count" + seperator
-                        + "Change Count" + seperator + "Issues");
-        LOG.debug("basePath:  " + basePath);
-        LOG.debug("extension: " + extension);
-        LOG.debug("seperator: " + seperator);
-        LOG.debug("header:    " + header);
     }
 
-    public void writeReport(HeatMapCollection heatMapCollection) {
+    public void writeReport(HeatMapCollection heatMapCollection) throws ReportException {
 
         Writer writer = null;
         try {
+            String basePath = Config.getConfig().getProperty("report.path");
+            String extension = Config.getConfig().getProperty("report.extension", ".csv");
+            String seperator = Config.getConfig().getProperty("csv.seperator", ",");
+            String header = Config.getConfig().getProperty("csv.header",
+                    "Item Name" + seperator + "Change Issue Count" + seperator
+                            + "Change Count" + seperator + "Issues");
+            LOG.debug("CSV Report parameters:");
+            LOG.debug("basePath:  " + basePath);
+            LOG.debug("extension: " + extension);
+            LOG.debug("seperator: " + seperator);
+            LOG.debug("header:    " + header);
             for (String heatMapName : HeatMapCollection.HEATMAPS) {
                 String filename = basePath + heatMapName + extension;
                 LOG.info("Writing CSV report " + filename);
@@ -64,7 +61,7 @@ public class CSVReport implements Report {
                 } catch (IOException e) {
                 }
             }
-            LOG.error("Unable to write report!", t);
+            throw new ReportException("Unable to write CSV reports", t);
         }
     }
 }

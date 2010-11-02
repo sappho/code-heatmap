@@ -4,5 +4,5 @@ import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
 
 public interface SCM {
 
-    public HeatMapCollection processChanges();
+    public HeatMapCollection processChanges() throws SCMException;
 }

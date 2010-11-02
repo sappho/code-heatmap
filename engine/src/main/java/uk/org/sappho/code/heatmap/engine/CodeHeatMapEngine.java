@@ -5,7 +5,9 @@ import org.apache.log4j.Logger;
 import com.google.inject.Inject;
 
 import uk.org.sappho.code.heatmap.report.Report;
+import uk.org.sappho.code.heatmap.report.ReportException;
 import uk.org.sappho.code.heatmap.scm.SCM;
+import uk.org.sappho.code.heatmap.scm.SCMException;
 
 public class CodeHeatMapEngine {
 
@@ -20,7 +22,7 @@ public class CodeHeatMapEngine {
         this.report = report;
     }
 
-    public void writeReport() {
+    public void writeReport() throws ReportException, SCMException {
 
         LOG.debug("Engine starting");
         report.writeReport(scm.processChanges());
