@@ -1,5 +1,8 @@
 package uk.org.sappho.code.heatmap.app;
 
+import java.io.FileReader;
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 
 import com.google.inject.AbstractModule;
@@ -21,9 +24,9 @@ public class CodeHeatMapApp extends AbstractModule {
         try {
             LOG.debug("Loading plugins");
             bind(SCM.class).to(
-                    (Class<? extends SCM>) Class.forName("uk.org.sappho.code.heatmap.scm.Subversion"));
+                    (Class<? extends SCM>) Class.forName(System.getProperty("scm.implementation")));
             bind(Report.class).to(
-                    (Class<? extends Report>) Class.forName("uk.org.sappho.code.heatmap.report.CSVReport"));
+                    (Class<? extends Report>) Class.forName(System.getProperty("report.implementation")));
             LOG.debug("All plugins loaded");
         } catch (Throwable t) {
             LOG.error("Unable to bind plugin classes", t);
@@ -32,8 +35,19 @@ public class CodeHeatMapApp extends AbstractModule {
 
     public static void main(String[] args) {
 
-        Injector injector = Guice.createInjector(new CodeHeatMapApp());
-        CodeHeatMapEngine engine = injector.getInstance(CodeHeatMapEngine.class);
-        engine.writeReport();
+        if (args.length == 1) {
+            try {
+                String configFilename = args[0];
+                Properties props = System.getProperties();
+                props.load(new FileReader(configFilename));
+                Injector injector = Guice.createInjector(new CodeHeatMapApp());
+                CodeHeatMapEngine engine = injector.getInstance(CodeHeatMapEngine.class);
+                engine.writeReport();
+            } catch (Throwable t) {
+                LOG.error("Application error!", t);
+            }
+        } else {
+            LOG.error("A configuration filename must be passed as a parameter");
+        }
     }
 }
