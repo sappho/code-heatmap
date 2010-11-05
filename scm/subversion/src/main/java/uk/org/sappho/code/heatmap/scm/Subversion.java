@@ -72,9 +72,7 @@ public class Subversion implements SCM {
         @SuppressWarnings("unchecked")
         public void singleMessage(ChangePath[] changedPaths, long revision, Map revprops, boolean hasChildren) {
 
-            if (revision != Revision.SVN_INVALID_REVNUM) {
-                revisions.add(new SubversionRevision(changedPaths, revision, revprops));
-            }
+            revisions.add(new SubversionRevision(changedPaths, revision, revprops));
         }
     }
 
