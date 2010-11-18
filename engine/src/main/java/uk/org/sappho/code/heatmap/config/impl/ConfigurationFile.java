@@ -11,7 +11,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import uk.org.sappho.code.heatmap.config.Configuration;
-import uk.org.sappho.code.heatmap.config.ConfigException;
+import uk.org.sappho.code.heatmap.config.ConfigurationException;
 
 @Singleton
 public class ConfigurationFile implements Configuration {
@@ -27,14 +27,16 @@ public class ConfigurationFile implements Configuration {
         if (filename != null) {
             LOG.info("Loading configuration from " + filename);
             properties.load(new FileReader(filename));
+        } else {
+            LOG.info("Because config.filename system property does not exist only system properties will be used");
         }
     }
 
-    public String getProperty(String name) throws ConfigException {
+    public String getProperty(String name) throws ConfigurationException {
 
         String value = properties.getProperty(name);
         if (value == null) {
-            throw new ConfigException("Configuration parameter " + name + " is missing");
+            throw new ConfigurationException("Configuration parameter " + name + " is missing");
         }
         return value;
     }
