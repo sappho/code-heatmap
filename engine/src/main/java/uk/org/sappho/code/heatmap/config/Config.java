@@ -1,41 +1,13 @@
 package uk.org.sappho.code.heatmap.config;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Properties;
 
-public class Config {
+public interface Config {
 
-    public static final Config config = new Config();
-    private final Properties properties = new Properties(System.getProperties());
+    public String getProperty(String name) throws ConfigException;
 
-    public static final Config getConfig() {
+    public String getProperty(String name, String defaultValue);
 
-        return config;
-    }
+    public void setProperty(String name, String value);
 
-    public String getProperty(String name) throws ConfigException {
-
-        String value = properties.getProperty(name);
-        if (value == null) {
-            throw new ConfigException("Configuration parameter " + name + " is missing");
-        }
-        return value;
-    }
-
-    public String getProperty(String name, String defaultValue) {
-
-        return properties.getProperty(name, defaultValue);
-    }
-
-    public void setProperty(String name, String value) {
-
-        properties.setProperty(name, value);
-    }
-
-    public void load(String filename) throws FileNotFoundException, IOException {
-
-        properties.load(new FileReader(filename));
-    }
+    public void load(String filename) throws ConfigException;
 }

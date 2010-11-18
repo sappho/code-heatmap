@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
 
-import uk.org.sappho.code.heatmap.config.Config;
+import uk.org.sappho.code.heatmap.config.impl.ConfigFile;
 import uk.org.sappho.code.heatmap.engine.HeatMap;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
 import uk.org.sappho.code.heatmap.engine.HeatMapItem;
@@ -27,10 +27,10 @@ public class CSVReport implements Report {
 
         Writer writer = null;
         try {
-            String basePath = Config.getConfig().getProperty("report.path");
-            String extension = Config.getConfig().getProperty("report.extension", ".csv");
-            String seperator = Config.getConfig().getProperty("csv.seperator", ",");
-            String header = Config.getConfig().getProperty("csv.header",
+            String basePath = ConfigFile.getConfig().getProperty("report.path");
+            String extension = ConfigFile.getConfig().getProperty("report.extension", ".csv");
+            String seperator = ConfigFile.getConfig().getProperty("csv.seperator", ",");
+            String header = ConfigFile.getConfig().getProperty("csv.header",
                     "Item Name" + seperator + "Change Issue Count" + seperator
                             + "Change Count" + seperator + "Issues");
             LOG.debug("CSV Report parameters:");
