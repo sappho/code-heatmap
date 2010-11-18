@@ -29,7 +29,7 @@ public class CodeHeatMapApp extends AbstractModule {
             bind(IssueManagement.class).to(
                     (Class<? extends IssueManagement>) Class.forName(System.getProperty("issues.implementation")));
         } catch (Throwable t) {
-            LOG.error("Unable to bind plugin classes", t);
+            // ignore this because it gives little away and errors are properly caught in main
         }
     }
 
