@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.issue;
+package uk.org.sappho.code.heatmap.issues;
 
 public class IssueManagementException extends Exception {
 
