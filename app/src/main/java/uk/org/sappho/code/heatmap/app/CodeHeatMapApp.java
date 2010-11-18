@@ -6,7 +6,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import uk.org.sappho.code.heatmap.config.impl.ConfigFile;
+import uk.org.sappho.code.heatmap.config.Configuration;
+import uk.org.sappho.code.heatmap.config.impl.ConfigurationFile;
 import uk.org.sappho.code.heatmap.engine.CodeHeatMapEngine;
 import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.scm.SCM;
@@ -20,12 +21,10 @@ public class CodeHeatMapApp extends AbstractModule {
     protected void configure() {
 
         try {
-            LOG.debug("Loading plugins");
-            bind(SCM.class).to(
-                    (Class<? extends SCM>) Class.forName(ConfigFile.getConfig().getProperty("scm.implementation")));
-            bind(Report.class).to(
-                    (Class<? extends Report>) Class.forName(ConfigFile.getConfig().getProperty("report.implementation")));
-            LOG.debug("All plugins loaded");
+            LOG.debug("Configuring plugins");
+            bind(Configuration.class).to(ConfigurationFile.class);
+            bind(SCM.class).to((Class<? extends SCM>) Class.forName(System.getProperty("scm.implementation")));
+            bind(Report.class).to((Class<? extends Report>) Class.forName(System.getProperty("report.implementation")));
         } catch (Throwable t) {
             LOG.error("Unable to bind plugin classes", t);
         }
@@ -33,18 +32,12 @@ public class CodeHeatMapApp extends AbstractModule {
 
     public static void main(String[] args) {
 
-        if (args.length == 1) {
-            try {
-                String configFilename = args[0];
-                ConfigFile.getConfig().load(configFilename);
-                Injector injector = Guice.createInjector(new CodeHeatMapApp());
-                CodeHeatMapEngine engine = injector.getInstance(CodeHeatMapEngine.class);
-                engine.writeReport();
-            } catch (Throwable t) {
-                LOG.error("Application error", t);
-            }
-        } else {
-            LOG.error("A configuration filename must be passed as a parameter");
+        try {
+            Injector injector = Guice.createInjector(new CodeHeatMapApp());
+            CodeHeatMapEngine engine = injector.getInstance(CodeHeatMapEngine.class);
+            engine.writeReport();
+        } catch (Throwable t) {
+            LOG.error("Application error", t);
         }
     }
 }

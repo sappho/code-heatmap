@@ -8,29 +8,31 @@ import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
 
-import uk.org.sappho.code.heatmap.config.impl.ConfigFile;
+import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.engine.HeatMap;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
 import uk.org.sappho.code.heatmap.engine.HeatMapItem;
 
 public class CSVReport implements Report {
 
+    private final Configuration config;
     private static final Logger LOG = Logger.getLogger(CSVReport.class);
 
     @Inject
-    public CSVReport() {
+    public CSVReport(Configuration config) {
 
-        LOG.debug("Using CSV Report plugin");
+        LOG.info("Using CSV Report plugin");
+        this.config = config;
     }
 
     public void writeReport(HeatMapCollection heatMapCollection) throws ReportException {
 
         Writer writer = null;
         try {
-            String basePath = ConfigFile.getConfig().getProperty("report.path");
-            String extension = ConfigFile.getConfig().getProperty("report.extension", ".csv");
-            String seperator = ConfigFile.getConfig().getProperty("csv.seperator", ",");
-            String header = ConfigFile.getConfig().getProperty("csv.header",
+            String basePath = config.getProperty("report.path");
+            String extension = config.getProperty("report.extension", ".csv");
+            String seperator = config.getProperty("csv.seperator", ",");
+            String header = config.getProperty("csv.header",
                     "Item Name" + seperator + "Change Issue Count" + seperator
                             + "Change Count" + seperator + "Issues");
             LOG.debug("CSV Report parameters:");

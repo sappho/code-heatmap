@@ -16,7 +16,7 @@ import org.tigris.subversion.javahl.SVNClient;
 
 import com.google.inject.Inject;
 
-import uk.org.sappho.code.heatmap.config.impl.ConfigFile;
+import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.engine.Change;
 import uk.org.sappho.code.heatmap.engine.Filename;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
@@ -24,12 +24,14 @@ import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
 public class Subversion implements SCM {
 
     private final SVNClient svnClient = new SVNClient();
+    private final Configuration config;
     private static final Logger LOG = Logger.getLogger(Subversion.class);
 
     @Inject
-    public Subversion() {
+    public Subversion(Configuration config) {
 
-        LOG.debug("Using Subversion SCM plugin");
+        LOG.info("Using Subversion SCM plugin");
+        this.config = config;
     }
 
     private class SubversionRevision {
@@ -80,9 +82,9 @@ public class Subversion implements SCM {
 
         String errorMessage = "Unable to find Subversion session parameters";
         try {
-            String url = ConfigFile.getConfig().getProperty("svn.url");
-            String basePath = ConfigFile.getConfig().getProperty("svn.path");
-            long endRevision = Long.parseLong(ConfigFile.getConfig().getProperty("svn.end.rev", "-1"));
+            String url = config.getProperty("svn.url");
+            String basePath = config.getProperty("svn.path");
+            long endRevision = Long.parseLong(config.getProperty("svn.end.rev", "-1"));
             if (endRevision < 0) {
                 try {
                     Info2[] info = svnClient.info2(url + basePath, Revision.HEAD, Revision.HEAD, false);
@@ -93,7 +95,7 @@ public class Subversion implements SCM {
                 }
             }
             long startRevision = Long
-                    .parseLong(ConfigFile.getConfig().getProperty("svn.start.rev", Long.toString(endRevision - 49)));
+                    .parseLong(config.getProperty("svn.start.rev", Long.toString(endRevision - 49)));
             errorMessage = "Unable to read Subversion history for " + url + basePath + " from rev. " + startRevision
                     + " to rev. " + endRevision;
             LOG.debug("Subversion history scan parameters:");
