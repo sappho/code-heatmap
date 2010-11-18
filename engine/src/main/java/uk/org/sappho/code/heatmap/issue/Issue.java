@@ -2,5 +2,5 @@ package uk.org.sappho.code.heatmap.issue;
 
 public interface Issue {
 
-    public boolean isDefect();
+    public int getWeight() throws IssueManagementException;
 }
