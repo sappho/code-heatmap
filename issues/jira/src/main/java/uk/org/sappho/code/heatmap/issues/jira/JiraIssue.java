@@ -14,14 +14,12 @@ public class JiraIssue implements Issue {
 
     public String getId() throws IssueManagementException {
 
-        String id = issue.getKey();
-        return id;
+        return issue.getKey();
     }
 
     public String getSummary() throws IssueManagementException {
 
-        String summary = issue.getSummary();
-        return summary;
+        return issue.getSummary();
     }
 
     public int getWeight() throws IssueManagementException {
