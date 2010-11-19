@@ -1,5 +1,8 @@
 package uk.org.sappho.code.heatmap.issues.jira;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.log4j.Logger;
 import org.codehaus.swizzle.jira.Jira;
 
@@ -14,7 +17,8 @@ import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 @Singleton
 public class JiraService implements IssueManagement {
 
-    private final Jira jira;
+    protected final Jira jira;
+    protected static final Pattern SIMPLE_JIRA_REGEX = Pattern.compile("^([A-Z]+-[0-9]+):.*$");
     private static final Logger LOG = Logger.getLogger(JiraService.class);
 
     @Inject
@@ -32,14 +36,32 @@ public class JiraService implements IssueManagement {
         }
     }
 
-    public Issue getIssue(String id) throws IssueManagementException {
+    public Issue getIssue(String commitComment) {
 
-        org.codehaus.swizzle.jira.Issue issue = null;
-        try {
-            issue = jira.getIssue(id);
-        } catch (Throwable t) {
-            throw new IssueManagementException("Jira issue " + id + " not found", t);
+        Issue issue = null;
+        String id = getIssueIdFromCommitComment(commitComment);
+        if (id != null) {
+            try {
+                org.codehaus.swizzle.jira.Issue swizzleIssue = jira.getIssue(id);
+                if (swizzleIssue != null) {
+                    issue = new JiraIssue(swizzleIssue);
+                }
+            } catch (Throwable t) {
+                LOG.debug("Jira issue " + id + " not found", t);
+            }
         }
-        return new JiraIssue(issue);
+        return issue;
+    }
+
+    protected String getIssueIdFromCommitComment(String commitComment) {
+
+        String id = null;
+        Matcher matcher = SIMPLE_JIRA_REGEX.matcher(commitComment.split("\n")[0]);
+        if (matcher.matches()) {
+            id = matcher.group(1);
+        } else {
+            LOG.debug("No isue ID found in commit comment: " + commitComment);
+        }
+        return id;
     }
 }

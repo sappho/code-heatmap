@@ -7,7 +7,7 @@ public class JiraIssue implements Issue {
 
     private final org.codehaus.swizzle.jira.Issue issue;
 
-    public JiraIssue(org.codehaus.swizzle.jira.Issue issue) throws IssueManagementException {
+    public JiraIssue(org.codehaus.swizzle.jira.Issue issue) {
 
         this.issue = issue;
     }
