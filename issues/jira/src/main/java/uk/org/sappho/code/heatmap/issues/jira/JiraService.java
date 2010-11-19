@@ -44,13 +44,18 @@ public class JiraService implements IssueManagement {
             try {
                 org.codehaus.swizzle.jira.Issue swizzleIssue = jira.getIssue(id);
                 if (swizzleIssue != null) {
-                    issue = new JiraIssue(swizzleIssue);
+                    issue = createIssue(swizzleIssue);
                 }
             } catch (Throwable t) {
                 LOG.debug("Jira issue " + id + " not found", t);
             }
         }
         return issue;
+    }
+
+    protected Issue createIssue(org.codehaus.swizzle.jira.Issue swizzleIssue) {
+
+        return new JiraIssue(swizzleIssue);
     }
 
     protected String getIssueIdFromCommitComment(String commitComment) {
