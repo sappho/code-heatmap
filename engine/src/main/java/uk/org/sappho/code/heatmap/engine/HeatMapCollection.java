@@ -3,6 +3,8 @@ package uk.org.sappho.code.heatmap.engine;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.org.sappho.code.heatmap.issues.IssueManagementException;
+
 public class HeatMapCollection {
 
     public static final String DIRECTORY = "directories";
@@ -21,7 +23,7 @@ public class HeatMapCollection {
         }
     }
 
-    public void update(Change change) {
+    public void update(Change change) throws IssueManagementException {
 
         for (Filename changedFile : change.getChangedFiles()) {
             heatMaps.get(DIRECTORY).update(changedFile.getDirectory(), change);

@@ -6,23 +6,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import uk.org.sappho.code.heatmap.issues.IssueManagementException;
+
 public class HeatMapItem implements Comparable<HeatMapItem> {
 
     private final String name;
-    private final Map<String, List<Change>> jiras = new HashMap<String, List<Change>>();
+    private final Map<String, List<Change>> issues = new HashMap<String, List<Change>>();
 
     public HeatMapItem(String name) {
 
         this.name = name;
     }
 
-    public void update(Change change) {
+    public void update(Change change) throws IssueManagementException {
 
-        String jiraId = change.getJiraId();
-        List<Change> jira = jiras.get(jiraId);
+        String jiraId = change.getIssue().getId();
+        List<Change> jira = issues.get(jiraId);
         if (jira == null) {
             jira = new Vector<Change>();
-            jiras.put(jiraId, jira);
+            issues.put(jiraId, jira);
         }
         jira.add(change);
     }
@@ -32,20 +34,20 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         return name;
     }
 
-    public Set<String> getJiras() {
+    public Set<String> getIssues() {
 
-        return jiras.keySet();
+        return issues.keySet();
     }
 
-    public int jiraCount() {
+    public int getIssueCount() {
 
-        return jiras.size();
+        return issues.size();
     }
 
-    public int changeCount() {
+    public int getChangeCount() {
 
         int count = 0;
-        for (List<Change> changes : jiras.values()) {
+        for (List<Change> changes : issues.values()) {
             count += changes.size();
         }
         return count;
@@ -53,15 +55,15 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
 
     public int compareTo(HeatMapItem other) {
 
-        int weight = other.jiraCount() - jiraCount();
-        return weight == 0 ? other.changeCount() - changeCount() : weight;
+        int weight = other.getIssueCount() - getIssueCount();
+        return weight == 0 ? other.getChangeCount() - getChangeCount() : weight;
     }
 
     @Override
     public String toString() {
 
-        String str = name + " - " + jiraCount() + " jira(s) and " + changeCount() + " change(s)\n   ";
-        for (String jiraId : jiras.keySet()) {
+        String str = name + " - " + getIssueCount() + " jira(s) and " + getChangeCount() + " change(s)\n   ";
+        for (String jiraId : issues.keySet()) {
             str += " " + jiraId;
         }
         return str;

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import uk.org.sappho.code.heatmap.issues.IssueManagementException;
+
 public class HeatMap {
 
     private final String name;
@@ -16,7 +18,7 @@ public class HeatMap {
         this.name = name;
     }
 
-    public void update(String name, Change change) {
+    public void update(String name, Change change) throws IssueManagementException {
 
         HeatMapItem item = heatMap.get(name);
         if (item == null) {

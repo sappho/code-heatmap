@@ -12,6 +12,12 @@ public class JiraIssue implements Issue {
         this.issue = issue;
     }
 
+    public String getId() throws IssueManagementException {
+
+        String id = issue.getKey();
+        return id;
+    }
+
     public String getSummary() throws IssueManagementException {
 
         String summary = issue.getSummary();

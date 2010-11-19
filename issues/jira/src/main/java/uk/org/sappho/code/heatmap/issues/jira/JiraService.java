@@ -60,7 +60,7 @@ public class JiraService implements IssueManagement {
         if (matcher.matches()) {
             id = matcher.group(1);
         } else {
-            LOG.debug("No isue ID found in commit comment: " + commitComment);
+            LOG.debug("No issue ID found in commit comment: " + commitComment);
         }
         return id;
     }

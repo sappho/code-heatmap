@@ -47,8 +47,8 @@ public class CSVReport implements Report {
                 writer.write(header + "\n");
                 HeatMap heatMap = heatMapCollection.getHeatMap(heatMapName);
                 for (HeatMapItem item : heatMap.getSortedList()) {
-                    writer.write(item.getName() + seperator + item.jiraCount() + seperator + item.changeCount());
-                    for (String issueId : item.getJiras()) {
+                    writer.write(item.getName() + seperator + item.getIssueCount() + seperator + item.getChangeCount());
+                    for (String issueId : item.getIssues()) {
                         writer.write(seperator + issueId);
                     }
                     writer.write("\n");

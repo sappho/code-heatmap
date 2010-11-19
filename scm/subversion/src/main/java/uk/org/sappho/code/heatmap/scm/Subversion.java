@@ -20,18 +20,22 @@ import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.engine.Change;
 import uk.org.sappho.code.heatmap.engine.Filename;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
+import uk.org.sappho.code.heatmap.issues.Issue;
+import uk.org.sappho.code.heatmap.issues.IssueManagement;
 
 public class Subversion implements SCM {
 
     private final SVNClient svnClient = new SVNClient();
     private final Configuration config;
+    private final IssueManagement issueManagement;
     private static final Logger LOG = Logger.getLogger(Subversion.class);
 
     @Inject
-    public Subversion(Configuration config) {
+    public Subversion(Configuration config, IssueManagement issueManagement) {
 
         LOG.info("Using Subversion SCM plugin");
         this.config = config;
+        this.issueManagement = issueManagement;
     }
 
     private class SubversionRevision {
@@ -74,7 +78,9 @@ public class Subversion implements SCM {
         @SuppressWarnings("unchecked")
         public void singleMessage(ChangePath[] changedPaths, long revision, Map revprops, boolean hasChildren) {
 
-            revisions.add(new SubversionRevision(changedPaths, revision, revprops));
+            if (revision != Revision.SVN_INVALID_REVNUM) {
+                revisions.add(new SubversionRevision(changedPaths, revision, revprops));
+            }
         }
     }
 
@@ -115,8 +121,8 @@ public class Subversion implements SCM {
             LOG.info("Processing Subversion history");
             HeatMapCollection heatMapCollection = new HeatMapCollection();
             for (SubversionRevision revision : revisions) {
-                String comment = (String) revision.getRevprops().get("svn:log");
-                LOG.debug("Processing rev. " + revision.getRevision() + " " + comment);
+                String commitComment = (String) revision.getRevprops().get("svn:log");
+                LOG.debug("Processing rev. " + revision.getRevision() + " " + commitComment);
                 List<Filename> changedFiles = new Vector<Filename>();
                 for (ChangePath changePath : revision.getChangedPaths()) {
                     String filename = changePath.getPath();
@@ -133,7 +139,13 @@ public class Subversion implements SCM {
                         LOG.debug("Unable to determine type of " + filename + " so presuming it deleted");
                     }
                 }
-                heatMapCollection.update(new Change(Long.toString(revision.getRevision()), comment, changedFiles));
+                Issue issue = issueManagement.getIssue(commitComment);
+                if (issue != null) {
+                    heatMapCollection.update(new Change(Long.toString(revision.getRevision()), commitComment, issue,
+                            changedFiles));
+                } else {
+                    LOG.debug("No issue found in commit comment: " + commitComment);
+                }
             }
             return heatMapCollection;
         } catch (Throwable t) {
