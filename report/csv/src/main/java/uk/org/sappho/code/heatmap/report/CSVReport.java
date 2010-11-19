@@ -12,6 +12,7 @@ import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.engine.HeatMap;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
 import uk.org.sappho.code.heatmap.engine.HeatMapItem;
+import uk.org.sappho.code.heatmap.issues.Issue;
 
 public class CSVReport implements Report {
 
@@ -47,9 +48,10 @@ public class CSVReport implements Report {
                 writer.write(header + "\n");
                 HeatMap heatMap = heatMapCollection.getHeatMap(heatMapName);
                 for (HeatMapItem item : heatMap.getSortedList()) {
-                    writer.write(item.getName() + seperator + item.getIssueCount() + seperator + item.getChangeCount());
-                    for (String issueId : item.getIssues()) {
-                        writer.write(seperator + issueId);
+                    writer.write(item.getName() + seperator + item.getWeight() + seperator + item.getIssueCount()
+                            + seperator + item.getChangeCount());
+                    for (Issue issue : item.getIssues()) {
+                        writer.write(seperator + issue.getId());
                     }
                     writer.write("\n");
                 }

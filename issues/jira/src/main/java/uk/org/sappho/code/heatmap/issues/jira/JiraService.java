@@ -1,5 +1,7 @@
 package uk.org.sappho.code.heatmap.issues.jira;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,6 +20,8 @@ import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 public class JiraService implements IssueManagement {
 
     protected final Jira jira;
+    protected Map<String, Integer> issueTypeWeightMultipliers = new HashMap<String, Integer>();
+    protected Configuration config;
     protected static final Pattern SIMPLE_JIRA_REGEX = Pattern.compile("^([A-Z]+-[0-9]+):.*$");
     private static final Logger LOG = Logger.getLogger(JiraService.class);
 
@@ -25,6 +29,7 @@ public class JiraService implements IssueManagement {
     public JiraService(Configuration config) throws IssueManagementException {
 
         LOG.info("Using Jira issue management plugin");
+        this.config = config;
         String url = config.getProperty("jira.url", "http://example.com");
         String username = config.getProperty("jira.username", "nobody");
         LOG.info("Connecting to " + url + " as " + username);
@@ -53,9 +58,27 @@ public class JiraService implements IssueManagement {
         return issue;
     }
 
+    public int getIssueTypeWeightMultiplier(Issue issue) throws IssueManagementException {
+
+        String typeName = issue.getTypeName();
+        Integer multiplier = issueTypeWeightMultipliers.get(typeName);
+        if (multiplier == null) {
+            String typeNameKey = "jira.type.multiplier." + typeName;
+            try {
+                multiplier = Integer.parseInt(config.getProperty(typeNameKey, "1"));
+                LOG.info("Weight of issue type " + typeName + " is " + multiplier);
+            } catch (Throwable t) {
+                throw new IssueManagementException(
+                        "Issue type weight configuration \"" + typeNameKey + "\" is invalid", t);
+            }
+            issueTypeWeightMultipliers.put(typeName, multiplier);
+        }
+        return multiplier;
+    }
+
     protected Issue createIssue(org.codehaus.swizzle.jira.Issue swizzleIssue) {
 
-        return new JiraIssue(swizzleIssue);
+        return new JiraIssue(swizzleIssue, this);
     }
 
     protected String getIssueIdFromCommitComment(String commitComment) {

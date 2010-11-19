@@ -6,12 +6,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.log4j.Logger;
+
+import uk.org.sappho.code.heatmap.issues.Issue;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 
 public class HeatMapItem implements Comparable<HeatMapItem> {
 
     private final String name;
-    private final Map<String, List<Change>> issues = new HashMap<String, List<Change>>();
+    private final Map<Issue, List<Change>> issues = new HashMap<Issue, List<Change>>();
+    private static final Logger LOG = Logger.getLogger(HeatMapItem.class);
 
     public HeatMapItem(String name) {
 
@@ -20,13 +24,13 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
 
     public void update(Change change) throws IssueManagementException {
 
-        String jiraId = change.getIssue().getId();
-        List<Change> jira = issues.get(jiraId);
-        if (jira == null) {
-            jira = new Vector<Change>();
-            issues.put(jiraId, jira);
+        Issue issue = change.getIssue();
+        List<Change> changes = issues.get(issue);
+        if (changes == null) {
+            changes = new Vector<Change>();
+            issues.put(issue, changes);
         }
-        jira.add(change);
+        changes.add(change);
     }
 
     public String getName() {
@@ -34,7 +38,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         return name;
     }
 
-    public Set<String> getIssues() {
+    public Set<Issue> getIssues() {
 
         return issues.keySet();
     }
@@ -53,18 +57,36 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         return count;
     }
 
+    public int getWeight() throws IssueManagementException {
+
+        int weight = 0;
+        for (Issue issue : getIssues()) {
+            weight += issue.getWeight();
+        }
+        return weight;
+    }
+
     public int compareTo(HeatMapItem other) {
 
-        int weight = other.getIssueCount() - getIssueCount();
-        return weight == 0 ? other.getChangeCount() - getChangeCount() : weight;
+        int comparison = 0;
+        try {
+            comparison = other.getWeight() - getWeight();
+        } catch (IssueManagementException e) {
+            LOG.error("Issue management error", e);
+        }
+        return comparison;
     }
 
     @Override
     public String toString() {
 
         String str = name + " - " + getIssueCount() + " jira(s) and " + getChangeCount() + " change(s)\n   ";
-        for (String jiraId : issues.keySet()) {
-            str += " " + jiraId;
+        for (Issue issue : getIssues()) {
+            try {
+                str += " " + issue.getId();
+            } catch (IssueManagementException e) {
+                LOG.error("Issue management error", e);
+            }
         }
         return str;
     }
