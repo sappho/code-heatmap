@@ -1,37 +1,35 @@
 package uk.org.sappho.code.heatmap.issues.jira;
 
 import uk.org.sappho.code.heatmap.issues.Issue;
-import uk.org.sappho.code.heatmap.issues.IssueManagement;
-import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 
 public class JiraIssue implements Issue {
 
     private final org.codehaus.swizzle.jira.Issue issue;
-    IssueManagement issueManagement;
+    private int weight;
 
-    public JiraIssue(org.codehaus.swizzle.jira.Issue issue, IssueManagement issueManagement) {
+    public JiraIssue(org.codehaus.swizzle.jira.Issue issue, int weight) {
 
         this.issue = issue;
-        this.issueManagement = issueManagement;
+        this.weight = weight;
     }
 
-    public String getId() throws IssueManagementException {
+    public String getId() {
 
         return issue.getKey();
     }
 
-    public String getTypeName() throws IssueManagementException {
+    public String getTypeName() {
 
         return issue.getType().getName();
     }
 
-    public String getSummary() throws IssueManagementException {
+    public String getSummary() {
 
         return issue.getSummary();
     }
 
-    public int getWeight() throws IssueManagementException {
+    public int getWeight() {
 
-        return issueManagement.getIssueTypeWeightMultiplier(this);
+        return weight;
     }
 }

@@ -52,33 +52,28 @@ public class JiraService implements IssueManagement {
                     issue = createIssue(swizzleIssue);
                 }
             } catch (Throwable t) {
-                LOG.debug("Jira issue " + id + " not found", t);
+                LOG.debug("Jira issue " + id + " not found or unable to work out its weight", t);
             }
         }
         return issue;
     }
 
-    public int getIssueTypeWeightMultiplier(Issue issue) throws IssueManagementException {
+    protected Issue createIssue(org.codehaus.swizzle.jira.Issue swizzleIssue) throws IssueManagementException {
 
-        String typeName = issue.getTypeName();
-        Integer multiplier = issueTypeWeightMultipliers.get(typeName);
-        if (multiplier == null) {
+        String typeName = swizzleIssue.getType().getName();
+        Integer weight = issueTypeWeightMultipliers.get(typeName);
+        if (weight == null) {
             String typeNameKey = "jira.type.multiplier." + typeName;
             try {
-                multiplier = Integer.parseInt(config.getProperty(typeNameKey, "1"));
-                LOG.info("Weight of issue type " + typeName + " is " + multiplier);
+                weight = Integer.parseInt(config.getProperty(typeNameKey, "1"));
+                LOG.info("Weight of issue type " + typeName + " is " + weight);
             } catch (Throwable t) {
                 throw new IssueManagementException(
                         "Issue type weight configuration \"" + typeNameKey + "\" is invalid", t);
             }
-            issueTypeWeightMultipliers.put(typeName, multiplier);
+            issueTypeWeightMultipliers.put(typeName, weight);
         }
-        return multiplier;
-    }
-
-    protected Issue createIssue(org.codehaus.swizzle.jira.Issue swizzleIssue) {
-
-        return new JiraIssue(swizzleIssue, this);
+        return new JiraIssue(swizzleIssue, weight);
     }
 
     protected String getIssueIdFromCommitComment(String commitComment) {
