@@ -49,7 +49,7 @@ public class JiraService implements IssueManagement {
             try {
                 org.codehaus.swizzle.jira.Issue swizzleIssue = jira.getIssue(id);
                 if (swizzleIssue != null) {
-                    issue = createIssue(swizzleIssue);
+                    issue = createIssueWrapper(swizzleIssue);
                 }
             } catch (Throwable t) {
                 LOG.debug("Jira issue " + id + " not found or unable to work out its weight", t);
@@ -58,7 +58,7 @@ public class JiraService implements IssueManagement {
         return issue;
     }
 
-    protected Issue createIssue(org.codehaus.swizzle.jira.Issue swizzleIssue) throws IssueManagementException {
+    protected Issue createIssueWrapper(org.codehaus.swizzle.jira.Issue swizzleIssue) throws IssueManagementException {
 
         String typeName = swizzleIssue.getType().getName();
         Integer weight = issueTypeWeightMultipliers.get(typeName);
@@ -73,7 +73,7 @@ public class JiraService implements IssueManagement {
             }
             issueTypeWeightMultipliers.put(typeName, weight);
         }
-        return new JiraIssue(swizzleIssue, weight);
+        return new JiraIssueWrapper(swizzleIssue, weight);
     }
 
     protected String getIssueIdFromCommitComment(String commitComment) {
