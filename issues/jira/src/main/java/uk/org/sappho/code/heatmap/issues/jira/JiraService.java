@@ -47,10 +47,7 @@ public class JiraService implements IssueManagement {
         String id = getIssueIdFromCommitComment(commitComment);
         if (id != null) {
             try {
-                org.codehaus.swizzle.jira.Issue swizzleIssue = jira.getIssue(id);
-                if (swizzleIssue != null) {
-                    issue = createIssueWrapper(swizzleIssue);
-                }
+				issue = createIssueWrapper(jira.getIssue(id));
             } catch (Throwable t) {
                 LOG.debug("Jira issue " + id + " not found or unable to work out its weight", t);
             }
