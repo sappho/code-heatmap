@@ -1,13 +1,15 @@
 package uk.org.sappho.code.heatmap.issues.jira;
 
-import uk.org.sappho.code.heatmap.issues.Issue;
+import org.codehaus.swizzle.jira.Issue;
 
-public class JiraIssueWrapper implements Issue {
+import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
-    private final org.codehaus.swizzle.jira.Issue issue;
-    private int weight;
+public class JiraIssueWrapper implements IssueWrapper {
 
-    public JiraIssueWrapper(org.codehaus.swizzle.jira.Issue issue, int weight) {
+    private final Issue issue;
+    private final int weight;
+
+    public JiraIssueWrapper(Issue issue, int weight) {
 
         this.issue = issue;
         this.weight = weight;

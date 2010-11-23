@@ -2,16 +2,16 @@ package uk.org.sappho.code.heatmap.engine;
 
 import java.util.List;
 
-import uk.org.sappho.code.heatmap.issues.Issue;
+import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
 public class Change {
 
     private final String revisionId;
     private final String commitComment;
-    private final Issue issue;
+    private final IssueWrapper issue;
     private final List<Filename> changedFiles;
 
-    public Change(String revisionId, String commitComment, Issue issue, List<Filename> changedFiles) {
+    public Change(String revisionId, String commitComment, IssueWrapper issue, List<Filename> changedFiles) {
 
         this.revisionId = revisionId;
         this.commitComment = commitComment;
@@ -29,7 +29,7 @@ public class Change {
         return commitComment;
     }
 
-    public final Issue getIssue() {
+    public final IssueWrapper getIssue() {
 
         return issue;
     }

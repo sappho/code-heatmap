@@ -20,7 +20,7 @@ import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.engine.Change;
 import uk.org.sappho.code.heatmap.engine.Filename;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
-import uk.org.sappho.code.heatmap.issues.Issue;
+import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 
 public class Subversion implements SCM {
@@ -138,7 +138,7 @@ public class Subversion implements SCM {
                         LOG.debug("Unable to determine type of " + filename + " so presuming it deleted");
                     }
                 }
-                Issue issue = issueManagement.getIssue(commitComment);
+                IssueWrapper issue = issueManagement.getIssue(commitComment);
                 if (issue != null) {
                     heatMapCollection.update(new Change(Long.toString(revision.getRevision()), commitComment, issue,
                             changedFiles));

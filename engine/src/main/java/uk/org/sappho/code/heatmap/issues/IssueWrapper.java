@@ -1,6 +1,6 @@
 package uk.org.sappho.code.heatmap.issues;
 
-public interface Issue {
+public interface IssueWrapper {
 
     public String getId() throws IssueManagementException;
 

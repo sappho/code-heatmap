@@ -8,13 +8,13 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
-import uk.org.sappho.code.heatmap.issues.Issue;
+import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 
 public class HeatMapItem implements Comparable<HeatMapItem> {
 
     private final String name;
-    private final Map<Issue, List<Change>> issues = new HashMap<Issue, List<Change>>();
+    private final Map<IssueWrapper, List<Change>> issues = new HashMap<IssueWrapper, List<Change>>();
     private static final Logger LOG = Logger.getLogger(HeatMapItem.class);
 
     public HeatMapItem(String name) {
@@ -24,7 +24,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
 
     public void update(Change change) throws IssueManagementException {
 
-        Issue issue = change.getIssue();
+        IssueWrapper issue = change.getIssue();
         List<Change> changes = issues.get(issue);
         if (changes == null) {
             changes = new Vector<Change>();
@@ -38,7 +38,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         return name;
     }
 
-    public Set<Issue> getIssues() {
+    public Set<IssueWrapper> getIssues() {
 
         return issues.keySet();
     }
@@ -60,7 +60,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
     public int getWeight() throws IssueManagementException {
 
         int weight = 0;
-        for (Issue issue : getIssues()) {
+        for (IssueWrapper issue : getIssues()) {
             weight += issue.getWeight();
         }
         return weight;
@@ -81,7 +81,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
     public String toString() {
 
         String str = name + " - " + getIssueCount() + " jira(s) and " + getChangeCount() + " change(s)\n   ";
-        for (Issue issue : getIssues()) {
+        for (IssueWrapper issue : getIssues()) {
             try {
                 str += " " + issue.getId();
             } catch (IssueManagementException e) {
