@@ -84,7 +84,7 @@ public class Subversion implements SCM {
         }
     }
 
-    public HeatMapCollection processChanges() throws SCMException {
+    public void processChanges(HeatMapCollection heatMapCollection) throws SCMException {
 
         String errorMessage = "Unable to find Subversion session parameters";
         try {
@@ -119,7 +119,6 @@ public class Subversion implements SCM {
             svnClient.logMessages(url + basePath, Revision.getInstance(endRevision), revisionRange,
                     false, true, true, revProps, 0, new LogMessageProcessor(revisions));
             LOG.info("Processing Subversion history");
-            HeatMapCollection heatMapCollection = new HeatMapCollection();
             for (SubversionRevision revision : revisions) {
                 String commitComment = (String) revision.getRevprops().get("svn:log");
                 LOG.debug("Processing rev. " + revision.getRevision() + " " + commitComment);
@@ -147,7 +146,6 @@ public class Subversion implements SCM {
                     LOG.debug("No issue found in commit comment: " + commitComment);
                 }
             }
-            return heatMapCollection;
         } catch (Throwable t) {
             throw new SCMException(errorMessage, t);
         }
