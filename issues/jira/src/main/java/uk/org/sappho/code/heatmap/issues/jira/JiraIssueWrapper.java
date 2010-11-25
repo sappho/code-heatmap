@@ -1,15 +1,15 @@
 package uk.org.sappho.code.heatmap.issues.jira;
 
-import org.codehaus.swizzle.jira.Issue;
+import com.atlassian.jira.rpc.soap.client.RemoteIssue;
 
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
 public class JiraIssueWrapper implements IssueWrapper {
 
-    private final Issue issue;
+    private final RemoteIssue issue;
     private final int weight;
 
-    public JiraIssueWrapper(Issue issue, int weight) {
+    public JiraIssueWrapper(RemoteIssue issue, int weight) {
 
         this.issue = issue;
         this.weight = weight;
@@ -18,11 +18,6 @@ public class JiraIssueWrapper implements IssueWrapper {
     public String getId() {
 
         return issue.getKey();
-    }
-
-    public String getTypeName() {
-
-        return issue.getType().getName();
     }
 
     public String getSummary() {

@@ -1,15 +1,16 @@
 package uk.org.sappho.code.heatmap.issues.jira;
 
+import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.codehaus.swizzle.jira.Issue;
-import org.codehaus.swizzle.jira.Jira;
 
+import com.atlassian.jira.rpc.soap.client.JiraSoapService;
+import com.atlassian.jira.rpc.soap.client.JiraSoapServiceServiceLocator;
+import com.atlassian.jira.rpc.soap.client.RemoteIssue;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -21,9 +22,10 @@ import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 @Singleton
 public class JiraService implements IssueManagement {
 
-    protected Jira jira = null;
+    protected JiraSoapService jiraSoapService = null;
+    protected String JiraSoapServiceToken = null;
     protected Map<String, IssueWrapper> allowedIssues = new HashMap<String, IssueWrapper>();
-    protected Map<Issue, Issue> subTaskParents = new HashMap<Issue, Issue>();
+    protected Map<RemoteIssue, RemoteIssue> subTaskParents = new HashMap<RemoteIssue, RemoteIssue>();
     protected Map<String, Integer> issueTypeWeightMultipliers = new HashMap<String, Integer>();
     protected Configuration config;
     protected static final Pattern SIMPLE_JIRA_REGEX = Pattern.compile("^([A-Z]+-[0-9]+):.*$");
@@ -42,10 +44,12 @@ public class JiraService implements IssueManagement {
 
         String url = config.getProperty("jira.url", "http://example.com");
         String username = config.getProperty("jira.username", "nobody");
+        String password = config.getProperty("jira.password", "nopassword");
         LOG.info("Connecting to " + url + " as " + username);
         try {
-            jira = new Jira(url);
-            jira.login(username, config.getProperty("jira.password", "nopassword"));
+            jiraSoapService = new JiraSoapServiceServiceLocator().getJirasoapserviceV2(new URL(url
+                    + "/rpc/soap/jirasoapservice-v2"));
+            JiraSoapServiceToken = jiraSoapService.login(username, password);
         } catch (Throwable t) {
             throw new IssueManagementException("Unable to log in to Jira at " + url + " as user " + username, t);
         }
@@ -54,20 +58,23 @@ public class JiraService implements IssueManagement {
     protected void getAllowedIssues() throws IssueManagementException {
 
         LOG.info("Getting list of allowed issues");
-        List<Issue> issues;
+        RemoteIssue[] issues;
         try {
-            issues = jira.getIssuesFromFilter(Integer.parseInt(config.getProperty("jira.filter.issues.allowed")));
+            issues = jiraSoapService.getIssuesFromFilter(JiraSoapServiceToken, config
+                    .getProperty("jira.filter.issues.allowed"));
             // map all subtasks back to their parents
-            for (Issue issue : issues) {
-                List<Issue> subTasks = issue.getSubTasks();
-                for (Issue subTask : subTasks) {
+            for (RemoteIssue issue : issues) {
+                RemoteIssue[] subTasks = jiraSoapService.getIssuesFromJqlSearch(JiraSoapServiceToken, "parent = "
+                        + issue.getKey(),
+                        200);
+                for (RemoteIssue subTask : subTasks) {
                     LOG.info("Mapping " + subTask.getKey() + " to parent issue " + issue.getKey());
                     subTaskParents.put(subTask, issue);
                 }
             }
             // create issue wrappers for all allowed root (non-subtask) issues
-            for (Issue issue : issues) {
-                Issue parent = subTaskParents.get(issue);
+            for (RemoteIssue issue : issues) {
+                RemoteIssue parent = subTaskParents.get(issue);
                 if (parent == null) {
                     String issueId = issue.getKey();
                     IssueWrapper issueWrapper = createIssueWrapper(issue);
@@ -75,8 +82,8 @@ public class JiraService implements IssueManagement {
                 }
             }
             // map subtask issues to parents
-            for (Issue issue : issues) {
-                Issue parent = subTaskParents.get(issue);
+            for (RemoteIssue issue : issues) {
+                RemoteIssue parent = subTaskParents.get(issue);
                 if (parent != null) {
                     String issueId = issue.getKey();
                     String parentId = parent.getKey();
@@ -94,10 +101,10 @@ public class JiraService implements IssueManagement {
         }
     }
 
-    protected IssueWrapper createIssueWrapper(Issue issue) throws IssueManagementException {
+    protected IssueWrapper createIssueWrapper(RemoteIssue issue) throws IssueManagementException {
 
         IssueWrapper issueWrapper = null;
-        int typeId = issue.getType().getId();
+        String typeId = issue.getType();
         String typeName = config.getProperty("jira.type.map.id." + typeId, "housekeeping");
         Integer weight = issueTypeWeightMultipliers.get(typeName);
         if (weight == null) {
