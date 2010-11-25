@@ -60,8 +60,8 @@ public class JiraService implements IssueManagement {
         LOG.info("Getting list of allowed issues");
         RemoteIssue[] issues;
         try {
-            issues = jiraSoapService.getIssuesFromFilter(JiraSoapServiceToken, config
-                    .getProperty("jira.filter.issues.allowed"));
+            issues = jiraSoapService.getIssuesFromJqlSearch(JiraSoapServiceToken, config
+                    .getProperty("jira.filter.issues.allowed"), 1000);
             // map all subtasks back to their parents
             for (RemoteIssue issue : issues) {
                 RemoteIssue[] subTasks = jiraSoapService.getIssuesFromJqlSearch(JiraSoapServiceToken, "parent = "
