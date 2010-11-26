@@ -64,14 +64,18 @@ public class JiraService implements IssueManagement {
         LOG.info("Getting list of allowed issues");
         try {
             // get all tasks we're prepared to deal with
-            RemoteIssue[] remoteIssues = jiraSoapService.getIssuesFromJqlSearch(JiraSoapServiceToken, config
-                    .getProperty("jira.filter.issues.allowed"), 1000);
+            String jql = config.getProperty("jira.filter.issues.allowed");
+            LOG.info("Running Jira query: " + jql);
+            RemoteIssue[] remoteIssues = jiraSoapService.getIssuesFromJqlSearch(JiraSoapServiceToken, jql, 5000);
+            LOG.info("Processing " + remoteIssues.length + " issues returned by query");
             // map all subtasks back to their parents
             Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
             Map<String, String> subTaskParents = new HashMap<String, String>();
             for (RemoteIssue remoteIssue : remoteIssues) {
                 String issueKey = remoteIssue.getKey();
-                mappedRemoteIssues.put(issueKey, remoteIssue);
+                if (mappedRemoteIssues.get(issueKey) == null) {
+                    mappedRemoteIssues.put(issueKey, remoteIssue);
+                }
                 RemoteIssue[] subTasks = jiraSoapService.getIssuesFromJqlSearch(JiraSoapServiceToken, "parent = "
                         + issueKey, 200);
                 for (RemoteIssue subTask : subTasks) {
@@ -83,6 +87,8 @@ public class JiraService implements IssueManagement {
                     subTaskParents.put(subTaskKey, issueKey);
                 }
             }
+            LOG.info("Processed " + mappedRemoteIssues.size()
+                    + " issues - added subtasks might have inflated this figure");
             // create issue wrappers for all allowed root (non-subtask) issues
             for (String issueKey : mappedRemoteIssues.keySet()) {
                 String parentKey = subTaskParents.get(issueKey);
