@@ -8,8 +8,8 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
-import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
+import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
 public class HeatMapItem implements Comparable<HeatMapItem> {
 
@@ -82,11 +82,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
 
         String str = name + " - " + getIssueCount() + " jira(s) and " + getChangeCount() + " change(s)\n   ";
         for (IssueWrapper issue : getIssues()) {
-            try {
-                str += " " + issue.getId();
-            } catch (IssueManagementException e) {
-                LOG.error("Issue management error", e);
-            }
+            str += " " + issue.getKey();
         }
         return str;
     }

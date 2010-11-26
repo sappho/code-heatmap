@@ -2,9 +2,11 @@ package uk.org.sappho.code.heatmap.issues;
 
 public interface IssueWrapper {
 
-    public String getId() throws IssueManagementException;
+    public String getKey();
 
-    public String getSummary() throws IssueManagementException;
+    public String getSubTaskKey();
 
-    public int getWeight() throws IssueManagementException;
+    public String getSummary();
+
+    public int getWeight();
 }

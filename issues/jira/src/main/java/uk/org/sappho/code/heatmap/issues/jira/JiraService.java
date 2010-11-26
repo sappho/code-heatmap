@@ -25,7 +25,6 @@ public class JiraService implements IssueManagement {
     protected JiraSoapService jiraSoapService = null;
     protected String JiraSoapServiceToken = null;
     protected Map<String, IssueWrapper> allowedIssues = new HashMap<String, IssueWrapper>();
-    protected Map<RemoteIssue, RemoteIssue> subTaskParents = new HashMap<RemoteIssue, RemoteIssue>();
     protected Map<String, Integer> issueTypeWeightMultipliers = new HashMap<String, Integer>();
     protected Configuration config;
     protected static final Pattern SIMPLE_JIRA_REGEX = Pattern.compile("^([A-Z]+-[0-9]+):.*$");
@@ -57,51 +56,46 @@ public class JiraService implements IssueManagement {
 
     protected void getAllowedIssues() throws IssueManagementException {
 
+        /**
+         * note: this is a bit rubbish but because jira's soap interface doesn't have a getParent function it's the only way to fake it
+         * making this better will require an installed plugin
+         * **/
         LOG.info("Getting list of allowed issues");
-        RemoteIssue[] issues;
         try {
-            issues = jiraSoapService.getIssuesFromJqlSearch(JiraSoapServiceToken, config
+            // get all tasks we're prepared to deal with
+            RemoteIssue[] remoteIssues = jiraSoapService.getIssuesFromJqlSearch(JiraSoapServiceToken, config
                     .getProperty("jira.filter.issues.allowed"), 1000);
             // map all subtasks back to their parents
-            for (RemoteIssue issue : issues) {
+            Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
+            Map<String, String> subTaskParents = new HashMap<String, String>();
+            for (RemoteIssue remoteIssue : remoteIssues) {
+                String issueKey = remoteIssue.getKey();
+                mappedRemoteIssues.put(issueKey, remoteIssue);
                 RemoteIssue[] subTasks = jiraSoapService.getIssuesFromJqlSearch(JiraSoapServiceToken, "parent = "
-                        + issue.getKey(),
-                        200);
+                        + issueKey, 200);
                 for (RemoteIssue subTask : subTasks) {
-                    LOG.info("Mapping " + subTask.getKey() + " to parent issue " + issue.getKey());
-                    subTaskParents.put(subTask, issue);
+                    String subTaskKey = subTask.getKey();
+                    LOG.info("Mapping " + subTaskKey + " to parent issue " + issueKey);
+                    if (mappedRemoteIssues.get(subTaskKey) == null) {
+                        mappedRemoteIssues.put(subTaskKey, subTask);
+                    }
+                    subTaskParents.put(subTaskKey, issueKey);
                 }
             }
             // create issue wrappers for all allowed root (non-subtask) issues
-            for (RemoteIssue issue : issues) {
-                RemoteIssue parent = subTaskParents.get(issue);
-                if (parent == null) {
-                    String issueId = issue.getKey();
-                    IssueWrapper issueWrapper = createIssueWrapper(issue);
-                    allowedIssues.put(issueId, issueWrapper);
-                }
-            }
-            // map subtask issues to parents
-            for (RemoteIssue issue : issues) {
-                RemoteIssue parent = subTaskParents.get(issue);
-                if (parent != null) {
-                    String issueId = issue.getKey();
-                    String parentId = parent.getKey();
-                    IssueWrapper issueWrapper = allowedIssues.get(parentId);
-                    if (issueWrapper != null) {
-                        allowedIssues.put(issueId, issueWrapper);
-                    } else {
-                        LOG.info("Mapping " + issueId + " to parent issue " + parentId
-                                + " not actually possible because parent is not allowed by filter");
-                    }
-                }
+            for (String issueKey : mappedRemoteIssues.keySet()) {
+                String parentKey = subTaskParents.get(issueKey);
+                IssueWrapper issueWrapper = parentKey != null ?
+                        createIssueWrapper(mappedRemoteIssues.get(parentKey), issueKey) :
+                        createIssueWrapper(mappedRemoteIssues.get(issueKey), "");
+                allowedIssues.put(issueKey, issueWrapper);
             }
         } catch (Throwable t) {
             throw new IssueManagementException("Unable to get list of allowed issues", t);
         }
     }
 
-    protected IssueWrapper createIssueWrapper(RemoteIssue issue) throws IssueManagementException {
+    protected IssueWrapper createIssueWrapper(RemoteIssue issue, String subTaskKey) throws IssueManagementException {
 
         IssueWrapper issueWrapper = null;
         String typeId = issue.getType();
@@ -118,7 +112,7 @@ public class JiraService implements IssueManagement {
             }
             issueTypeWeightMultipliers.put(typeName, weight);
         }
-        issueWrapper = new JiraIssueWrapper(issue, weight);
+        issueWrapper = new JiraIssueWrapper(issue, subTaskKey, weight);
         return issueWrapper;
     }
 

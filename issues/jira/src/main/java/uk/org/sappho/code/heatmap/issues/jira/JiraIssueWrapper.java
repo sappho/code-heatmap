@@ -6,23 +6,32 @@ import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
 public class JiraIssueWrapper implements IssueWrapper {
 
-    private final RemoteIssue issue;
+    private final String issueKey;
+    private final String summary;
+    private final String subTaskKey;
     private final int weight;
 
-    public JiraIssueWrapper(RemoteIssue issue, int weight) {
+    public JiraIssueWrapper(RemoteIssue issue, String subTaskKey, int weight) {
 
-        this.issue = issue;
+        issueKey = issue.getKey();
+        summary = issue.getSummary();
+        this.subTaskKey = subTaskKey;
         this.weight = weight;
     }
 
-    public String getId() {
+    public String getKey() {
 
-        return issue.getKey();
+        return issueKey;
+    }
+
+    public String getSubTaskKey() {
+
+        return subTaskKey;
     }
 
     public String getSummary() {
 
-        return issue.getSummary();
+        return summary;
     }
 
     public int getWeight() {
