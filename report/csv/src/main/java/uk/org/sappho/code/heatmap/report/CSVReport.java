@@ -51,7 +51,8 @@ public class CSVReport implements Report {
                     writer.write(item.getName() + seperator + item.getWeight() + seperator + item.getIssueCount()
                             + seperator + item.getChangeCount());
                     for (IssueWrapper issue : item.getIssues()) {
-                        writer.write(seperator + issue.getKey());
+                        String subTaskKey = issue.getSubTaskKey();
+                        writer.write(seperator + issue.getKey() + (subTaskKey != null ? " via " + subTaskKey : ""));
                     }
                     writer.write("\n");
                 }

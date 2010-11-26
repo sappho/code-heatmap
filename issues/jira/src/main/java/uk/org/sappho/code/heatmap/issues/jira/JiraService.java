@@ -88,7 +88,7 @@ public class JiraService implements IssueManagement {
                 String parentKey = subTaskParents.get(issueKey);
                 IssueWrapper issueWrapper = parentKey != null ?
                         createIssueWrapper(mappedRemoteIssues.get(parentKey), issueKey) :
-                        createIssueWrapper(mappedRemoteIssues.get(issueKey), "");
+                        createIssueWrapper(mappedRemoteIssues.get(issueKey), null);
                 allowedIssues.put(issueKey, issueWrapper);
             }
         } catch (Throwable t) {
