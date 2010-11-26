@@ -48,9 +48,9 @@ public class CSVReport implements Report {
                 writer.write(header + "\n");
                 HeatMap heatMap = heatMapCollection.getHeatMap(heatMapName);
                 for (HeatMapItem item : heatMap.getSortedList()) {
-                    writer.write(item.getName() + seperator + item.getWeight() + seperator + item.getIssueCount()
-                            + seperator + item.getChangeCount());
-                    for (IssueWrapper issue : item.getIssues()) {
+                    writer.write(item.getName() + seperator + item.getWeight() + seperator
+                            + item.getParentIssues().size() + seperator + item.getChangeCount());
+                    for (IssueWrapper issue : item.getParentIssues()) {
                         String subTaskKey = issue.getSubTaskKey();
                         writer.write(seperator + issue.getKey() + (subTaskKey != null ? " via " + subTaskKey : ""));
                     }

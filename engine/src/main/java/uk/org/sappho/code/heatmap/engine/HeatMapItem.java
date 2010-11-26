@@ -15,6 +15,8 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
 
     private final String name;
     private final Map<IssueWrapper, List<Change>> issues = new HashMap<IssueWrapper, List<Change>>();
+    private final Map<IssueWrapper, List<Change>> parentIssues = new HashMap<IssueWrapper, List<Change>>();
+    private final Map<String, IssueWrapper> mappedParentIssues = new HashMap<String, IssueWrapper>();
     private static final Logger LOG = Logger.getLogger(HeatMapItem.class);
 
     public HeatMapItem(String name) {
@@ -25,10 +27,23 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
     public void update(Change change) throws IssueManagementException {
 
         IssueWrapper issue = change.getIssue();
+        String issueKey = issue.getKey();
         List<Change> changes = issues.get(issue);
         if (changes == null) {
             changes = new Vector<Change>();
             issues.put(issue, changes);
+        }
+        changes.add(change);
+        IssueWrapper parentIssue = mappedParentIssues.get(issueKey);
+        if (parentIssue != null) {
+            issue = parentIssue;
+        } else {
+            mappedParentIssues.put(issueKey, issue);
+        }
+        changes = parentIssues.get(issue);
+        if (changes == null) {
+            changes = new Vector<Change>();
+            parentIssues.put(issue, changes);
         }
         changes.add(change);
     }
@@ -43,9 +58,9 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         return issues.keySet();
     }
 
-    public int getIssueCount() {
+    public Set<IssueWrapper> getParentIssues() {
 
-        return issues.size();
+        return parentIssues.keySet();
     }
 
     public int getChangeCount() {
@@ -60,7 +75,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
     public int getWeight() throws IssueManagementException {
 
         int weight = 0;
-        for (IssueWrapper issue : getIssues()) {
+        for (IssueWrapper issue : getParentIssues()) {
             weight += issue.getWeight();
         }
         return weight;
@@ -80,7 +95,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
     @Override
     public String toString() {
 
-        String str = name + " - " + getIssueCount() + " jira(s) and " + getChangeCount() + " change(s)\n   ";
+        String str = name + " - " + getParentIssues().size() + " jira(s) and " + getChangeCount() + " change(s)\n   ";
         for (IssueWrapper issue : getIssues()) {
             str += " " + issue.getKey();
         }
