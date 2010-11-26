@@ -81,6 +81,17 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         return weight;
     }
 
+    public String getWeightFormula() throws IssueManagementException {
+
+        String formula = "";
+        String prefix = "";
+        for (IssueWrapper issue : getParentIssues()) {
+            formula += prefix + issue.getKey() + ":" + issue.getWeight();
+            prefix = " + ";
+        }
+        return formula;
+    }
+
     public int compareTo(HeatMapItem other) {
 
         int comparison = 0;

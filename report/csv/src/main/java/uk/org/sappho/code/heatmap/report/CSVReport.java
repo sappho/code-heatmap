@@ -35,7 +35,7 @@ public class CSVReport implements Report {
             String seperator = config.getProperty("csv.seperator", ",");
             String header = config.getProperty("csv.header",
                     "Item Name" + seperator + "Change Issue Count" + seperator
-                            + "Change Count" + seperator + "Issues");
+                            + "Change Count" + seperator + "Issues" + seperator + "Formula");
             LOG.debug("CSV Report parameters:");
             LOG.debug("basePath:  " + basePath);
             LOG.debug("extension: " + extension);
@@ -50,11 +50,12 @@ public class CSVReport implements Report {
                 for (HeatMapItem item : heatMap.getSortedList()) {
                     writer.write(item.getName() + seperator + item.getWeight() + seperator
                             + item.getParentIssues().size() + seperator + item.getChangeCount());
+                    String prefix = seperator;
                     for (IssueWrapper issue : item.getParentIssues()) {
-                        String subTaskKey = issue.getSubTaskKey();
-                        writer.write(seperator + issue.getKey() + (subTaskKey != null ? " via " + subTaskKey : ""));
+                        writer.write(prefix + issue.getKey());
+                        prefix = " ";
                     }
-                    writer.write("\n");
+                    writer.write(seperator + item.getWeightFormula() + "\n");
                 }
                 writer.close();
                 LOG.debug("Written " + filename);
