@@ -25,6 +25,7 @@ public class JiraService implements IssueManagement {
     protected JiraSoapService jiraSoapService = null;
     protected String JiraSoapServiceToken = null;
     protected Map<String, IssueWrapper> allowedIssues = new HashMap<String, IssueWrapper>();
+    protected Map<String, String> issueTypes = new HashMap<String, String>();
     protected Map<String, Integer> issueTypeWeightMultipliers = new HashMap<String, Integer>();
     protected Configuration config;
     protected static final Pattern SIMPLE_JIRA_REGEX = Pattern.compile("^([A-Z]+-[0-9]+):.*$");
@@ -99,21 +100,25 @@ public class JiraService implements IssueManagement {
 
         IssueWrapper issueWrapper = null;
         String typeId = issue.getType();
-        String typeName = config.getProperty("jira.type.map.id." + typeId, "housekeeping");
+        String typeName = issueTypes.get(typeId);
+        if (typeName == null) {
+            typeName = config.getProperty("jira.type.map.id." + typeId, "housekeeping");
+            LOG.info("Mapping raw issue type " + typeId + " to " + typeName);
+            issueTypes.put(typeId, typeName);
+        }
         Integer weight = issueTypeWeightMultipliers.get(typeName);
         if (weight == null) {
             String typeNameKey = "jira.type.multiplier." + typeName;
             try {
                 weight = Integer.parseInt(config.getProperty(typeNameKey, "0"));
-                LOG.info("Weight of issue type " + typeName + " is " + weight);
             } catch (Throwable t) {
                 throw new IssueManagementException(
                             "Issue type weight configuration \"" + typeNameKey + "\" is invalid", t);
             }
+            LOG.info("Weight of issue type " + typeName + " is " + weight);
             issueTypeWeightMultipliers.put(typeName, weight);
         }
-        issueWrapper = new JiraIssueWrapper(issue, subTaskKey, weight);
-        return issueWrapper;
+        return new JiraIssueWrapper(issue, subTaskKey, weight);
     }
 
     protected String getIssueIdFromCommitComment(String commitComment) {
