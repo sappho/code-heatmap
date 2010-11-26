@@ -127,7 +127,7 @@ public class JiraService implements IssueManagement {
         if (matcher.matches()) {
             key = matcher.group(1);
         } else {
-            LOG.debug("No issue ID found in commit comment: " + commitComment);
+            LOG.info("No issue ID found in commit comment: " + commitComment);
         }
         return key;
     }
