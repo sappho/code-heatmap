@@ -1,6 +1,5 @@
 package uk.org.sappho.code.heatmap.issues.jira;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -8,8 +7,6 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.rpc.soap.client.JiraSoapService;
-import com.atlassian.jira.rpc.soap.client.JiraSoapServiceServiceLocator;
 import com.atlassian.jira.rpc.soap.client.RemoteIssue;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -18,12 +15,12 @@ import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
+import uk.org.sappho.jira4j.soap.JiraSoapService;
 
 @Singleton
 public class JiraService implements IssueManagement {
 
     protected JiraSoapService jiraSoapService = null;
-    protected String JiraSoapServiceToken = null;
     protected Map<String, IssueWrapper> allowedIssues = new HashMap<String, IssueWrapper>();
     protected Map<String, String> issueTypes = new HashMap<String, String>();
     protected Map<String, Integer> issueTypeWeightMultipliers = new HashMap<String, Integer>();
@@ -47,9 +44,7 @@ public class JiraService implements IssueManagement {
         String password = config.getProperty("jira.password", "nopassword");
         LOG.info("Connecting to " + url + " as " + username);
         try {
-            jiraSoapService = new JiraSoapServiceServiceLocator().getJirasoapserviceV2(new URL(url
-                    + "/rpc/soap/jirasoapservice-v2"));
-            JiraSoapServiceToken = jiraSoapService.login(username, password);
+            jiraSoapService = new JiraSoapService(url, username, password);
         } catch (Throwable t) {
             throw new IssueManagementException("Unable to log in to Jira at " + url + " as user " + username, t);
         }
@@ -66,7 +61,8 @@ public class JiraService implements IssueManagement {
             // get all tasks we're prepared to deal with
             String jql = config.getProperty("jira.filter.issues.allowed");
             LOG.info("Running Jira query: " + jql);
-            RemoteIssue[] remoteIssues = jiraSoapService.getIssuesFromJqlSearch(JiraSoapServiceToken, jql, 5000);
+            RemoteIssue[] remoteIssues = jiraSoapService.getService().getIssuesFromJqlSearch(
+                    jiraSoapService.getToken(), jql, 5000);
             LOG.info("Processing " + remoteIssues.length + " issues returned by query");
             // map all subtasks back to their parents
             Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
@@ -76,8 +72,8 @@ public class JiraService implements IssueManagement {
                 if (mappedRemoteIssues.get(issueKey) == null) {
                     mappedRemoteIssues.put(issueKey, remoteIssue);
                 }
-                RemoteIssue[] subTasks = jiraSoapService.getIssuesFromJqlSearch(JiraSoapServiceToken, "parent = "
-                        + issueKey, 200);
+                RemoteIssue[] subTasks = jiraSoapService.getService().getIssuesFromJqlSearch(
+                        jiraSoapService.getToken(), "parent = " + issueKey, 200);
                 for (RemoteIssue subTask : subTasks) {
                     String subTaskKey = subTask.getKey();
                     LOG.info("Mapping " + subTaskKey + " to parent issue " + issueKey);
