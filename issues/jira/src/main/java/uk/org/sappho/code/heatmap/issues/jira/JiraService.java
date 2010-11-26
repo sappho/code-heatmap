@@ -98,7 +98,6 @@ public class JiraService implements IssueManagement {
 
     protected IssueWrapper createIssueWrapper(RemoteIssue issue, String subTaskKey) throws IssueManagementException {
 
-        IssueWrapper issueWrapper = null;
         String typeId = issue.getType();
         String typeName = issueTypes.get(typeId);
         if (typeName == null) {
