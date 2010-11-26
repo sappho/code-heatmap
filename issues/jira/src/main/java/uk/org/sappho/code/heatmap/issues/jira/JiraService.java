@@ -28,7 +28,7 @@ public class JiraService implements IssueManagement {
     protected Map<String, String> issueTypes = new HashMap<String, String>();
     protected Map<String, Integer> issueTypeWeightMultipliers = new HashMap<String, Integer>();
     protected Configuration config;
-    protected static final Pattern SIMPLE_JIRA_REGEX = Pattern.compile("^([A-Z]+-[0-9]+):.*$");
+    protected static final Pattern SIMPLE_JIRA_REGEX = Pattern.compile("^([a-zA-Z]{2,}-\\d+):.*$");
     private static final Logger LOG = Logger.getLogger(JiraService.class);
 
     @Inject
@@ -120,24 +120,24 @@ public class JiraService implements IssueManagement {
         return new JiraIssueWrapper(issue, subTaskKey, weight);
     }
 
-    protected String getIssueIdFromCommitComment(String commitComment) {
+    protected String getIssueKeyFromCommitComment(String commitComment) {
 
-        String id = null;
+        String key = null;
         Matcher matcher = SIMPLE_JIRA_REGEX.matcher(commitComment.split("\n")[0]);
         if (matcher.matches()) {
-            id = matcher.group(1);
+            key = matcher.group(1);
         } else {
             LOG.debug("No issue ID found in commit comment: " + commitComment);
         }
-        return id;
+        return key;
     }
 
     public IssueWrapper getIssue(String commitComment) {
 
         IssueWrapper issue = null;
-        String id = getIssueIdFromCommitComment(commitComment);
-        if (id != null) {
-            issue = allowedIssues.get(id);
+        String key = getIssueKeyFromCommitComment(commitComment);
+        if (key != null) {
+            issue = allowedIssues.get(key);
         }
         return issue;
     }
