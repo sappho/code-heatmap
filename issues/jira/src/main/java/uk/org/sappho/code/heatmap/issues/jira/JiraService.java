@@ -87,8 +87,6 @@ public class JiraService implements IssueManagement {
                     subTaskParents.put(subTaskKey, issueKey);
                 }
             }
-            LOG.info("Processed " + mappedRemoteIssues.size()
-                    + " issues - added subtasks might have inflated this figure");
             // create issue wrappers for all allowed root (non-subtask) issues
             for (String issueKey : mappedRemoteIssues.keySet()) {
                 String parentKey = subTaskParents.get(issueKey);
@@ -97,6 +95,8 @@ public class JiraService implements IssueManagement {
                         createIssueWrapper(mappedRemoteIssues.get(issueKey), null);
                 allowedIssues.put(issueKey, issueWrapper);
             }
+            LOG.info("Processed " + mappedRemoteIssues.size()
+                    + " issues - added subtasks might have inflated this figure");
         } catch (Throwable t) {
             throw new IssueManagementException("Unable to get list of allowed issues", t);
         }
