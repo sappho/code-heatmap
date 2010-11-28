@@ -49,4 +49,22 @@ public class ConfigurationFile implements Configuration {
 
         properties.setProperty(name, value);
     }
+
+    public Class<?> getPlugin(String name, String defaultPackage) throws ConfigurationException {
+
+        String className = getProperty(name);
+        Class<?> clazz;
+        try {
+            clazz = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            className = defaultPackage + "." + className;
+            try {
+                clazz = Class.forName(className);
+            } catch (ClassNotFoundException e1) {
+                throw new ConfigurationException("Unable to load plugin " + className
+                        + " from configuration parameter " + name, e1);
+            }
+        }
+        return clazz;
+    }
 }

@@ -31,10 +31,12 @@ public class CodeHeatMapApp extends AbstractModule {
             LOG.debug("Configuring plugins");
             ConfigurationFile config = new ConfigurationFile(filename);
             bind(Configuration.class).toInstance(config);
-            bind(SCM.class).to((Class<? extends SCM>) Class.forName(config.getProperty("scm.plugin")));
-            bind(Report.class).to((Class<? extends Report>) Class.forName(config.getProperty("report.plugin")));
+            bind(SCM.class).to((Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.heatmap.scm"));
+            bind(Report.class).to(
+                    (Class<? extends Report>) config.getPlugin("report.plugin", "uk.org.sappho.code.heatmap.report"));
             bind(IssueManagement.class).to(
-                    (Class<? extends IssueManagement>) Class.forName(config.getProperty("issues.plugin")));
+                    (Class<? extends IssueManagement>) config.getPlugin("issues.plugin",
+                            "uk.org.sappho.code.heatmap.issues"));
         } catch (Throwable t) {
             // ignore this because it gives little away and errors are properly caught in main
         }
