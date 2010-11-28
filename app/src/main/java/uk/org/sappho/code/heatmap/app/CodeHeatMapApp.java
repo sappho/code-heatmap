@@ -38,7 +38,7 @@ public class CodeHeatMapApp extends AbstractModule {
                     (Class<? extends IssueManagement>) config.getPlugin("issues.plugin",
                             "uk.org.sappho.code.heatmap.issues"));
         } catch (Throwable t) {
-            // ignore this because it gives little away and errors are properly caught in main
+            LOG.error("Unable to load plugins", t);
         }
     }
 
