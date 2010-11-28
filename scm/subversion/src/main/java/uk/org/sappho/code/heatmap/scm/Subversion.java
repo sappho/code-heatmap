@@ -20,8 +20,8 @@ import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.engine.Change;
 import uk.org.sappho.code.heatmap.engine.Filename;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
-import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
+import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
 public class Subversion implements SCM {
 

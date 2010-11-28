@@ -20,10 +20,9 @@ public class ConfigurationFile implements Configuration {
     private static final Logger LOG = Logger.getLogger(ConfigurationFile.class);
 
     @Inject
-    public ConfigurationFile() throws FileNotFoundException, IOException {
+    public ConfigurationFile(String filename) throws FileNotFoundException, IOException {
 
         LOG.info("Using plain properties file configuration plugin");
-        String filename = System.getProperty("config.filename");
         if (filename != null) {
             LOG.info("Loading configuration from " + filename);
             properties.load(new FileReader(filename));

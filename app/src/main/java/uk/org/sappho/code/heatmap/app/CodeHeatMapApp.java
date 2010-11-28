@@ -15,7 +15,13 @@ import uk.org.sappho.code.heatmap.scm.SCM;
 
 public class CodeHeatMapApp extends AbstractModule {
 
+    private final String filename;
     private static final Logger LOG = Logger.getLogger(CodeHeatMapApp.class);
+
+    public CodeHeatMapApp(String filename) {
+
+        this.filename = filename;
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -23,11 +29,12 @@ public class CodeHeatMapApp extends AbstractModule {
 
         try {
             LOG.debug("Configuring plugins");
-            bind(Configuration.class).to(ConfigurationFile.class);
-            bind(SCM.class).to((Class<? extends SCM>) Class.forName(System.getProperty("scm.implementation")));
-            bind(Report.class).to((Class<? extends Report>) Class.forName(System.getProperty("report.implementation")));
+            ConfigurationFile config = new ConfigurationFile(filename);
+            bind(Configuration.class).toInstance(config);
+            bind(SCM.class).to((Class<? extends SCM>) Class.forName(config.getProperty("scm.plugin")));
+            bind(Report.class).to((Class<? extends Report>) Class.forName(config.getProperty("report.plugin")));
             bind(IssueManagement.class).to(
-                    (Class<? extends IssueManagement>) Class.forName(System.getProperty("issues.implementation")));
+                    (Class<? extends IssueManagement>) Class.forName(config.getProperty("issues.plugin")));
         } catch (Throwable t) {
             // ignore this because it gives little away and errors are properly caught in main
         }
@@ -35,12 +42,16 @@ public class CodeHeatMapApp extends AbstractModule {
 
     public static void main(String[] args) {
 
-        try {
-            Injector injector = Guice.createInjector(new CodeHeatMapApp());
-            CodeHeatMapEngine engine = injector.getInstance(CodeHeatMapEngine.class);
-            engine.writeReport();
-        } catch (Throwable t) {
-            LOG.error("Application error", t);
+        if (args.length == 1) {
+            try {
+                Injector injector = Guice.createInjector(new CodeHeatMapApp(args[0]));
+                CodeHeatMapEngine engine = injector.getInstance(CodeHeatMapEngine.class);
+                engine.writeReport();
+            } catch (Throwable t) {
+                LOG.error("Application error", t);
+            }
+        } else {
+            LOG.info("Specify the name of a configuration file on the command line");
         }
     }
 }
