@@ -12,6 +12,8 @@ import uk.org.sappho.code.heatmap.engine.CodeHeatMapEngine;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.scm.SCM;
+import uk.org.sappho.code.heatmap.warnings.Warnings;
+import uk.org.sappho.code.heatmap.warnings.impl.WarningsList;
 
 public class CodeHeatMapApp extends AbstractModule {
 
@@ -31,6 +33,8 @@ public class CodeHeatMapApp extends AbstractModule {
 
         try {
             LOG.debug("Configuring plugins");
+            Warnings warnings = new WarningsList();
+            bind(Warnings.class).toInstance(warnings);
             ConfigurationFile config = new ConfigurationFile();
             config.load(commonPropertiesFilename);
             config.load(instancePropertiesFilename);
