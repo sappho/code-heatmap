@@ -2,7 +2,6 @@ package uk.org.sappho.code.heatmap.issues.jira;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,6 +17,7 @@ import uk.org.sappho.code.heatmap.config.ConfigurationException;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
+import uk.org.sappho.code.heatmap.issues.Releases;
 import uk.org.sappho.code.heatmap.warnings.Warnings;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
 
@@ -27,6 +27,7 @@ public class JiraService implements IssueManagement {
     protected JiraSoapService jiraSoapService = null;
     protected Map<String, IssueWrapper> allowedIssues = new HashMap<String, IssueWrapper>();
     protected Map<String, String> releases = new HashMap<String, String>();
+    protected Map<String, String> versionWarnings = new HashMap<String, String>();
     protected Map<String, String> issueTypes = new HashMap<String, String>();
     protected Map<String, Integer> issueTypeWeightMultipliers = new HashMap<String, Integer>();
     protected Warnings warnings;
@@ -108,9 +109,21 @@ public class JiraService implements IssueManagement {
 
     protected IssueWrapper createIssueWrapper(RemoteIssue issue, String subTaskKey) throws IssueManagementException {
 
+        Releases issueReleases = new Releases();
         Map<String, String> issueReleaseMap = new HashMap<String, String>();
         for (RemoteVersion remoteVersion : issue.getFixVersions()) {
             String remoteVersionName = remoteVersion.getName();
+            String versionWarning = versionWarnings.get(remoteVersionName);
+            if (versionWarning == null) {
+                versionWarning = config.getProperty("jira.version.status." + remoteVersionName, "");
+                versionWarnings.put(remoteVersionName, versionWarning);
+                if (versionWarning.length() > 0) {
+                    warnings.add("Issue version", remoteVersionName + " " + versionWarning);
+                }
+            }
+            if (versionWarning.length() > 0) {
+                issueReleases.addWarning(remoteVersionName + " " + versionWarning);
+            }
             String release = releases.get(remoteVersionName);
             if (release == null) {
                 try {
@@ -123,10 +136,12 @@ public class JiraService implements IssueManagement {
             }
             issueReleaseMap.put(release, release);
         }
-        Set<String> issueReleases = issueReleaseMap.keySet();
-        if (issueReleases.size() == 0) {
+        for (String release : issueReleaseMap.keySet()) {
+            issueReleases.addRelease(release);
+        }
+        if (issueReleases.getReleases().size() == 0) {
             warnings.add(ISSUE_FIELDS, issue.getKey() + " has no fix version");
-        } else if (issueReleases.size() > 1) {
+        } else if (issueReleases.getReleases().size() > 1) {
             warnings.add(ISSUE_FIELDS, issue.getKey() + " has more than one fix version");
         }
         String typeId = issue.getType();

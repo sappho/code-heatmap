@@ -1,6 +1,5 @@
 package uk.org.sappho.code.heatmap.issues;
 
-import java.util.Set;
 
 public interface IssueWrapper {
 
@@ -10,7 +9,7 @@ public interface IssueWrapper {
 
     public String getSummary();
 
-    public Set<String> getReleases();
+    public Releases getReleases();
 
     public int getWeight();
 }
