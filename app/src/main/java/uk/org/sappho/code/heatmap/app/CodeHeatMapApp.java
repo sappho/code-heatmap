@@ -15,12 +15,14 @@ import uk.org.sappho.code.heatmap.scm.SCM;
 
 public class CodeHeatMapApp extends AbstractModule {
 
-    private final String filename;
+    private final String commonPropertiesFilename;
+    private final String instancePropertiesFilename;
     private static final Logger LOG = Logger.getLogger(CodeHeatMapApp.class);
 
-    public CodeHeatMapApp(String filename) {
+    public CodeHeatMapApp(String commonPropertiesFilename, String instancePropertiesFilename) {
 
-        this.filename = filename;
+        this.commonPropertiesFilename = commonPropertiesFilename;
+        this.instancePropertiesFilename = instancePropertiesFilename;
     }
 
     @SuppressWarnings("unchecked")
@@ -29,7 +31,9 @@ public class CodeHeatMapApp extends AbstractModule {
 
         try {
             LOG.debug("Configuring plugins");
-            ConfigurationFile config = new ConfigurationFile(filename);
+            ConfigurationFile config = new ConfigurationFile();
+            config.load(commonPropertiesFilename);
+            config.load(instancePropertiesFilename);
             bind(Configuration.class).toInstance(config);
             bind(SCM.class).to((Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.heatmap.scm"));
             bind(Report.class).to(
@@ -44,16 +48,16 @@ public class CodeHeatMapApp extends AbstractModule {
 
     public static void main(String[] args) {
 
-        if (args.length == 1) {
+        if (args.length == 2) {
             try {
-                Injector injector = Guice.createInjector(new CodeHeatMapApp(args[0]));
+                Injector injector = Guice.createInjector(new CodeHeatMapApp(args[0], args[1]));
                 CodeHeatMapEngine engine = injector.getInstance(CodeHeatMapEngine.class);
                 engine.writeReport();
             } catch (Throwable t) {
                 LOG.error("Application error", t);
             }
         } else {
-            LOG.info("Specify the name of a configuration file on the command line");
+            LOG.info("Specify the names of a common and instance configuration file on the command line");
         }
     }
 }

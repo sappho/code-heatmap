@@ -20,15 +20,15 @@ public class ConfigurationFile implements Configuration {
     private static final Logger LOG = Logger.getLogger(ConfigurationFile.class);
 
     @Inject
-    public ConfigurationFile(String filename) throws FileNotFoundException, IOException {
+    public ConfigurationFile() {
 
         LOG.info("Using plain properties file configuration plugin");
-        if (filename != null) {
-            LOG.info("Loading configuration from " + filename);
-            properties.load(new FileReader(filename));
-        } else {
-            LOG.info("Because config.filename system property does not exist only system properties will be used");
-        }
+    }
+
+    public void load(String filename) throws FileNotFoundException, IOException {
+
+        LOG.info("Loading configuration from " + filename);
+        properties.load(new FileReader(filename));
     }
 
     public String getProperty(String name) throws ConfigurationException {
