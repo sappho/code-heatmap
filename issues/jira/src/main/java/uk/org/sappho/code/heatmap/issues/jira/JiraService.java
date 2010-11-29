@@ -148,7 +148,7 @@ public class JiraService implements IssueManagement {
             warnings.add("Issue type weight", typeName + " = " + weight);
             issueTypeWeightMultipliers.put(typeName, weight);
         }
-        return new JiraIssueWrapper(issue, subTaskKey, weight);
+        return new JiraIssueWrapper(issue, subTaskKey, issueReleases, weight);
     }
 
     protected String getIssueKeyFromCommitComment(String commitComment) {
