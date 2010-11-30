@@ -10,13 +10,7 @@ import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 
 public class HeatMap {
 
-    private final String name;
     private final Map<String, HeatMapItem> heatMap = new HashMap<String, HeatMapItem>();
-
-    public HeatMap(String name) {
-
-        this.name = name;
-    }
 
     public void update(String name, ChangeSet change) throws IssueManagementException {
 

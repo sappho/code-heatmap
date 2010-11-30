@@ -22,7 +22,7 @@ public class HeatMapCollection {
     public HeatMapCollection() {
 
         for (String name : HEATMAPS) {
-            heatMaps.put(name, new HeatMap(name));
+            heatMaps.put(name, new HeatMap());
         }
     }
 
