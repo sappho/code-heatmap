@@ -117,7 +117,7 @@ public class Subversion implements SCM {
                     Revision.getInstance(endRevision)) };
             String[] revProps = new String[] { "svn:log" };
             svnClient.logMessages(url + basePath, Revision.getInstance(endRevision), revisionRange,
-                    false, true, true, revProps, 0, new LogMessageProcessor(revisions));
+                    false, false, false, revProps, 0, new LogMessageProcessor(revisions));
             LOG.info("Processing Subversion history");
             for (SubversionRevision revision : revisions) {
                 String commitComment = (String) revision.getRevprops().get("svn:log");
