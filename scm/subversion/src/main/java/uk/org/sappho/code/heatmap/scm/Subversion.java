@@ -142,8 +142,6 @@ public class Subversion implements SCM {
                 if (issue != null) {
                     heatMapCollection.update(new ChangeSet(Long.toString(revision.getRevision()), commitComment, issue,
                             changedFiles));
-                } else {
-                    LOG.debug("No issue found in commit comment: " + commitComment);
                 }
             }
         } catch (Throwable t) {
