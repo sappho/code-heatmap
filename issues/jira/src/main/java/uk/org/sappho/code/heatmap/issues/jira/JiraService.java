@@ -184,6 +184,10 @@ public class JiraService implements IssueManagement {
         String key = getIssueKeyFromCommitComment(commitComment);
         if (key != null) {
             issue = allowedIssues.get(key);
+            if (issue == null) {
+                warnings.add(ISSUE_FIELDS, "No Jira issue found for " + key
+                        + " - query specified in jira.filter.issues.allowed configuration too restrictive?");
+            }
         }
         return issue;
     }
