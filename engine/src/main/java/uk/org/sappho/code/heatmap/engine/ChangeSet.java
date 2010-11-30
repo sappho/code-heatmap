@@ -9,14 +9,15 @@ public class ChangeSet {
     private final String revisionId;
     private final String commitComment;
     private final IssueWrapper issue;
-    private final List<ConfigurableItem> changedFiles;
+    private final List<ConfigurableItem> configurableItems;
 
-    public ChangeSet(String revisionId, String commitComment, IssueWrapper issue, List<ConfigurableItem> changedFiles) {
+    public ChangeSet(String revisionId, String commitComment, IssueWrapper issue,
+            List<ConfigurableItem> configurableItems) {
 
         this.revisionId = revisionId;
         this.commitComment = commitComment;
         this.issue = issue;
-        this.changedFiles = changedFiles;
+        this.configurableItems = configurableItems;
     }
 
     public final String getRevisionId() {
@@ -34,8 +35,8 @@ public class ChangeSet {
         return issue;
     }
 
-    public final List<ConfigurableItem> getChangedFiles() {
+    public final List<ConfigurableItem> getConfigurableItems() {
 
-        return changedFiles;
+        return configurableItems;
     }
 }

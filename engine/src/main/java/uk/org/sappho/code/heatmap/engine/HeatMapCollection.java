@@ -25,7 +25,7 @@ public class HeatMapCollection {
 
     public void update(ChangeSet change) throws IssueManagementException {
 
-        for (ConfigurableItem changedFile : change.getChangedFiles()) {
+        for (ConfigurableItem changedFile : change.getConfigurableItems()) {
             heatMaps.get(DIRECTORY).update(changedFile.getDirectory(), change);
             heatMaps.get(FILENAME).update(changedFile.getFilename(), change);
             heatMaps.get(FULLFILENAME).update(changedFile.getFullFilename(), change);
