@@ -102,14 +102,4 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         }
         return comparison;
     }
-
-    @Override
-    public String toString() {
-
-        String str = name + " - " + getParentIssues().size() + " jira(s) and " + getChangeCount() + " change(s)\n   ";
-        for (IssueWrapper issue : getIssues()) {
-            str += " " + issue.getKey();
-        }
-        return str;
-    }
 }

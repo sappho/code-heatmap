@@ -34,15 +34,4 @@ public class HeatMap {
         Collections.sort(list);
         return list;
     }
-
-    @Override
-    public String toString() {
-
-        String str = "------------------------------------------------\n" + name
-                + "\n------------------------------------------------\n\n";
-        for (HeatMapItem item : getSortedList()) {
-            str += item.toString() + "\n";
-        }
-        return str;
-    }
 }

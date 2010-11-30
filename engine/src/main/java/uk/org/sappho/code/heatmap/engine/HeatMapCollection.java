@@ -40,14 +40,4 @@ public class HeatMapCollection {
 
         return heatMaps.get(name);
     }
-
-    @Override
-    public String toString() {
-
-        String str = "";
-        for (String name : HEATMAPS) {
-            str += "\n" + getHeatMap(name).toString();
-        }
-        return str;
-    }
 }
