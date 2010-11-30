@@ -3,8 +3,6 @@ package uk.org.sappho.code.heatmap.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.inject.Inject;
-
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 
 public class HeatMapCollection {
@@ -18,7 +16,6 @@ public class HeatMapCollection {
 
     private final Map<String, HeatMap> heatMaps = new HashMap<String, HeatMap>();
 
-    @Inject
     public HeatMapCollection() {
 
         for (String name : HEATMAPS) {
