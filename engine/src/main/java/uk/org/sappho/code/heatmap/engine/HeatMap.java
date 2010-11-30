@@ -12,12 +12,12 @@ public class HeatMap {
 
     private final Map<String, HeatMapItem> heatMapItems = new HashMap<String, HeatMapItem>();
 
-    public void update(String name, ChangeSet change) throws IssueManagementException {
+    public void update(String configurableItemName, ChangeSet change) throws IssueManagementException {
 
-        HeatMapItem item = heatMapItems.get(name);
+        HeatMapItem item = heatMapItems.get(configurableItemName);
         if (item == null) {
-            item = new HeatMapItem(name);
-            heatMapItems.put(name, item);
+            item = new HeatMapItem(configurableItemName);
+            heatMapItems.put(configurableItemName, item);
         }
         item.update(change);
     }

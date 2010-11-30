@@ -18,8 +18,8 @@ public class HeatMapCollection {
 
     public HeatMapCollection() {
 
-        for (String name : HEATMAPS) {
-            heatMaps.put(name, new HeatMap());
+        for (String heatMapName : HEATMAPS) {
+            heatMaps.put(heatMapName, new HeatMap());
         }
     }
 
@@ -36,8 +36,8 @@ public class HeatMapCollection {
         }
     }
 
-    public final HeatMap getHeatMap(String name) {
+    public final HeatMap getHeatMap(String heatMapName) {
 
-        return heatMaps.get(name);
+        return heatMaps.get(heatMapName);
     }
 }
