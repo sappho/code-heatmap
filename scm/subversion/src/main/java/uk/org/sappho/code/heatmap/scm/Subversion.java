@@ -19,7 +19,7 @@ import com.google.inject.Inject;
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.engine.ChangeSet;
 import uk.org.sappho.code.heatmap.engine.ConfigurableItem;
-import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
+import uk.org.sappho.code.heatmap.engine.HeatMaps;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
@@ -84,7 +84,7 @@ public class Subversion implements SCM {
         }
     }
 
-    public void processChanges(HeatMapCollection heatMapCollection) throws SCMException {
+    public void processChanges(HeatMaps heatMapCollection) throws SCMException {
 
         String errorMessage = "Unable to find Subversion session parameters";
         try {

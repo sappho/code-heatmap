@@ -5,7 +5,7 @@ import java.util.Map;
 
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 
-public class HeatMapCollection {
+public class HeatMaps {
 
     public static final String DIRECTORY = "directories";
     public static final String FILENAME = "filenames";
@@ -16,7 +16,7 @@ public class HeatMapCollection {
 
     private final Map<String, HeatMap> heatMaps = new HashMap<String, HeatMap>();
 
-    public HeatMapCollection() {
+    public HeatMaps() {
 
         for (String heatMapName : HEATMAPS) {
             heatMaps.put(heatMapName, new HeatMap());

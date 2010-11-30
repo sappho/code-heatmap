@@ -1,8 +1,8 @@
 package uk.org.sappho.code.heatmap.scm;
 
-import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
+import uk.org.sappho.code.heatmap.engine.HeatMaps;
 
 public interface SCM {
 
-    public void processChanges(HeatMapCollection heatMapCollection) throws SCMException;
+    public void processChanges(HeatMaps heatMapCollection) throws SCMException;
 }

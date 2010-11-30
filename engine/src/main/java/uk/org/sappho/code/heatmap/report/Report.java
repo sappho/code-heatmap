@@ -1,8 +1,8 @@
 package uk.org.sappho.code.heatmap.report;
 
-import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
+import uk.org.sappho.code.heatmap.engine.HeatMaps;
 
 public interface Report {
 
-    public void writeReport(HeatMapCollection heatMapCollection) throws ReportException;
+    public void writeReport(HeatMaps heatMapCollection) throws ReportException;
 }

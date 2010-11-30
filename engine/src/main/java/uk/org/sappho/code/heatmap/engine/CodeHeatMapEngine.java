@@ -25,7 +25,7 @@ public class CodeHeatMapEngine {
     public void writeReport() throws ReportException, SCMException {
 
         LOG.debug("Engine starting");
-        HeatMapCollection heatMapCollection = new HeatMapCollection();
+        HeatMaps heatMapCollection = new HeatMaps();
         scm.processChanges(heatMapCollection);
         report.writeReport(heatMapCollection);
         LOG.debug("Engine finished");

@@ -10,7 +10,7 @@ import com.google.inject.Inject;
 
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.engine.HeatMap;
-import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
+import uk.org.sappho.code.heatmap.engine.HeatMaps;
 import uk.org.sappho.code.heatmap.engine.HeatMapItem;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
@@ -26,7 +26,7 @@ public class CSVReport implements Report {
         this.config = config;
     }
 
-    public void writeReport(HeatMapCollection heatMapCollection) throws ReportException {
+    public void writeReport(HeatMaps heatMapCollection) throws ReportException {
 
         Writer writer = null;
         try {
@@ -41,7 +41,7 @@ public class CSVReport implements Report {
             LOG.debug("extension: " + extension);
             LOG.debug("seperator: " + seperator);
             LOG.debug("header:    " + header);
-            for (String heatMapName : HeatMapCollection.HEATMAPS) {
+            for (String heatMapName : HeatMaps.HEATMAPS) {
                 String filename = basePath + heatMapName + extension;
                 LOG.info("Writing CSV report " + filename);
                 writer = new FileWriter(filename);
