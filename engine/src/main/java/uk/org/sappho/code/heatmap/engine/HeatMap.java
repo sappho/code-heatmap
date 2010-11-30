@@ -12,17 +12,17 @@ public class HeatMap {
 
     private final Map<String, HeatMapItem> heatMapItems = new HashMap<String, HeatMapItem>();
 
-    public void update(String configurableItemName, ChangeSet change) throws IssueManagementException {
+    public void update(String configurableItemName, ChangeSet changeSet) throws IssueManagementException {
 
         HeatMapItem item = heatMapItems.get(configurableItemName);
         if (item == null) {
             item = new HeatMapItem(configurableItemName);
             heatMapItems.put(configurableItemName, item);
         }
-        item.update(change);
+        item.update(changeSet);
     }
 
-    public List<HeatMapItem> getSortedList() {
+    public List<HeatMapItem> getSortedHeatMapItems() {
 
         List<HeatMapItem> list = new Vector<HeatMapItem>(heatMapItems.values());
         Collections.sort(list);

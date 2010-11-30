@@ -10,8 +10,8 @@ import com.google.inject.Inject;
 
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.engine.HeatMap;
-import uk.org.sappho.code.heatmap.engine.HeatMaps;
 import uk.org.sappho.code.heatmap.engine.HeatMapItem;
+import uk.org.sappho.code.heatmap.engine.HeatMaps;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
 public class CSVReport implements Report {
@@ -47,11 +47,11 @@ public class CSVReport implements Report {
                 writer = new FileWriter(filename);
                 writer.write(header + "\n");
                 HeatMap heatMap = heatMapCollection.getHeatMap(heatMapName);
-                for (HeatMapItem item : heatMap.getSortedList()) {
-                    writer.write(item.getName() + seperator + item.getWeight() + seperator
-                            + item.getParentIssues().size() + seperator + item.getChangeCount());
+                for (HeatMapItem item : heatMap.getSortedHeatMapItems()) {
+                    writer.write(item.getHeatMapItemName() + seperator + item.getWeight() + seperator
+                            + item.getIssues().size() + seperator + item.getChangeCount());
                     String prefix = seperator;
-                    for (IssueWrapper issue : item.getParentIssues()) {
+                    for (IssueWrapper issue : item.getIssues()) {
                         writer.write(prefix + issue.getKey());
                         prefix = " ";
                     }

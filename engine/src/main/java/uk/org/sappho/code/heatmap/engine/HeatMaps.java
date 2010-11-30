@@ -25,13 +25,13 @@ public class HeatMaps {
 
     public void update(ChangeSet change) throws IssueManagementException {
 
-        for (ConfigurableItem changedFile : change.getConfigurableItems()) {
-            heatMaps.get(DIRECTORY).update(changedFile.getDirectory(), change);
-            heatMaps.get(FILENAME).update(changedFile.getFilename(), change);
-            heatMaps.get(FULLFILENAME).update(changedFile.getFullFilename(), change);
-            if (changedFile.isJava()) {
-                heatMaps.get(CLASSNAME).update(changedFile.getClassName(), change);
-                heatMaps.get(PACKAGENAME).update(changedFile.getPackageName(), change);
+        for (ConfigurableItem configurableItem : change.getConfigurableItems()) {
+            heatMaps.get(DIRECTORY).update(configurableItem.getDirectory(), change);
+            heatMaps.get(FILENAME).update(configurableItem.getFilename(), change);
+            heatMaps.get(FULLFILENAME).update(configurableItem.getFullFilename(), change);
+            if (configurableItem.isJava()) {
+                heatMaps.get(CLASSNAME).update(configurableItem.getClassName(), change);
+                heatMaps.get(PACKAGENAME).update(configurableItem.getPackageName(), change);
             }
         }
     }

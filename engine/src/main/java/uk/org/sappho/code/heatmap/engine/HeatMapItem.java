@@ -6,61 +6,38 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
-
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
 public class HeatMapItem implements Comparable<HeatMapItem> {
 
-    private final String name;
+    private final String configurableItemName;
     private final Map<IssueWrapper, List<ChangeSet>> issues = new HashMap<IssueWrapper, List<ChangeSet>>();
-    private final Map<IssueWrapper, List<ChangeSet>> parentIssues = new HashMap<IssueWrapper, List<ChangeSet>>();
-    private final Map<String, IssueWrapper> mappedParentIssues = new HashMap<String, IssueWrapper>();
-    private static final Logger LOG = Logger.getLogger(HeatMapItem.class);
 
-    public HeatMapItem(String name) {
+    public HeatMapItem(String configurableItemName) {
 
-        this.name = name;
+        this.configurableItemName = configurableItemName;
     }
 
-    public void update(ChangeSet change) throws IssueManagementException {
+    public void update(ChangeSet changeSet) throws IssueManagementException {
 
-        IssueWrapper issue = change.getIssue();
-        String issueKey = issue.getKey();
+        IssueWrapper issue = changeSet.getIssue();
         List<ChangeSet> changes = issues.get(issue);
         if (changes == null) {
             changes = new Vector<ChangeSet>();
             issues.put(issue, changes);
         }
-        changes.add(change);
-        IssueWrapper parentIssue = mappedParentIssues.get(issueKey);
-        if (parentIssue != null) {
-            issue = parentIssue;
-        } else {
-            mappedParentIssues.put(issueKey, issue);
-        }
-        changes = parentIssues.get(issue);
-        if (changes == null) {
-            changes = new Vector<ChangeSet>();
-            parentIssues.put(issue, changes);
-        }
-        changes.add(change);
+        changes.add(changeSet);
     }
 
-    public String getName() {
+    public String getHeatMapItemName() {
 
-        return name;
+        return configurableItemName;
     }
 
     public Set<IssueWrapper> getIssues() {
 
         return issues.keySet();
-    }
-
-    public Set<IssueWrapper> getParentIssues() {
-
-        return parentIssues.keySet();
     }
 
     public int getChangeCount() {
@@ -72,20 +49,21 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         return count;
     }
 
-    public int getWeight() throws IssueManagementException {
+    public int getWeight() {
 
         int weight = 0;
-        for (IssueWrapper issue : getParentIssues()) {
+        for (IssueWrapper issue : issues.keySet()) {
             weight += issue.getWeight();
         }
         return weight;
     }
 
-    public String getWeightFormula() throws IssueManagementException {
+    public String getWeightFormula() {
 
+        // TODO: make this into something less lame!
         String formula = "";
         String prefix = "";
-        for (IssueWrapper issue : getParentIssues()) {
+        for (IssueWrapper issue : issues.keySet()) {
             formula += prefix + issue.getKey() + ":" + issue.getWeight();
             prefix = " + ";
         }
@@ -95,11 +73,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
     public int compareTo(HeatMapItem other) {
 
         int comparison = 0;
-        try {
-            comparison = other.getWeight() - getWeight();
-        } catch (IssueManagementException e) {
-            LOG.error("Issue management error", e);
-        }
+        comparison = other.getWeight() - getWeight();
         return comparison;
     }
 }

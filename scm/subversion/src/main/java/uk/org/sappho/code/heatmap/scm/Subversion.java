@@ -42,11 +42,10 @@ public class Subversion implements SCM {
 
         private final ChangePath[] changedPaths;
         private final long revision;
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings("rawtypes")
         private final Map revprops;
 
-        @SuppressWarnings("unchecked")
-        public SubversionRevision(ChangePath[] changedPaths, long revision, Map revprops) {
+        public SubversionRevision(ChangePath[] changedPaths, long revision, @SuppressWarnings("rawtypes") Map revprops) {
             this.changedPaths = changedPaths;
             this.revision = revision;
             this.revprops = revprops;
@@ -60,7 +59,7 @@ public class Subversion implements SCM {
             return revision;
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings("rawtypes")
         public Map getRevprops() {
             return revprops;
         }
@@ -75,8 +74,8 @@ public class Subversion implements SCM {
             this.revisions = revisions;
         }
 
-        @SuppressWarnings("unchecked")
-        public void singleMessage(ChangePath[] changedPaths, long revision, Map revprops, boolean hasChildren) {
+        public void singleMessage(ChangePath[] changedPaths, long revision, @SuppressWarnings("rawtypes") Map revprops,
+                boolean hasChildren) {
 
             if (revision != Revision.SVN_INVALID_REVNUM) {
                 revisions.add(new SubversionRevision(changedPaths, revision, revprops));
@@ -84,7 +83,7 @@ public class Subversion implements SCM {
         }
     }
 
-    public void processChanges(HeatMaps heatMapCollection) throws SCMException {
+    public void processChanges(HeatMaps heatMaps) throws SCMException {
 
         String errorMessage = "Unable to find Subversion session parameters";
         try {
@@ -140,7 +139,7 @@ public class Subversion implements SCM {
                 }
                 IssueWrapper issue = issueManagement.getIssue(commitComment);
                 if (issue != null) {
-                    heatMapCollection.update(new ChangeSet(Long.toString(revision.getRevision()), commitComment, issue,
+                    heatMaps.update(new ChangeSet(Long.toString(revision.getRevision()), commitComment, issue,
                             changedFiles));
                 }
             }
