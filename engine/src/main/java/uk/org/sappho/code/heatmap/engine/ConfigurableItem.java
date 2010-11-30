@@ -4,14 +4,14 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Filename {
+public class ConfigurableItem {
 
     private static final Pattern JAVA_REGEX = Pattern
             .compile("^.+?/((com|org|net|edu|gov|mil|biz|info)/.+)/(.+?)\\.java$");
     private final String filename;
     private final Matcher javaMatcher;
 
-    public Filename(String filename) {
+    public ConfigurableItem(String filename) {
 
         this.filename = filename;
         javaMatcher = JAVA_REGEX.matcher(filename);

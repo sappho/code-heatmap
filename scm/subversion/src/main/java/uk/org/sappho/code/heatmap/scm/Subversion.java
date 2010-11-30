@@ -17,8 +17,8 @@ import org.tigris.subversion.javahl.SVNClient;
 import com.google.inject.Inject;
 
 import uk.org.sappho.code.heatmap.config.Configuration;
-import uk.org.sappho.code.heatmap.engine.Change;
-import uk.org.sappho.code.heatmap.engine.Filename;
+import uk.org.sappho.code.heatmap.engine.ChangeSet;
+import uk.org.sappho.code.heatmap.engine.ConfigurableItem;
 import uk.org.sappho.code.heatmap.engine.HeatMapCollection;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
@@ -122,7 +122,7 @@ public class Subversion implements SCM {
             for (SubversionRevision revision : revisions) {
                 String commitComment = (String) revision.getRevprops().get("svn:log");
                 LOG.debug("Processing rev. " + revision.getRevision() + " " + commitComment);
-                List<Filename> changedFiles = new Vector<Filename>();
+                List<ConfigurableItem> changedFiles = new Vector<ConfigurableItem>();
                 for (ChangePath changePath : revision.getChangedPaths()) {
                     String filename = changePath.getPath();
                     try {
@@ -130,7 +130,7 @@ public class Subversion implements SCM {
                         Info2[] info = svnClient.info2(url + filename, revisionId, revisionId, false);
                         if (info.length == 1 && info[0].getKind() == NodeKind.file) {
                             LOG.debug("Processing changed file " + filename);
-                            changedFiles.add(new Filename(filename));
+                            changedFiles.add(new ConfigurableItem(filename));
                         } else {
                             LOG.debug("Presuming " + filename + " is a directory");
                         }
@@ -140,7 +140,7 @@ public class Subversion implements SCM {
                 }
                 IssueWrapper issue = issueManagement.getIssue(commitComment);
                 if (issue != null) {
-                    heatMapCollection.update(new Change(Long.toString(revision.getRevision()), commitComment, issue,
+                    heatMapCollection.update(new ChangeSet(Long.toString(revision.getRevision()), commitComment, issue,
                             changedFiles));
                 } else {
                     LOG.debug("No issue found in commit comment: " + commitComment);

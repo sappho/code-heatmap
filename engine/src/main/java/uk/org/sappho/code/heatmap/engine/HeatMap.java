@@ -18,7 +18,7 @@ public class HeatMap {
         this.name = name;
     }
 
-    public void update(String name, Change change) throws IssueManagementException {
+    public void update(String name, ChangeSet change) throws IssueManagementException {
 
         HeatMapItem item = heatMap.get(name);
         if (item == null) {

@@ -14,8 +14,8 @@ import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 public class HeatMapItem implements Comparable<HeatMapItem> {
 
     private final String name;
-    private final Map<IssueWrapper, List<Change>> issues = new HashMap<IssueWrapper, List<Change>>();
-    private final Map<IssueWrapper, List<Change>> parentIssues = new HashMap<IssueWrapper, List<Change>>();
+    private final Map<IssueWrapper, List<ChangeSet>> issues = new HashMap<IssueWrapper, List<ChangeSet>>();
+    private final Map<IssueWrapper, List<ChangeSet>> parentIssues = new HashMap<IssueWrapper, List<ChangeSet>>();
     private final Map<String, IssueWrapper> mappedParentIssues = new HashMap<String, IssueWrapper>();
     private static final Logger LOG = Logger.getLogger(HeatMapItem.class);
 
@@ -24,13 +24,13 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         this.name = name;
     }
 
-    public void update(Change change) throws IssueManagementException {
+    public void update(ChangeSet change) throws IssueManagementException {
 
         IssueWrapper issue = change.getIssue();
         String issueKey = issue.getKey();
-        List<Change> changes = issues.get(issue);
+        List<ChangeSet> changes = issues.get(issue);
         if (changes == null) {
-            changes = new Vector<Change>();
+            changes = new Vector<ChangeSet>();
             issues.put(issue, changes);
         }
         changes.add(change);
@@ -42,7 +42,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         }
         changes = parentIssues.get(issue);
         if (changes == null) {
-            changes = new Vector<Change>();
+            changes = new Vector<ChangeSet>();
             parentIssues.put(issue, changes);
         }
         changes.add(change);
@@ -66,7 +66,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
     public int getChangeCount() {
 
         int count = 0;
-        for (List<Change> changes : issues.values()) {
+        for (List<ChangeSet> changes : issues.values()) {
             count += changes.size();
         }
         return count;

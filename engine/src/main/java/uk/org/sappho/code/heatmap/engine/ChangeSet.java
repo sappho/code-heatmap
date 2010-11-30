@@ -4,14 +4,14 @@ import java.util.List;
 
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
-public class Change {
+public class ChangeSet {
 
     private final String revisionId;
     private final String commitComment;
     private final IssueWrapper issue;
-    private final List<Filename> changedFiles;
+    private final List<ConfigurableItem> changedFiles;
 
-    public Change(String revisionId, String commitComment, IssueWrapper issue, List<Filename> changedFiles) {
+    public ChangeSet(String revisionId, String commitComment, IssueWrapper issue, List<ConfigurableItem> changedFiles) {
 
         this.revisionId = revisionId;
         this.commitComment = commitComment;
@@ -34,7 +34,7 @@ public class Change {
         return issue;
     }
 
-    public final List<Filename> getChangedFiles() {
+    public final List<ConfigurableItem> getChangedFiles() {
 
         return changedFiles;
     }
