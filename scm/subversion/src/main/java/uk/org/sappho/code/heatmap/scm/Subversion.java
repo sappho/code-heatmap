@@ -1,6 +1,8 @@
 package uk.org.sappho.code.heatmap.scm;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -61,6 +63,8 @@ public class Subversion implements SCM {
             LOG.debug("basePath:      " + basePath);
             LOG.debug("startRevision: " + startRevision);
             LOG.debug("endRevision:   " + endRevision);
+            Map<String, Integer> nodeKindCache = new HashMap<String, Integer>();
+            int nodeKindCacheHits = 0;
             LOG.info("Reading Subversion history for " + url + basePath + " from rev. " + startRevision
                     + " to rev. " + endRevision);
             LogMessage[] logMessages = svnClient.logMessages(url + basePath, Revision.getInstance(startRevision),
@@ -79,10 +83,17 @@ public class Subversion implements SCM {
                         if (changePath.getAction() != 'D') {
                             int nodeKind = changePath.getNodeKind();
                             if (nodeKind == NodeKind.unknown) {
-                                Revision revisionId = Revision.getInstance(revisionNumber);
-                                Info2[] info = svnClient.info2(url + path, revisionId, revisionId, false);
-                                if (info.length == 1) {
-                                    nodeKind = info[0].getKind();
+                                Integer nodeKindObj = nodeKindCache.get(path);
+                                if (nodeKindObj != null) {
+                                    nodeKind = nodeKindObj;
+                                    nodeKindCacheHits++;
+                                } else {
+                                    Revision revisionId = Revision.getInstance(revisionNumber);
+                                    Info2[] info = svnClient.info2(url + path, revisionId, revisionId, false);
+                                    if (info.length == 1) {
+                                        nodeKind = info[0].getKind();
+                                        nodeKindCache.put(path, nodeKind);
+                                    }
                                 }
                             }
                             switch (nodeKind) {
@@ -105,7 +116,8 @@ public class Subversion implements SCM {
                     revisionCount++;
                 }
             }
-            LOG.info("Added " + revisionCount + " revisions to heat maps");
+            LOG.info("Added " + revisionCount + " revisions to heat maps with " + nodeKindCacheHits
+                    + " node kind cache hits");
         } catch (Throwable t) {
             throw new SCMException(errorMessage, t);
         }
