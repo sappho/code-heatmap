@@ -114,28 +114,22 @@ public class JiraService implements IssueManagement {
         Map<String, String> issueReleaseMap = new HashMap<String, String>();
         for (RemoteVersion remoteVersion : issue.getFixVersions()) {
             String remoteVersionName = remoteVersion.getName();
-            String versionWarning = versionWarnings.get(remoteVersionName);
-            if (versionWarning == null) {
-                versionWarning = config.getProperty("jira.version.status." + remoteVersionName, "");
-                versionWarnings.put(remoteVersionName, versionWarning);
-                if (versionWarning.length() > 0) {
-                    warnings.add("Issue version", remoteVersionName + " " + versionWarning);
-                }
-            }
-            if (versionWarning.length() > 0) {
-                issueReleases.addWarning(remoteVersionName + " " + versionWarning);
-            }
             String release = releases.get(remoteVersionName);
             if (release == null) {
                 try {
-                    release = config.getProperty("jira.version.map.name." + remoteVersionName);
+                    release = config.getProperty("jira.version.map.release." + remoteVersionName);
+                    warnings.add("Version mapping", remoteVersionName + " --> release " + release);
+                    releases.put(remoteVersionName, release);
                 } catch (ConfigurationException e) {
-                    release = remoteVersionName;
+                    if (versionWarnings.get(remoteVersionName) == null) {
+                        warnings.add("Issue version", remoteVersionName + " will be ignored");
+                        versionWarnings.put(remoteVersionName, remoteVersionName);
+                    }
                 }
-                warnings.add("Version mapping", remoteVersionName + " --> " + release);
-                releases.put(remoteVersionName, release);
             }
-            issueReleaseMap.put(release, release);
+            if (release != null) {
+                issueReleaseMap.put(release, release);
+            }
         }
         for (String release : issueReleaseMap.keySet()) {
             issueReleases.addRelease(release);
