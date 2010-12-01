@@ -70,10 +70,11 @@ public class JiraService implements IssueManagement {
         LOG.info("Getting list of allowed issues");
         try {
             // get all tasks we're prepared to deal with
-            String jql = config.getProperty("jira.filter.issues.allowed");
-            LOG.info("Running Jira query: " + jql);
+            String jql = config.getProperty("jira.jql.issues.allowed");
+            int jqlMax = Integer.parseInt(config.getProperty("jira.jql.issues.allowed.max", "1000"));
+            LOG.info("Running Jira query (max. " + jqlMax + " issues): " + jql);
             RemoteIssue[] remoteIssues = jiraSoapService.getService().getIssuesFromJqlSearch(
-                    jiraSoapService.getToken(), jql, 5000);
+                    jiraSoapService.getToken(), jql, jqlMax);
             LOG.info("Processing " + remoteIssues.length + " issues returned by query");
             // map all subtasks back to their parents
             Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
