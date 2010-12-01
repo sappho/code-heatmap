@@ -16,7 +16,7 @@ import uk.org.sappho.code.heatmap.warnings.Warnings;
 @Singleton
 public class WarningsList implements Warnings {
 
-    private final Map<String, List<String>> warnings = new HashMap<String, List<String>>();
+    private final Map<String, List<Warning>> warnings = new HashMap<String, List<Warning>>();
     private static final Logger LOG = Logger.getLogger(WarningsList.class);
 
     @Inject
@@ -25,12 +25,13 @@ public class WarningsList implements Warnings {
         LOG.info("Using simple warning logging plugin");
     }
 
-    public void add(String type, String warning) {
+    public void add(Warning warning) {
 
+        String type = warning.getTypeName();
         LOG.info(type + ": " + warning);
-        List<String> list = warnings.get(type);
+        List<Warning> list = warnings.get(type);
         if (list == null) {
-            list = new Vector<String>();
+            list = new Vector<Warning>();
             warnings.put(type, list);
         }
         list.add(warning);
@@ -41,7 +42,7 @@ public class WarningsList implements Warnings {
         return warnings.keySet();
     }
 
-    public List<String> getWarnings(String type) {
+    public List<Warning> getWarnings(String type) {
 
         return warnings.get(type);
     }

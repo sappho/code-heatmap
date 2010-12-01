@@ -20,11 +20,13 @@ import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 import uk.org.sappho.code.heatmap.warnings.Warnings;
+import uk.org.sappho.code.heatmap.warnings.impl.MessageWarning;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
 
 @Singleton
 public class JiraService implements IssueManagement {
 
+    protected String jiraURL;
     protected JiraSoapService jiraSoapService = null;
     protected Map<String, IssueWrapper> allowedIssues = new HashMap<String, IssueWrapper>();
     protected Map<String, String> warnedIssues = new HashMap<String, String>();
@@ -50,14 +52,14 @@ public class JiraService implements IssueManagement {
 
     protected void connect() throws IssueManagementException {
 
-        String url = config.getProperty("jira.url", "http://example.com");
+        jiraURL = config.getProperty("jira.url", "http://example.com");
         String username = config.getProperty("jira.username", "nobody");
         String password = config.getProperty("jira.password", "nopassword");
-        LOG.info("Connecting to " + url + " as " + username);
+        LOG.info("Connecting to " + jiraURL + " as " + username);
         try {
-            jiraSoapService = new JiraSoapService(url, username, password);
+            jiraSoapService = new JiraSoapService(jiraURL, username, password);
         } catch (Throwable t) {
-            throw new IssueManagementException("Unable to log in to Jira at " + url + " as user " + username, t);
+            throw new IssueManagementException("Unable to log in to Jira at " + jiraURL + " as user " + username, t);
         }
     }
 
@@ -88,7 +90,7 @@ public class JiraService implements IssueManagement {
                         jiraSoapService.getToken(), "parent = " + issueKey, 200);
                 for (RemoteIssue subTask : subTasks) {
                     String subTaskKey = subTask.getKey();
-                    warnings.add("Issue subtask mapping", subTaskKey + " --> " + issueKey);
+                    warnings.add(new JiraSubTaskMappingWarning(jiraURL, subTaskKey, issueKey));
                     if (mappedRemoteIssues.get(subTaskKey) == null) {
                         mappedRemoteIssues.put(subTaskKey, subTask);
                     }
@@ -127,7 +129,7 @@ public class JiraService implements IssueManagement {
                     } catch (ConfigurationException e) {
                         release = "unknown";
                     }
-                    warnings.add("Version mapping", remoteVersionName + " --> release " + release);
+                    warnings.add(new JiraVersionMappingWarning(jiraURL, remoteVersionName, release));
                     releases.put(remoteVersionName, release);
                 }
                 issueReleaseMap.put(release, release);
@@ -137,13 +139,13 @@ public class JiraService implements IssueManagement {
             issueReleases.add(release);
         }
         if (issueReleases.size() > 1) {
-            warnings.add(ISSUE_FIELDS, issue.getKey() + " applies to more than one release");
+            warnings.add(new JiraIssueWithMultipleReleasesWarning(jiraURL, issue.getKey(), issueReleases));
         }
         String typeId = issue.getType();
         String typeName = issueTypes.get(typeId);
         if (typeName == null) {
             typeName = config.getProperty("jira.type.map.id." + typeId, "housekeeping");
-            warnings.add("Issue type mapping", typeId + " --> " + typeName);
+            warnings.add(new JiraIssueTypeMappingWarning(jiraURL, typeId, typeName));
             issueTypes.put(typeId, typeName);
         }
         Integer weight = issueTypeWeightMultipliers.get(typeName);
@@ -155,7 +157,7 @@ public class JiraService implements IssueManagement {
                 throw new IssueManagementException(
                             "Issue type weight configuration \"" + typeNameKey + "\" is invalid", t);
             }
-            warnings.add("Issue type weight", typeName + " = " + weight);
+            warnings.add(new JiraIssueTypeWeightWarning(jiraURL, typeName, weight));
             issueTypeWeightMultipliers.put(typeName, weight);
         }
         return new JiraIssueWrapper(issue, subTaskKey, issueReleases, weight);
@@ -168,7 +170,7 @@ public class JiraService implements IssueManagement {
         if (matcher.matches()) {
             key = matcher.group(1);
         } else {
-            warnings.add(ISSUE_FIELDS, "No Jira issue key found in commit comment: " + commitComment);
+            warnings.add(new MessageWarning("No Jira issue key found in commit comment: " + commitComment));
         }
         return key;
     }
@@ -180,8 +182,7 @@ public class JiraService implements IssueManagement {
         if (key != null) {
             issue = allowedIssues.get(key);
             if (issue == null && warnedIssues.get(key) == null) {
-                warnings.add(ISSUE_FIELDS, "No Jira issue found for " + key
-                        + " - query specified in jira.filter.issues.allowed configuration too restrictive?");
+                warnings.add(new JiraIssueNotFoundWarning(jiraURL, key));
                 warnedIssues.put(key, key);
             }
         }

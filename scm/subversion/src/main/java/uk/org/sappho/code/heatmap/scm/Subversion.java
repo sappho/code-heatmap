@@ -97,8 +97,7 @@ public class Subversion implements SCM {
                                         nodeKind = info[0].getKind();
                                         nodeKindCache.put(path, nodeKind);
                                     } else {
-                                        warnings.add("Subversion", "Unable to work out if " + path
-                                                + " is a file or directory");
+                                        warnings.add(new SubversionPathWarning(path));
                                     }
                                 }
                             }
