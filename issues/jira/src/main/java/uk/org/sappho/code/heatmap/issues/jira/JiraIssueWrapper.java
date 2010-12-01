@@ -1,19 +1,20 @@
 package uk.org.sappho.code.heatmap.issues.jira;
 
+import java.util.List;
+
 import com.atlassian.jira.rpc.soap.client.RemoteIssue;
 
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
-import uk.org.sappho.code.heatmap.issues.Releases;
 
 public class JiraIssueWrapper implements IssueWrapper {
 
     private final String issueKey;
     private final String summary;
     private final String subTaskKey;
-    private final Releases releases;
+    private final List<String> releases;
     private final int weight;
 
-    public JiraIssueWrapper(RemoteIssue issue, String subTaskKey, Releases releases, int weight) {
+    public JiraIssueWrapper(RemoteIssue issue, String subTaskKey, List<String> releases, int weight) {
 
         issueKey = issue.getKey();
         summary = issue.getSummary();
@@ -37,7 +38,7 @@ public class JiraIssueWrapper implements IssueWrapper {
         return summary;
     }
 
-    public Releases getReleases() {
+    public List<String> getReleases() {
 
         return releases;
     }

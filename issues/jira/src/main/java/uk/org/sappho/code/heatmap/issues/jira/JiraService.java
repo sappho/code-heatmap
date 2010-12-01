@@ -1,7 +1,9 @@
 package uk.org.sappho.code.heatmap.issues.jira;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,7 +19,6 @@ import uk.org.sappho.code.heatmap.config.ConfigurationException;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
-import uk.org.sappho.code.heatmap.issues.Releases;
 import uk.org.sappho.code.heatmap.warnings.Warnings;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
 
@@ -28,7 +29,6 @@ public class JiraService implements IssueManagement {
     protected Map<String, IssueWrapper> allowedIssues = new HashMap<String, IssueWrapper>();
     protected Map<String, String> warnedIssues = new HashMap<String, String>();
     protected Map<String, String> releases = new HashMap<String, String>();
-    protected Map<String, String> versionWarnings = new HashMap<String, String>();
     protected Map<String, String> issueTypes = new HashMap<String, String>();
     protected Map<String, Integer> issueTypeWeightMultipliers = new HashMap<String, Integer>();
     protected Warnings warnings;
@@ -36,6 +36,7 @@ public class JiraService implements IssueManagement {
     protected static final Pattern SIMPLE_JIRA_REGEX = Pattern.compile("^([a-zA-Z]{2,}-\\d+):.*$");
     private static final Logger LOG = Logger.getLogger(JiraService.class);
     protected static final String ISSUE_FIELDS = "Issue fields";
+    protected static final String NO_RELEASE = "missing";
 
     @Inject
     public JiraService(Warnings warnings, Configuration config) throws IssueManagementException {
@@ -110,34 +111,32 @@ public class JiraService implements IssueManagement {
 
     protected IssueWrapper createIssueWrapper(RemoteIssue issue, String subTaskKey) throws IssueManagementException {
 
-        Releases issueReleases = new Releases();
+        List<String> issueReleases = new Vector<String>();
         Map<String, String> issueReleaseMap = new HashMap<String, String>();
-        for (RemoteVersion remoteVersion : issue.getFixVersions()) {
-            String remoteVersionName = remoteVersion.getName();
-            String release = releases.get(remoteVersionName);
-            if (release == null) {
-                try {
-                    release = config.getProperty("jira.version.map.release." + remoteVersionName);
+        RemoteVersion[] fixVersions = issue.getFixVersions();
+        if (fixVersions.length == 0) {
+            issueReleaseMap.put(NO_RELEASE, NO_RELEASE);
+        } else {
+            for (RemoteVersion remoteVersion : fixVersions) {
+                String remoteVersionName = remoteVersion.getName();
+                String release = releases.get(remoteVersionName);
+                if (release == null) {
+                    try {
+                        release = config.getProperty("jira.version.map.release." + remoteVersionName);
+                    } catch (ConfigurationException e) {
+                        release = "unknown";
+                    }
                     warnings.add("Version mapping", remoteVersionName + " --> release " + release);
                     releases.put(remoteVersionName, release);
-                } catch (ConfigurationException e) {
-                    if (versionWarnings.get(remoteVersionName) == null) {
-                        warnings.add("Issue version", remoteVersionName + " will be ignored");
-                        versionWarnings.put(remoteVersionName, remoteVersionName);
-                    }
                 }
-            }
-            if (release != null) {
                 issueReleaseMap.put(release, release);
             }
         }
         for (String release : issueReleaseMap.keySet()) {
-            issueReleases.addRelease(release);
+            issueReleases.add(release);
         }
-        if (issueReleases.getReleases().size() == 0) {
-            warnings.add(ISSUE_FIELDS, issue.getKey() + " has no fix version");
-        } else if (issueReleases.getReleases().size() > 1) {
-            warnings.add(ISSUE_FIELDS, issue.getKey() + " has more than one fix version");
+        if (issueReleases.size() > 1) {
+            warnings.add(ISSUE_FIELDS, issue.getKey() + " applies to more than one release");
         }
         String typeId = issue.getType();
         String typeName = issueTypes.get(typeId);
