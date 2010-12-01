@@ -42,10 +42,9 @@ public class Subversion implements SCM {
 
         private final ChangePath[] changedPaths;
         private final long revision;
-        @SuppressWarnings("rawtypes")
         private final Map revprops;
 
-        public SubversionRevision(ChangePath[] changedPaths, long revision, @SuppressWarnings("rawtypes") Map revprops) {
+        public SubversionRevision(ChangePath[] changedPaths, long revision, Map revprops) {
             this.changedPaths = changedPaths;
             this.revision = revision;
             this.revprops = revprops;
@@ -59,7 +58,6 @@ public class Subversion implements SCM {
             return revision;
         }
 
-        @SuppressWarnings("rawtypes")
         public Map getRevprops() {
             return revprops;
         }
@@ -74,7 +72,7 @@ public class Subversion implements SCM {
             this.revisions = revisions;
         }
 
-        public void singleMessage(ChangePath[] changedPaths, long revision, @SuppressWarnings("rawtypes") Map revprops,
+        public void singleMessage(ChangePath[] changedPaths, long revision, Map revprops,
                 boolean hasChildren) {
 
             if (revision != Revision.SVN_INVALID_REVNUM) {
@@ -116,8 +114,9 @@ public class Subversion implements SCM {
                     Revision.getInstance(endRevision)) };
             String[] revProps = new String[] { "svn:log" };
             svnClient.logMessages(url + basePath, Revision.getInstance(endRevision), revisionRange,
-                    false, false, false, revProps, 0, new LogMessageProcessor(revisions));
-            LOG.info("Processing Subversion history");
+                    false, true, false, revProps, 0, new LogMessageProcessor(revisions));
+            LOG.info("Processing " + revisions.size() + " revisions");
+            int revisionCount = 0;
             for (SubversionRevision revision : revisions) {
                 String commitComment = (String) revision.getRevprops().get("svn:log");
                 LOG.debug("Processing rev. " + revision.getRevision() + " " + commitComment);
@@ -141,8 +140,10 @@ public class Subversion implements SCM {
                 if (issue != null) {
                     heatMaps.update(new ChangeSet(Long.toString(revision.getRevision()), commitComment, issue,
                             changedFiles));
+                    revisionCount++;
                 }
             }
+            LOG.info("Added " + revisionCount + " revisions to heat maps");
         } catch (Throwable t) {
             throw new SCMException(errorMessage, t);
         }
