@@ -1,17 +1,15 @@
 package uk.org.sappho.code.heatmap.scm;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.tigris.subversion.javahl.ChangePath;
 import org.tigris.subversion.javahl.ClientException;
 import org.tigris.subversion.javahl.Info2;
-import org.tigris.subversion.javahl.LogMessageCallback;
+import org.tigris.subversion.javahl.LogMessage;
 import org.tigris.subversion.javahl.NodeKind;
 import org.tigris.subversion.javahl.Revision;
-import org.tigris.subversion.javahl.RevisionRange;
 import org.tigris.subversion.javahl.SVNClient;
 
 import com.google.inject.Inject;
@@ -36,49 +34,6 @@ public class Subversion implements SCM {
         LOG.info("Using Subversion SCM plugin");
         this.config = config;
         this.issueManagement = issueManagement;
-    }
-
-    private class SubversionRevision {
-
-        private final ChangePath[] changedPaths;
-        private final long revision;
-        private final Map revprops;
-
-        public SubversionRevision(ChangePath[] changedPaths, long revision, Map revprops) {
-            this.changedPaths = changedPaths;
-            this.revision = revision;
-            this.revprops = revprops;
-        }
-
-        public ChangePath[] getChangedPaths() {
-            return changedPaths;
-        }
-
-        public long getRevision() {
-            return revision;
-        }
-
-        public Map getRevprops() {
-            return revprops;
-        }
-    }
-
-    private class LogMessageProcessor implements LogMessageCallback {
-
-        private final List<SubversionRevision> revisions;
-
-        public LogMessageProcessor(List<SubversionRevision> revisions) {
-
-            this.revisions = revisions;
-        }
-
-        public void singleMessage(ChangePath[] changedPaths, long revision, Map revprops,
-                boolean hasChildren) {
-
-            if (revision != Revision.SVN_INVALID_REVNUM) {
-                revisions.add(new SubversionRevision(changedPaths, revision, revprops));
-            }
-        }
     }
 
     public void processChanges(HeatMaps heatMaps) throws SCMException {
@@ -106,40 +61,47 @@ public class Subversion implements SCM {
             LOG.debug("basePath:      " + basePath);
             LOG.debug("startRevision: " + startRevision);
             LOG.debug("endRevision:   " + endRevision);
-            List<SubversionRevision> revisions = new Vector<SubversionRevision>();
             LOG.info("Reading Subversion history for " + url + basePath + " from rev. " + startRevision
                     + " to rev. " + endRevision);
-            RevisionRange[] revisionRange = new RevisionRange[] { new RevisionRange(
-                    Revision.getInstance(startRevision),
-                    Revision.getInstance(endRevision)) };
-            String[] revProps = new String[] { "svn:log" };
-            svnClient.logMessages(url + basePath, Revision.getInstance(endRevision), revisionRange,
-                    false, true, false, revProps, 0, new LogMessageProcessor(revisions));
-            LOG.info("Processing " + revisions.size() + " revisions");
+            LogMessage[] logMessages = svnClient.logMessages(url + basePath, Revision.getInstance(startRevision),
+                    Revision.getInstance(endRevision), false, true);
+            LOG.info("Processing " + logMessages.length + " revisions");
             int revisionCount = 0;
-            for (SubversionRevision revision : revisions) {
-                String commitComment = (String) revision.getRevprops().get("svn:log");
-                LOG.debug("Processing rev. " + revision.getRevision() + " " + commitComment);
-                List<ConfigurableItem> changedFiles = new Vector<ConfigurableItem>();
-                for (ChangePath changePath : revision.getChangedPaths()) {
-                    String filename = changePath.getPath();
-                    try {
-                        Revision revisionId = Revision.getInstance(revision.getRevision());
-                        Info2[] info = svnClient.info2(url + filename, revisionId, revisionId, false);
-                        if (info.length == 1 && info[0].getKind() == NodeKind.file) {
-                            LOG.debug("Processing changed file " + filename);
-                            changedFiles.add(new ConfigurableItem(filename));
-                        } else {
-                            LOG.debug("Presuming " + filename + " is a directory");
-                        }
-                    } catch (ClientException e) {
-                        LOG.debug("Unable to determine type of " + filename + " so presuming it deleted");
-                    }
-                }
+            for (LogMessage logMessage : logMessages) {
+                long revisionNumber = logMessage.getRevisionNumber();
+                String commitComment = logMessage.getMessage();
                 IssueWrapper issue = issueManagement.getIssue(commitComment);
                 if (issue != null) {
-                    heatMaps.update(new ChangeSet(Long.toString(revision.getRevision()), commitComment, issue,
-                            changedFiles));
+                    LOG.debug("Processing rev. " + revisionNumber + " " + commitComment);
+                    List<ConfigurableItem> changedFiles = new Vector<ConfigurableItem>();
+                    for (ChangePath changePath : logMessage.getChangedPaths()) {
+                        String path = changePath.getPath();
+                        if (changePath.getAction() != 'D') {
+                            int nodeKind = changePath.getNodeKind();
+                            if (nodeKind == NodeKind.unknown) {
+                                Revision revisionId = Revision.getInstance(revisionNumber);
+                                Info2[] info = svnClient.info2(url + path, revisionId, revisionId, false);
+                                if (info.length == 1) {
+                                    nodeKind = info[0].getKind();
+                                }
+                            }
+                            switch (nodeKind) {
+                            case NodeKind.file:
+                                LOG.debug("Processing changed file " + path);
+                                changedFiles.add(new ConfigurableItem(path));
+                                break;
+                            case NodeKind.dir:
+                                LOG.debug("Path " + path + " is a directory so not including it");
+                                break;
+                            default:
+                                LOG.debug("Path " + path + " is of unknown type so not including it");
+                            }
+                        } else {
+                            LOG.debug("Path " + path + " is deleted so not including it");
+                        }
+                    }
+                    heatMaps.update(new ChangeSet(Long.toString(revisionNumber), commitComment, issue,
+                                changedFiles));
                     revisionCount++;
                 }
             }
