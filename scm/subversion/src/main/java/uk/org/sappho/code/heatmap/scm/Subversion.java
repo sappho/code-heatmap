@@ -22,18 +22,21 @@ import uk.org.sappho.code.heatmap.engine.ConfigurableItem;
 import uk.org.sappho.code.heatmap.engine.HeatMaps;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
+import uk.org.sappho.code.heatmap.warnings.Warnings;
 
 public class Subversion implements SCM {
 
     private final SVNClient svnClient = new SVNClient();
+    protected Warnings warnings;
     private final Configuration config;
     private final IssueManagement issueManagement;
     private static final Logger LOG = Logger.getLogger(Subversion.class);
 
     @Inject
-    public Subversion(Configuration config, IssueManagement issueManagement) {
+    public Subversion(Warnings warnings, Configuration config, IssueManagement issueManagement) {
 
         LOG.info("Using Subversion SCM plugin");
+        this.warnings = warnings;
         this.config = config;
         this.issueManagement = issueManagement;
     }
@@ -93,6 +96,9 @@ public class Subversion implements SCM {
                                     if (info.length == 1) {
                                         nodeKind = info[0].getKind();
                                         nodeKindCache.put(path, nodeKind);
+                                    } else {
+                                        warnings.add("Subversion", "Unable to work out if " + path
+                                                + " is a file or directory");
                                     }
                                 }
                             }
