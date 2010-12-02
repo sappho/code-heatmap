@@ -40,6 +40,11 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         return issues.keySet();
     }
 
+    public int getIssuesCount() {
+
+        return issues.keySet().size();
+    }
+
     public int getChangeCount() {
 
         int count = 0;

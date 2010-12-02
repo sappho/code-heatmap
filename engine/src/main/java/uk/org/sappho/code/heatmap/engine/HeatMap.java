@@ -22,6 +22,11 @@ public class HeatMap {
         item.update(changeSet);
     }
 
+    public List<HeatMapItem> getUnsortedHeatMapItems() {
+
+        return new Vector<HeatMapItem>(heatMapItems.values());
+    }
+
     public List<HeatMapItem> getSortedHeatMapItems() {
 
         List<HeatMapItem> list = new Vector<HeatMapItem>(heatMapItems.values());

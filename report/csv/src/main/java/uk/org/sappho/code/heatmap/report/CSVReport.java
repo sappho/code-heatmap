@@ -53,15 +53,15 @@ public class CSVReport implements Report {
                     writer = new FileWriter(filename);
                     writer.write(header + "\n");
                     HeatMap heatMap = heatMaps.getHeatMap(heatMapName);
-                    for (HeatMapItem item : heatMap.getSortedHeatMapItems()) {
-                        writer.write(item.getHeatMapItemName() + seperator + item.getWeight() + seperator
-                                + item.getIssues().size() + seperator + item.getChangeCount());
+                    for (HeatMapItem heatMapItem : heatMap.getSortedHeatMapItems()) {
+                        writer.write(heatMapItem.getHeatMapItemName() + seperator + heatMapItem.getWeight() + seperator
+                                + heatMapItem.getIssues().size() + seperator + heatMapItem.getChangeCount());
                         String prefix = seperator;
-                        for (IssueWrapper issue : item.getIssues()) {
+                        for (IssueWrapper issue : heatMapItem.getIssues()) {
                             writer.write(prefix + issue.getKey());
                             prefix = " ";
                         }
-                        writer.write(seperator + item.getWeightFormula() + "\n");
+                        writer.write(seperator + heatMapItem.getWeightFormula() + "\n");
                     }
                     writer.close();
                     LOG.debug("Written " + filename);

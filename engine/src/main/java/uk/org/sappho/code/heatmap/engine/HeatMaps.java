@@ -1,7 +1,9 @@
 package uk.org.sappho.code.heatmap.engine;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 
@@ -34,6 +36,17 @@ public class HeatMaps {
                 heatMaps.get(PACKAGENAME).update(configurableItem.getPackageName(), change);
             }
         }
+    }
+
+    public List<String> getHeatMapNames() {
+
+        List<String> names = new Vector<String>();
+        for (String name : HEATMAPS) {
+            if (heatMaps.get(name).getUnsortedHeatMapItems().size() != 0) {
+                names.add(name);
+            }
+        }
+        return names;
     }
 
     public final HeatMap getHeatMap(String heatMapName) {

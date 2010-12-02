@@ -39,8 +39,8 @@ public class Releases {
         return releaseNames;
     }
 
-    public final HeatMaps getHeatMaps(String release) {
+    public final HeatMaps getHeatMaps(String releaseName) {
 
-        return releases.get(release);
+        return releases.get(releaseName);
     }
 }
