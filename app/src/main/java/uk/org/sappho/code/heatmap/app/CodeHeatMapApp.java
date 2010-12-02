@@ -8,12 +8,12 @@ import com.google.inject.Injector;
 
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.config.impl.ConfigurationFile;
-import uk.org.sappho.code.heatmap.engine.CodeHeatMapEngine;
+import uk.org.sappho.code.heatmap.engine.Releases;
+import uk.org.sappho.code.heatmap.engine.WarningsList;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.scm.SCM;
 import uk.org.sappho.code.heatmap.warnings.Warnings;
-import uk.org.sappho.code.heatmap.warnings.impl.WarningsList;
 
 public class CodeHeatMapApp extends AbstractModule {
 
@@ -33,8 +33,7 @@ public class CodeHeatMapApp extends AbstractModule {
 
         try {
             LOG.debug("Configuring plugins");
-            Warnings warnings = new WarningsList();
-            bind(Warnings.class).toInstance(warnings);
+            bind(Warnings.class).toInstance(new WarningsList());
             ConfigurationFile config = new ConfigurationFile();
             config.load(commonPropertiesFilename);
             config.load(instancePropertiesFilename);
@@ -55,8 +54,11 @@ public class CodeHeatMapApp extends AbstractModule {
         if (args.length == 2) {
             try {
                 Injector injector = Guice.createInjector(new CodeHeatMapApp(args[0], args[1]));
-                CodeHeatMapEngine engine = injector.getInstance(CodeHeatMapEngine.class);
-                engine.writeReport();
+                Releases releases = injector.getInstance(Releases.class);
+                SCM scm = injector.getInstance(SCM.class);
+                scm.processChanges(releases);
+                Report report = injector.getInstance(Report.class);
+                report.writeReport(releases);
             } catch (Throwable t) {
                 LOG.error("Application error", t);
             }

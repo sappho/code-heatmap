@@ -5,11 +5,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.inject.Inject;
+
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 
 public class Releases {
 
     private final Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
+
+    @Inject
+    public Releases() {
+    }
 
     public void update(ChangeSet change) throws IssueManagementException {
 
