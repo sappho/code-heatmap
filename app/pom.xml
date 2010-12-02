@@ -29,6 +29,11 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>code-heatmap-formatted-report</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>code-heatmap-jira</artifactId>
 			<version>${project.version}</version>
 		</dependency>

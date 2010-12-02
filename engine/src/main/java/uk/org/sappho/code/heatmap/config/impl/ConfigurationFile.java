@@ -8,12 +8,10 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.config.ConfigurationException;
 
-@Singleton
 public class ConfigurationFile implements Configuration {
 
     private final Properties properties = new Properties(System.getProperties());
