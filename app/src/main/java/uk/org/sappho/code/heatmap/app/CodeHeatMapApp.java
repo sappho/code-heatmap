@@ -7,7 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import uk.org.sappho.code.heatmap.config.Configuration;
-import uk.org.sappho.code.heatmap.config.impl.ConfigurationFile;
+import uk.org.sappho.code.heatmap.config.impl.SimpleConfiguration;
 import uk.org.sappho.code.heatmap.engine.Releases;
 import uk.org.sappho.code.heatmap.engine.WarningsList;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
@@ -34,7 +34,7 @@ public class CodeHeatMapApp extends AbstractModule {
         try {
             LOG.debug("Configuring plugins");
             bind(Warnings.class).toInstance(new WarningsList());
-            ConfigurationFile config = new ConfigurationFile();
+            SimpleConfiguration config = new SimpleConfiguration();
             config.load(commonPropertiesFilename);
             config.load(instancePropertiesFilename);
             bind(Configuration.class).toInstance(config);

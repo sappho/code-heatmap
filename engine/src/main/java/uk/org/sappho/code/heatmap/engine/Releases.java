@@ -3,18 +3,22 @@ package uk.org.sappho.code.heatmap.engine;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.inject.Inject;
 
+import uk.org.sappho.code.heatmap.config.Configuration;
+import uk.org.sappho.code.heatmap.config.ConfigurationException;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 
 public class Releases {
 
+    private final List<String> releaseNames;
     private final Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
 
     @Inject
-    public Releases() {
+    public Releases(Configuration config) throws ConfigurationException {
+
+        releaseNames = config.getPropertyList("releases");
     }
 
     public void update(ChangeSet change) throws IssueManagementException {
@@ -30,9 +34,9 @@ public class Releases {
         }
     }
 
-    public final Set<String> getReleaseNames() {
+    public final List<String> getReleaseNames() {
 
-        return releases.keySet();
+        return releaseNames;
     }
 
     public final HeatMaps getHeatMaps(String release) {

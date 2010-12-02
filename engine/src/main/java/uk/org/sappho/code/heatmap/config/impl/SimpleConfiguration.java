@@ -3,7 +3,9 @@ package uk.org.sappho.code.heatmap.config.impl;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
@@ -12,13 +14,13 @@ import com.google.inject.Inject;
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.config.ConfigurationException;
 
-public class ConfigurationFile implements Configuration {
+public class SimpleConfiguration implements Configuration {
 
     private final Properties properties = new Properties(System.getProperties());
-    private static final Logger LOG = Logger.getLogger(ConfigurationFile.class);
+    private static final Logger LOG = Logger.getLogger(SimpleConfiguration.class);
 
     @Inject
-    public ConfigurationFile() {
+    public SimpleConfiguration() {
 
         LOG.info("Using plain properties file configuration plugin");
     }
@@ -43,9 +45,30 @@ public class ConfigurationFile implements Configuration {
         return properties.getProperty(name, defaultValue);
     }
 
-    public void setProperty(String name, String value) {
+    public List<String> getPropertyList(String name) throws ConfigurationException {
 
-        properties.setProperty(name, value);
+        List<String> list = getPropertyList(name, null);
+        if (list == null) {
+            throw new ConfigurationException("Configuration parameter " + name + ".1 is missing");
+        }
+        return list;
+    }
+
+    public List<String> getPropertyList(String name, List<String> defaultValue) {
+
+        List<String> list = new Vector<String>();
+        int index = 1;
+        while (true) {
+            String value = getProperty(name + "." + index++, null);
+            if (value == null) {
+                break;
+            }
+            list.add(value);
+        }
+        if (list.size() == 0) {
+            list = defaultValue;
+        }
+        return list;
     }
 
     public Class<?> getPlugin(String name, String defaultPackage) throws ConfigurationException {
