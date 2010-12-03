@@ -43,7 +43,7 @@ public class CSVReport implements Report {
             LOG.debug("extension: " + extension);
             LOG.debug("seperator: " + seperator);
             LOG.debug("header:    " + header);
-            for (String release : releases.getReleaseNames()) {
+            for (String release : releases.getUsedReleaseNames()) {
                 HeatMaps heatMaps = releases.getHeatMaps(release);
                 for (String heatMapName : HeatMaps.HEATMAPS) {
                     String path = basePath + "/" + release + "/";

@@ -8,6 +8,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
@@ -45,9 +46,15 @@ public class Releases {
         }
     }
 
-    public final List<String> getReleaseNames() {
+    public final List<String> getUsedReleaseNames() {
 
-        return releaseNames;
+        List<String> usedReleaseNames = new Vector<String>();
+        for (String releaseName : releaseNames) {
+            if (releases.get(releaseName) != null) {
+                usedReleaseNames.add(releaseName);
+            }
+        }
+        return usedReleaseNames;
     }
 
     public final HeatMaps getHeatMaps(String releaseName) {

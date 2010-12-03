@@ -1,7 +1,7 @@
 h1. ${title}
 
 This report was generated on ${date}.
-<#list releases.getReleaseNames() as releaseName>
+<#list releases.getUsedReleaseNames() as releaseName>
 h1. Release ${releaseName}
 
 <#assign heatMaps = releases.getHeatMaps(releaseName)>
@@ -20,9 +20,11 @@ h4. ${heatMapName}
 <#assign issuesList = issuesList + issue.getKey() + " ">
 </#list>
 <#assign formula = heatMapItem.getWeightFormula()>
-| ${name} | ${weight} | ${issueCount} | ${changeCount} | ${issuesList} | ${formula} |
+| {{${name}}} | ${weight} | ${issueCount} | ${changeCount} | ${issuesList} | ${formula} |
 </#list>
 
 </#list>
 </#list>
 h1. Warnings
+
+Not done yet!
