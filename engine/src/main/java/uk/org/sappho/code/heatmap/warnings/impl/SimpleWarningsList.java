@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.engine;
+package uk.org.sappho.code.heatmap.warnings.impl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,13 +13,13 @@ import com.google.inject.Inject;
 import uk.org.sappho.code.heatmap.warnings.Warnings;
 import uk.org.sappho.code.heatmap.warnings.impl.Warning;
 
-public class WarningsList implements Warnings {
+public class SimpleWarningsList implements Warnings {
 
     private final Map<String, List<Warning>> warnings = new HashMap<String, List<Warning>>();
-    private static final Logger LOG = Logger.getLogger(WarningsList.class);
+    private static final Logger LOG = Logger.getLogger(SimpleWarningsList.class);
 
     @Inject
-    public WarningsList() {
+    public SimpleWarningsList() {
 
         LOG.info("Using simple warning logging plugin");
     }
