@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 import com.google.inject.Inject;
 
 import uk.org.sappho.code.heatmap.warnings.Warnings;
-import uk.org.sappho.code.heatmap.warnings.impl.Warning;
 
 public class SimpleWarningsList implements Warnings {
 
@@ -27,12 +26,18 @@ public class SimpleWarningsList implements Warnings {
     public void add(Warning warning) {
 
         String type = warning.getTypeName();
-        LOG.info(type + ": " + warning);
         List<Warning> list = warnings.get(type);
         if (list == null) {
             list = new Vector<Warning>();
             warnings.put(type, list);
         }
+        String warningText = warning.toString();
+        for (Warning existingWarning : list) {
+            if (warningText.equals(existingWarning.toString())) {
+                return;
+            }
+        }
+        LOG.info(type + ": " + warningText);
         list.add(warning);
     }
 

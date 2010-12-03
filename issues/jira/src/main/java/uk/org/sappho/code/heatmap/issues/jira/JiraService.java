@@ -29,7 +29,6 @@ public class JiraService implements IssueManagement {
     protected String jiraURL = null;
     protected JiraSoapService jiraSoapService = null;
     protected Map<String, IssueWrapper> allowedIssues = new HashMap<String, IssueWrapper>();
-    protected Map<String, String> warnedIssues = new HashMap<String, String>();
     protected Map<String, String> releases = new HashMap<String, String>();
     protected Map<String, String> issueTypes = new HashMap<String, String>();
     protected Map<String, Integer> issueTypeWeightMultipliers = new HashMap<String, Integer>();
@@ -187,9 +186,8 @@ public class JiraService implements IssueManagement {
         String key = getIssueKeyFromCommitComment(commitComment);
         if (key != null) {
             issue = allowedIssues.get(key);
-            if (issue == null && warnedIssues.get(key) == null) {
+            if (issue == null) {
                 warnings.add(new JiraIssueNotFoundWarning(jiraURL, key));
-                warnedIssues.put(key, key);
             }
         }
         return issue;
