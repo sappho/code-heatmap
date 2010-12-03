@@ -13,13 +13,13 @@ import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.config.ConfigurationException;
 import uk.org.sappho.code.heatmap.config.impl.SimpleConfiguration;
 import uk.org.sappho.code.heatmap.engine.Releases;
-import uk.org.sappho.code.heatmap.engine.SimpleWarningsList;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.report.ReportException;
 import uk.org.sappho.code.heatmap.scm.SCM;
 import uk.org.sappho.code.heatmap.scm.SCMException;
 import uk.org.sappho.code.heatmap.warnings.Warnings;
+import uk.org.sappho.code.heatmap.warnings.impl.SimpleWarningsList;
 
 public class CodeHeatMapApp extends AbstractModule {
 
