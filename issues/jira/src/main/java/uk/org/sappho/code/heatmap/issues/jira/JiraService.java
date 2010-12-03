@@ -26,7 +26,7 @@ import uk.org.sappho.jira4j.soap.JiraSoapService;
 @Singleton
 public class JiraService implements IssueManagement {
 
-    protected String jiraURL;
+    protected String jiraURL = null;
     protected JiraSoapService jiraSoapService = null;
     protected Map<String, IssueWrapper> allowedIssues = new HashMap<String, IssueWrapper>();
     protected Map<String, String> warnedIssues = new HashMap<String, String>();
@@ -46,8 +46,14 @@ public class JiraService implements IssueManagement {
         LOG.info("Using Jira issue management plugin");
         this.warnings = warnings;
         this.config = config;
-        connect();
-        getAllowedIssues();
+    }
+
+    public void init() throws IssueManagementException {
+
+        if (jiraURL == null) {
+            connect();
+            getAllowedIssues();
+        }
     }
 
     protected void connect() throws IssueManagementException {

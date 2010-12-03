@@ -72,6 +72,7 @@ public class Subversion implements SCM {
                         + " to rev. " + endRevision
                         + " - if incrememntal then this probably means there are no new revisions");
             } else {
+                issueManagement.init();
                 Map<String, Integer> nodeKindCache = new HashMap<String, Integer>();
                 int nodeKindCacheHits = 0;
                 LOG.info("Reading Subversion history for " + url + basePath + " from rev. " + startRevision
