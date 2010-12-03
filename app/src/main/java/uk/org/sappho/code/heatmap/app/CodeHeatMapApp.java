@@ -1,5 +1,8 @@
 package uk.org.sappho.code.heatmap.app;
 
+import java.io.IOException;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.google.inject.AbstractModule;
@@ -7,24 +10,26 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import uk.org.sappho.code.heatmap.config.Configuration;
+import uk.org.sappho.code.heatmap.config.ConfigurationException;
 import uk.org.sappho.code.heatmap.config.impl.SimpleConfiguration;
 import uk.org.sappho.code.heatmap.engine.Releases;
 import uk.org.sappho.code.heatmap.engine.WarningsList;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.report.Report;
+import uk.org.sappho.code.heatmap.report.ReportException;
 import uk.org.sappho.code.heatmap.scm.SCM;
+import uk.org.sappho.code.heatmap.scm.SCMException;
 import uk.org.sappho.code.heatmap.warnings.Warnings;
 
 public class CodeHeatMapApp extends AbstractModule {
 
-    private final String commonPropertiesFilename;
-    private final String instancePropertiesFilename;
+    private final String[] args;
+    private SimpleConfiguration config;
     private static final Logger LOG = Logger.getLogger(CodeHeatMapApp.class);
 
-    public CodeHeatMapApp(String commonPropertiesFilename, String instancePropertiesFilename) {
+    public CodeHeatMapApp(String[] args) {
 
-        this.commonPropertiesFilename = commonPropertiesFilename;
-        this.instancePropertiesFilename = instancePropertiesFilename;
+        this.args = args;
     }
 
     @SuppressWarnings("unchecked")
@@ -34,9 +39,9 @@ public class CodeHeatMapApp extends AbstractModule {
         try {
             LOG.debug("Configuring plugins");
             bind(Warnings.class).toInstance(new WarningsList());
-            SimpleConfiguration config = new SimpleConfiguration();
-            config.load(commonPropertiesFilename);
-            config.load(instancePropertiesFilename);
+            config = new SimpleConfiguration();
+            for (String configFilename : args)
+                config.load(configFilename);
             bind(Configuration.class).toInstance(config);
             bind(SCM.class).to((Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.heatmap.scm"));
             bind(Report.class).to(
@@ -49,21 +54,36 @@ public class CodeHeatMapApp extends AbstractModule {
         }
     }
 
-    public static void main(String[] args) {
+    protected void run() throws SCMException, ReportException, ConfigurationException, IOException {
 
-        if (args.length == 2) {
-            try {
-                Injector injector = Guice.createInjector(new CodeHeatMapApp(args[0], args[1]));
-                Releases releases = injector.getInstance(Releases.class);
+        Injector injector = Guice.createInjector(this);
+        Releases releases = injector.getInstance(Releases.class);
+        List<String> actions = config.getPropertyList("app.run.action");
+        for (String action : actions) {
+            LOG.info("Running " + action);
+            if (action.equalsIgnoreCase("load")) {
+                releases.load();
+            } else if (action.equalsIgnoreCase("save")) {
+                releases.save();
+            } else if (action.equalsIgnoreCase("scan")) {
                 SCM scm = injector.getInstance(SCM.class);
                 scm.processChanges(releases);
+            } else if (action.equalsIgnoreCase("report")) {
                 Report report = injector.getInstance(Report.class);
                 report.writeReport(releases);
-            } catch (Throwable t) {
-                LOG.error("Application error", t);
+            } else {
+                throw new ConfigurationException("Action " + action + " is unrecognised");
             }
-        } else {
-            LOG.info("Specify the names of a common and instance configuration file on the command line");
+        }
+    }
+
+    public static void main(String[] args) {
+
+        try {
+            new CodeHeatMapApp(args).run();
+            LOG.info("Everything done");
+        } catch (Throwable t) {
+            LOG.error("Application error", t);
         }
     }
 }
