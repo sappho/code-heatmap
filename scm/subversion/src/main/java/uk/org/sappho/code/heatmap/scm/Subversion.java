@@ -31,6 +31,7 @@ public class Subversion implements SCM {
     private final Configuration config;
     private final IssueManagement issueManagement;
     private static final Logger LOG = Logger.getLogger(Subversion.class);
+    private static final String START_REV_PROP = "svn.start.rev";
 
     @Inject
     public Subversion(Warnings warnings, Configuration config, IssueManagement issueManagement) {
@@ -58,7 +59,7 @@ public class Subversion implements SCM {
                 }
             }
             long startRevision = Long
-                    .parseLong(config.getProperty("svn.start.rev", Long.toString(endRevision - 49)));
+                    .parseLong(config.getProperty(START_REV_PROP, Long.toString(endRevision - 49)));
             errorMessage = "Unable to read Subversion history for " + url + basePath + " from rev. " + startRevision
                     + " to rev. " + endRevision;
             LOG.debug("Subversion history scan parameters:");
@@ -66,63 +67,72 @@ public class Subversion implements SCM {
             LOG.debug("basePath:      " + basePath);
             LOG.debug("startRevision: " + startRevision);
             LOG.debug("endRevision:   " + endRevision);
-            Map<String, Integer> nodeKindCache = new HashMap<String, Integer>();
-            int nodeKindCacheHits = 0;
-            LOG.info("Reading Subversion history for " + url + basePath + " from rev. " + startRevision
-                    + " to rev. " + endRevision);
-            LogMessage[] logMessages = svnClient.logMessages(url + basePath, Revision.getInstance(startRevision),
-                    Revision.getInstance(endRevision), false, true);
-            LOG.info("Processing " + logMessages.length + " revisions");
-            int revisionCount = 0;
-            for (LogMessage logMessage : logMessages) {
-                long revisionNumber = logMessage.getRevisionNumber();
-                String commitComment = logMessage.getMessage();
-                IssueWrapper issue = issueManagement.getIssue(commitComment);
-                if (issue != null) {
-                    LOG.debug("Processing rev. " + revisionNumber + " " + commitComment);
-                    List<ConfigurableItem> changedFiles = new Vector<ConfigurableItem>();
-                    for (ChangePath changePath : logMessage.getChangedPaths()) {
-                        String path = changePath.getPath();
-                        if (changePath.getAction() != 'D') {
-                            int nodeKind = changePath.getNodeKind();
-                            if (nodeKind == NodeKind.unknown) {
-                                Integer nodeKindObj = nodeKindCache.get(path);
-                                if (nodeKindObj != null) {
-                                    nodeKind = nodeKindObj;
-                                    nodeKindCacheHits++;
-                                } else {
-                                    Revision revisionId = Revision.getInstance(revisionNumber);
-                                    Info2[] info = svnClient.info2(url + path, revisionId, revisionId, false);
-                                    if (info.length == 1) {
-                                        nodeKind = info[0].getKind();
-                                        nodeKindCache.put(path, nodeKind);
+            if (endRevision < startRevision) {
+                LOG.info("Unable to read Subversion history for " + url + basePath + " from rev. " + startRevision
+                        + " to rev. " + endRevision
+                        + " - if incrememntal then this probably means there are no new revisions");
+            } else {
+                Map<String, Integer> nodeKindCache = new HashMap<String, Integer>();
+                int nodeKindCacheHits = 0;
+                LOG.info("Reading Subversion history for " + url + basePath + " from rev. " + startRevision
+                        + " to rev. " + endRevision);
+                LogMessage[] logMessages = svnClient.logMessages(url + basePath, Revision.getInstance(startRevision),
+                        Revision.getInstance(endRevision), false, true);
+                LOG.info("Processing " + logMessages.length + " revisions");
+                int revisionCount = 0;
+                for (LogMessage logMessage : logMessages) {
+                    long revisionNumber = logMessage.getRevisionNumber();
+                    String commitComment = logMessage.getMessage();
+                    IssueWrapper issue = issueManagement.getIssue(commitComment);
+                    if (issue != null) {
+                        LOG.debug("Processing rev. " + revisionNumber + " " + commitComment);
+                        List<ConfigurableItem> changedFiles = new Vector<ConfigurableItem>();
+                        for (ChangePath changePath : logMessage.getChangedPaths()) {
+                            String path = changePath.getPath();
+                            if (changePath.getAction() != 'D') {
+                                int nodeKind = changePath.getNodeKind();
+                                if (nodeKind == NodeKind.unknown) {
+                                    Integer nodeKindObj = nodeKindCache.get(path);
+                                    if (nodeKindObj != null) {
+                                        nodeKind = nodeKindObj;
+                                        nodeKindCacheHits++;
                                     } else {
-                                        warnings.add(new SubversionPathWarning(path));
+                                        Revision revisionId = Revision.getInstance(revisionNumber);
+                                        Info2[] info = svnClient.info2(url + path, revisionId, revisionId, false);
+                                        if (info.length == 1) {
+                                            nodeKind = info[0].getKind();
+                                            nodeKindCache.put(path, nodeKind);
+                                        } else {
+                                            warnings.add(new SubversionPathWarning(path));
+                                        }
                                     }
                                 }
+                                switch (nodeKind) {
+                                case NodeKind.file:
+                                    LOG.debug("Processing changed file " + path);
+                                    changedFiles.add(new ConfigurableItem(path));
+                                    break;
+                                case NodeKind.dir:
+                                    LOG.debug("Path " + path + " is a directory so not including it");
+                                    break;
+                                default:
+                                    LOG.debug("Path " + path + " is of unknown type so not including it");
+                                }
+                            } else {
+                                LOG.debug("Path " + path + " is deleted so not including it");
                             }
-                            switch (nodeKind) {
-                            case NodeKind.file:
-                                LOG.debug("Processing changed file " + path);
-                                changedFiles.add(new ConfigurableItem(path));
-                                break;
-                            case NodeKind.dir:
-                                LOG.debug("Path " + path + " is a directory so not including it");
-                                break;
-                            default:
-                                LOG.debug("Path " + path + " is of unknown type so not including it");
-                            }
-                        } else {
-                            LOG.debug("Path " + path + " is deleted so not including it");
                         }
-                    }
-                    releases.update(new ChangeSet(Long.toString(revisionNumber), commitComment, issue,
+                        releases.update(new ChangeSet(Long.toString(revisionNumber), commitComment, issue,
                                 changedFiles));
-                    revisionCount++;
+                        revisionCount++;
+                    }
                 }
+                LOG.info("Added " + revisionCount + " revisions to heat maps with " + nodeKindCacheHits
+                        + " node kind cache hits");
+                config.takeSnapshot();
+                config.setProperty(START_REV_PROP, "" + ++endRevision);
+                config.saveChanged(START_REV_PROP + ".save.filename");
             }
-            LOG.info("Added " + revisionCount + " revisions to heat maps with " + nodeKindCacheHits
-                    + " node kind cache hits");
         } catch (Throwable t) {
             throw new SCMException(errorMessage, t);
         }

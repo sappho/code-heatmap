@@ -13,4 +13,12 @@ public interface Configuration {
     public List<String> getPropertyList(String name, List<String> defaultValue);
 
     public Class<?> getPlugin(String name, String defaultPackage) throws ConfigurationException;
+
+    public void setProperty(String name, String value);
+
+    public void load(String filename) throws ConfigurationException;
+
+    public void takeSnapshot();
+
+    public void saveChanged(String filenameKey) throws ConfigurationException;
 }

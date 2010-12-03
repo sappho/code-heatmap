@@ -1,8 +1,10 @@
 package uk.org.sappho.code.heatmap.config.impl;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
@@ -17,18 +19,13 @@ import uk.org.sappho.code.heatmap.config.ConfigurationException;
 public class SimpleConfiguration implements Configuration {
 
     private final Properties properties = new Properties(System.getProperties());
+    private Properties snapshotProperties = null;
     private static final Logger LOG = Logger.getLogger(SimpleConfiguration.class);
 
     @Inject
     public SimpleConfiguration() {
 
         LOG.info("Using plain properties file configuration plugin");
-    }
-
-    public void load(String filename) throws FileNotFoundException, IOException {
-
-        LOG.info("Loading configuration from " + filename);
-        properties.load(new FileReader(filename));
     }
 
     public String getProperty(String name) throws ConfigurationException {
@@ -87,5 +84,65 @@ public class SimpleConfiguration implements Configuration {
             }
         }
         return clazz;
+    }
+
+    public void setProperty(String name, String value) {
+
+        properties.setProperty(name, value);
+    }
+
+    public void load(String filename) throws ConfigurationException {
+
+        LOG.info("Loading configuration from " + filename);
+        try {
+            Reader reader = new FileReader(filename);
+            properties.load(reader);
+            reader.close();
+        } catch (IOException e) {
+            throw new ConfigurationException("Unable to load configuration from " + filename, e);
+        }
+    }
+
+    public void takeSnapshot() {
+
+        snapshotProperties = new Properties();
+        for (Object nameObj : properties.keySet()) {
+            String name = (String) nameObj;
+            String value = properties.getProperty(name);
+            snapshotProperties.setProperty(name, value);
+        }
+    }
+
+    public void saveChanged(String filenameKey) throws ConfigurationException {
+
+        String filename = getProperty(filenameKey, null);
+        if (filename != null) {
+            if (snapshotProperties != null) {
+                Properties changedProperties = new Properties();
+                for (Object nameObj : properties.keySet()) {
+                    String name = (String) nameObj;
+                    String value = properties.getProperty(name);
+                    String originalValue = snapshotProperties.getProperty(name);
+                    if (originalValue == null || !originalValue.equals(value)) {
+                        changedProperties.setProperty(name, value);
+                    }
+                }
+                if (changedProperties.size() != 0) {
+                    LOG.info("Saving changed configuration items to " + filename);
+                    try {
+                        Writer writer = new FileWriter(filename);
+                        changedProperties.store(writer, null);
+                        writer.close();
+                    } catch (IOException e) {
+                        throw new ConfigurationException("Unable to save changed configuration to " + filename, e);
+                    }
+                }
+                snapshotProperties = null;
+            } else {
+                LOG.debug("Attempt to save property changes without taking a snapshot first");
+            }
+        } else {
+            LOG.info("configuration property " + filenameKey + " not specified so not saving property updates");
+        }
     }
 }
