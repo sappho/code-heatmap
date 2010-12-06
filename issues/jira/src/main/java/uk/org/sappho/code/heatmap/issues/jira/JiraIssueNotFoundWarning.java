@@ -1,6 +1,5 @@
 package uk.org.sappho.code.heatmap.issues.jira;
 
-
 public class JiraIssueNotFoundWarning extends JiraWarning {
 
     public String issueKey;
@@ -21,6 +20,6 @@ public class JiraIssueNotFoundWarning extends JiraWarning {
     public String toString() {
 
         return "Jira issue " + issueKey
-                + " not found - query specified in jira.filter.issues.allowed configuration too restrictive?";
+                + " not found - query specified in jira.jql.issues.allowed configuration too restrictive?";
     }
 }

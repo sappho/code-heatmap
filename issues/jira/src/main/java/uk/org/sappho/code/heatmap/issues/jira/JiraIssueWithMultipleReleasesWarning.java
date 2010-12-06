@@ -23,6 +23,10 @@ public class JiraIssueWithMultipleReleasesWarning extends JiraWarning {
     @Override
     public String toString() {
 
-        return "issue " + issueKey + " has multiple releases: " + releases.toString();
+        String warning = "issue " + issueKey + " has multiple releases:";
+        for (String release : releases) {
+            warning += " " + release;
+        }
+        return warning;
     }
 }
