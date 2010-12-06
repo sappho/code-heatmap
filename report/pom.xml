@@ -14,7 +14,6 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>csv</module>
 		<module>formatted-report</module>
 	</modules>
 
