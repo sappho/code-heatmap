@@ -1,47 +1,51 @@
 package uk.org.sappho.code.heatmap.engine;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 
 public class HeatMaps {
 
-    public static final String DIRECTORY = "directories";
-    public static final String FILENAME = "filenames";
-    public static final String FULLFILENAME = "fullfilenames";
-    public static final String CLASSNAME = "classnames";
-    public static final String PACKAGENAME = "packagenames";
-    public static final String[] HEATMAPS = { DIRECTORY, FILENAME, FULLFILENAME, CLASSNAME, PACKAGENAME };
-
+    private static final Pattern JAVA_REGEX = Pattern
+            .compile("^.+?/((com|org|net|edu|gov|mil|biz|info)/.+)/(.+?)\\.java$");
     private final Map<String, HeatMap> heatMaps = new HashMap<String, HeatMap>();
-
-    public HeatMaps() {
-
-        for (String heatMapName : HEATMAPS) {
-            heatMaps.put(heatMapName, new HeatMap());
-        }
-    }
 
     public void update(ChangeSet change) throws IssueManagementException {
 
-        for (ConfigurableItem configurableItem : change.getConfigurableItems()) {
-            heatMaps.get(DIRECTORY).update(configurableItem.getDirectory(), change);
-            heatMaps.get(FILENAME).update(configurableItem.getFilename(), change);
-            heatMaps.get(FULLFILENAME).update(configurableItem.getFullFilename(), change);
-            if (configurableItem.isJava()) {
-                heatMaps.get(CLASSNAME).update(configurableItem.getClassName(), change);
-                heatMaps.get(PACKAGENAME).update(configurableItem.getPackageName(), change);
+        for (String changedFile : change.getChangedFiles()) {
+            File file = new File(changedFile);
+            update("directories", file.getParent(), change);
+            update("filenames", file.getName(), change);
+            update("fullfilenames", changedFile, change);
+            Matcher javaMatcher = JAVA_REGEX.matcher(changedFile);
+            if (javaMatcher.matches()) {
+                update("classnames", javaMatcher.group(3), change);
+                update("packagenames", javaMatcher.group(1).replace('/', '.'), change);
             }
         }
+    }
+
+    private void update(String heatMapName, String changedItemName, ChangeSet change)
+            throws IssueManagementException {
+
+        HeatMap heatMap = heatMaps.get(heatMapName);
+        if (heatMap == null) {
+            heatMap = new HeatMap();
+            heatMaps.put(heatMapName, heatMap);
+        }
+        heatMap.update(changedItemName, change);
     }
 
     public List<String> getHeatMapNames() {
 
         List<String> names = new Vector<String>();
-        for (String name : HEATMAPS) {
+        for (String name : heatMaps.keySet()) {
             if (heatMaps.get(name).getUnsortedHeatMapItems().size() != 0) {
                 names.add(name);
             }

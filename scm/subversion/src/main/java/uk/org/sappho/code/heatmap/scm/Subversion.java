@@ -18,7 +18,6 @@ import com.google.inject.Inject;
 
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.engine.ChangeSet;
-import uk.org.sappho.code.heatmap.engine.ConfigurableItem;
 import uk.org.sappho.code.heatmap.engine.Releases;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
@@ -87,7 +86,7 @@ public class Subversion implements SCM {
                     IssueWrapper issue = issueManagement.getIssue(commitComment);
                     if (issue != null) {
                         LOG.debug("Processing rev. " + revisionNumber + " " + commitComment);
-                        List<ConfigurableItem> changedFiles = new Vector<ConfigurableItem>();
+                        List<String> changedFiles = new Vector<String>();
                         for (ChangePath changePath : logMessage.getChangedPaths()) {
                             String path = changePath.getPath();
                             if (changePath.getAction() != 'D') {
@@ -111,7 +110,7 @@ public class Subversion implements SCM {
                                 switch (nodeKind) {
                                 case NodeKind.file:
                                     LOG.debug("Processing changed file " + path);
-                                    changedFiles.add(new ConfigurableItem(path));
+                                    changedFiles.add(path);
                                     break;
                                 case NodeKind.dir:
                                     LOG.debug("Path " + path + " is a directory so not including it");
