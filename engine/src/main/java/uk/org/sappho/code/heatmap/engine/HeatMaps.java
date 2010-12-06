@@ -19,27 +19,26 @@ public class HeatMaps {
     public void update(ChangeSet change) throws IssueManagementException {
 
         for (String changedFile : change.getChangedFiles()) {
+            List<HeatMapMapping> mappings = new Vector<HeatMapMapping>();
             File file = new File(changedFile);
-            update("directories", file.getParent(), change);
-            update("filenames", file.getName(), change);
-            update("fullfilenames", changedFile, change);
+            mappings.add(new HeatMapMapping("directories", file.getParent()));
+            mappings.add(new HeatMapMapping("filenames", file.getName()));
+            mappings.add(new HeatMapMapping("fullfilenames", changedFile));
             Matcher javaMatcher = JAVA_REGEX.matcher(changedFile);
             if (javaMatcher.matches()) {
-                update("classnames", javaMatcher.group(3), change);
-                update("packagenames", javaMatcher.group(1).replace('/', '.'), change);
+                mappings.add(new HeatMapMapping("classnames", javaMatcher.group(3)));
+                mappings.add(new HeatMapMapping("packagenames", javaMatcher.group(1).replace('/', '.')));
+            }
+            for (HeatMapMapping mapping : mappings) {
+                String heatMapName = mapping.getName();
+                HeatMap heatMap = heatMaps.get(heatMapName);
+                if (heatMap == null) {
+                    heatMap = new HeatMap();
+                    heatMaps.put(heatMapName, heatMap);
+                }
+                heatMap.update(mapping.getItem(), change);
             }
         }
-    }
-
-    private void update(String heatMapName, String changedItemName, ChangeSet change)
-            throws IssueManagementException {
-
-        HeatMap heatMap = heatMaps.get(heatMapName);
-        if (heatMap == null) {
-            heatMap = new HeatMap();
-            heatMaps.put(heatMapName, heatMap);
-        }
-        heatMap.update(changedItemName, change);
     }
 
     public List<String> getHeatMapNames() {
