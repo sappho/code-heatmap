@@ -18,6 +18,7 @@ import com.thoughtworks.xstream.XStream;
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.config.ConfigurationException;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
+import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 
 public class Releases {
@@ -26,6 +27,7 @@ public class Releases {
     private final String storeFilename;
     private final Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
     private ReleasesRawData releasesRawData = new ReleasesRawData();
+    private final XStream xstream = new XStream();
     private final HeatMapSelector heatMapSelector;
     private static final Logger LOG = Logger.getLogger(Releases.class);
 
@@ -34,6 +36,9 @@ public class Releases {
 
         releaseNames = config.getPropertyList("releases");
         storeFilename = config.getProperty("releases.store.filename", "heatmap-data.xml");
+        for (Class clazz : new Class[] { ReleasesRawData.class, IssueWrapper.class, ChangeSet.class }) {
+            xstream.alias(clazz.getSimpleName(), clazz);
+        }
         this.heatMapSelector = heatMapSelector;
     }
 
@@ -78,7 +83,6 @@ public class Releases {
     public void load() throws IOException, IssueManagementException {
 
         LOG.info("Loading data from " + storeFilename);
-        XStream xstream = new XStream();
         Reader reader = new FileReader(storeFilename);
         releasesRawData = (ReleasesRawData) xstream.fromXML(reader);
         reader.close();
@@ -90,7 +94,6 @@ public class Releases {
     public void save() throws IOException {
 
         LOG.info("Saving data to " + storeFilename);
-        XStream xstream = new XStream();
         Writer writer = new FileWriter(storeFilename);
         xstream.toXML(releasesRawData, writer);
         writer.close();
