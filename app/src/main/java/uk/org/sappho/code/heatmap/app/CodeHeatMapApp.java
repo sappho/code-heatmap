@@ -65,7 +65,11 @@ public class CodeHeatMapApp extends AbstractModule {
         List<String> actions = config.getPropertyList("app.run.action");
         for (String action : actions) {
             LOG.info("Running " + action);
-            if (action.equalsIgnoreCase("scan")) {
+            if (action.equalsIgnoreCase("load")) {
+                releases.load();
+            } else if (action.equalsIgnoreCase("save")) {
+                releases.save();
+            } else if (action.equalsIgnoreCase("scan")) {
                 SCM scm = injector.getInstance(SCM.class);
                 scm.processChanges(releases);
             } else if (action.equalsIgnoreCase("report")) {
