@@ -14,6 +14,7 @@ import uk.org.sappho.code.heatmap.config.ConfigurationException;
 import uk.org.sappho.code.heatmap.config.impl.SimpleConfiguration;
 import uk.org.sappho.code.heatmap.engine.Releases;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
+import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.report.ReportException;
 import uk.org.sappho.code.heatmap.scm.SCM;
@@ -49,6 +50,9 @@ public class CodeHeatMapApp extends AbstractModule {
             bind(IssueManagement.class).to(
                     (Class<? extends IssueManagement>) config.getPlugin("issues.plugin",
                             "uk.org.sappho.code.heatmap.issues"));
+            bind(HeatMapSelector.class).to(
+                    (Class<? extends HeatMapSelector>) config.getPlugin("mapping.heatmap.selector.plugin",
+                            "uk.org.sappho.code.heatmap.mapping"));
         } catch (Throwable t) {
             LOG.error("Unable to load plugins", t);
         }

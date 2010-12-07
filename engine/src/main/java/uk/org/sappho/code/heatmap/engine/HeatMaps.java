@@ -7,12 +7,16 @@ import java.util.Vector;
 
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
-import uk.org.sappho.code.heatmap.mapping.SimpleHeatMapSelector;
 
 public class HeatMaps {
 
     private final Map<String, HeatMap> heatMaps = new HashMap<String, HeatMap>();
-    private final static HeatMapSelector heatMapSelector = new SimpleHeatMapSelector();
+    private final HeatMapSelector heatMapSelector;
+
+    public HeatMaps(HeatMapSelector heatMapSelector) {
+
+        this.heatMapSelector = heatMapSelector;
+    }
 
     public void update(ChangeSet change) throws IssueManagementException {
 

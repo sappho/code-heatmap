@@ -18,19 +18,22 @@ import com.thoughtworks.xstream.XStream;
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.config.ConfigurationException;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
+import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 
 public class Releases {
 
     private final List<String> releaseNames;
     private final String storeFilename;
     private Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
+    private final HeatMapSelector heatMapSelector;
     private static final Logger LOG = Logger.getLogger(Releases.class);
 
     @Inject
-    public Releases(Configuration config) throws ConfigurationException {
+    public Releases(Configuration config, HeatMapSelector heatMapSelector) throws ConfigurationException {
 
         releaseNames = config.getPropertyList("releases");
         storeFilename = config.getProperty("releases.store.filename", "heatmap-data.xml");
+        this.heatMapSelector = heatMapSelector;
     }
 
     public void update(ChangeSet change) throws IssueManagementException {
@@ -39,7 +42,7 @@ public class Releases {
         for (String issueRelease : issueReleases) {
             HeatMaps heatMaps = releases.get(issueRelease);
             if (heatMaps == null) {
-                heatMaps = new HeatMaps();
+                heatMaps = new HeatMaps(heatMapSelector);
                 releases.put(issueRelease, heatMaps);
             }
             heatMaps.update(change);
