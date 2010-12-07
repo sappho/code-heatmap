@@ -31,10 +31,10 @@ public class Releases {
         for (String issueRelease : issueReleases) {
             HeatMaps heatMaps = releases.get(issueRelease);
             if (heatMaps == null) {
-                heatMaps = new HeatMaps(heatMapSelector);
+                heatMaps = new HeatMaps();
                 releases.put(issueRelease, heatMaps);
             }
-            heatMaps.update(change);
+            heatMaps.update(change, heatMapSelector);
         }
     }
 

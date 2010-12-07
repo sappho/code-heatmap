@@ -11,14 +11,8 @@ import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 public class HeatMaps {
 
     private final Map<String, HeatMap> heatMaps = new HashMap<String, HeatMap>();
-    private final HeatMapSelector heatMapSelector;
 
-    public HeatMaps(HeatMapSelector heatMapSelector) {
-
-        this.heatMapSelector = heatMapSelector;
-    }
-
-    public void update(ChangeSet change) throws IssueManagementException {
+    public void update(ChangeSet change, HeatMapSelector heatMapSelector) throws IssueManagementException {
 
         for (String changedFile : change.getChangedFiles()) {
             List<HeatMapMapping> mappings = heatMapSelector.map(changedFile);
