@@ -72,8 +72,9 @@ public class JiraService implements IssueManagement {
         }
         try {
             getParentService = new GetParentService(jiraURL, username, password);
-            getParentService.getParent("");
+            LOG.info("Using optional GetParent SOAP web service");
         } catch (Throwable t) {
+            LOG.info("GetParent SOAP web service is not installed or authentication failed");
             getParentService = null;
         }
     }
