@@ -2,15 +2,45 @@ package uk.org.sappho.code.heatmap.issues;
 
 import java.util.List;
 
-public interface IssueWrapper {
+public class IssueWrapper {
 
-    public String getKey();
+    private final String issueKey;
+    private final String summary;
+    private final String subTaskKey;
+    private final List<String> releases;
+    private final int weight;
 
-    public String getSubTaskKey();
+    public IssueWrapper(String issueKey, String summary, String subTaskKey, List<String> releases, int weight) {
 
-    public String getSummary();
+        this.issueKey = issueKey;
+        this.summary = summary;
+        this.subTaskKey = subTaskKey;
+        this.releases = releases;
+        this.weight = weight;
+    }
 
-    public List<String> getReleases();
+    public String getKey() {
 
-    public int getWeight();
+        return issueKey;
+    }
+
+    public String getSubTaskKey() {
+
+        return subTaskKey;
+    }
+
+    public String getSummary() {
+
+        return summary;
+    }
+
+    public List<String> getReleases() {
+
+        return releases;
+    }
+
+    public int getWeight() {
+
+        return weight;
+    }
 }
