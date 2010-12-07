@@ -24,7 +24,8 @@ public class Releases {
 
     private final List<String> releaseNames;
     private final String storeFilename;
-    private Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
+    private final Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
+    private ReleasesRawData releasesRawData = new ReleasesRawData();
     private final HeatMapSelector heatMapSelector;
     private static final Logger LOG = Logger.getLogger(Releases.class);
 
@@ -38,6 +39,14 @@ public class Releases {
 
     public void update(ChangeSet change) throws IssueManagementException {
 
+        update(change, true);
+    }
+
+    private void update(ChangeSet change, boolean updateRawData) throws IssueManagementException {
+
+        if (updateRawData) {
+            releasesRawData.update(change);
+        }
         List<String> issueReleases = change.getIssue().getReleases();
         for (String issueRelease : issueReleases) {
             HeatMaps heatMaps = releases.get(issueRelease);
@@ -66,13 +75,16 @@ public class Releases {
     }
 
     @SuppressWarnings("unchecked")
-    public void load() throws IOException {
+    public void load() throws IOException, IssueManagementException {
 
         LOG.info("Loading data from " + storeFilename);
         XStream xstream = new XStream();
         Reader reader = new FileReader(storeFilename);
-        releases = (Map<String, HeatMaps>) xstream.fromXML(reader);
+        releasesRawData = (ReleasesRawData) xstream.fromXML(reader);
         reader.close();
+        for (ChangeSet change : releasesRawData.getChanges()) {
+            update(change, false);
+        }
     }
 
     public void save() throws IOException {
@@ -80,7 +92,7 @@ public class Releases {
         LOG.info("Saving data to " + storeFilename);
         XStream xstream = new XStream();
         Writer writer = new FileWriter(storeFilename);
-        xstream.toXML(releases, writer);
+        xstream.toXML(releasesRawData, writer);
         writer.close();
     }
 }
