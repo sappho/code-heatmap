@@ -14,7 +14,7 @@ import uk.org.sappho.code.heatmap.engine.HeatMapMapping;
 public class SimpleHeatMapSelector implements HeatMapSelector {
 
     private static final Pattern JAVA_REGEX = Pattern
-            .compile("^.+?/((com|org|net|edu|gov|mil|biz|info)/.+)/(.+?)\\.java$");
+            .compile("^.+?/((com|org|net|edu|gov|mil|biz|info|uk)/.+)/(.+?)\\.java$");
 
     public List<HeatMapMapping> map(String changedFile) {
 

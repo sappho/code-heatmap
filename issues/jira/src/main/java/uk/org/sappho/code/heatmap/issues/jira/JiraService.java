@@ -21,6 +21,7 @@ import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 import uk.org.sappho.code.heatmap.warnings.Warnings;
 import uk.org.sappho.code.heatmap.warnings.impl.MessageWarning;
+import uk.org.sappho.jira4j.soap.GetParentService;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
 
 @Singleton
@@ -28,6 +29,7 @@ public class JiraService implements IssueManagement {
 
     protected String jiraURL = null;
     protected JiraSoapService jiraSoapService = null;
+    protected GetParentService getParentService = null;
     protected Map<String, IssueWrapper> allowedIssues = new HashMap<String, IssueWrapper>();
     protected Map<String, String> releases = new HashMap<String, String>();
     protected Map<String, String> issueTypes = new HashMap<String, String>();
@@ -51,7 +53,9 @@ public class JiraService implements IssueManagement {
 
         if (jiraURL == null) {
             connect();
-            getAllowedIssues();
+            if (getParentService == null) {
+                preFetchAllowedIssues();
+            }
         }
     }
 
@@ -66,9 +70,15 @@ public class JiraService implements IssueManagement {
         } catch (Throwable t) {
             throw new IssueManagementException("Unable to log in to Jira at " + jiraURL + " as user " + username, t);
         }
+        try {
+            getParentService = new GetParentService(jiraURL, username, password);
+            getParentService.getParent("");
+        } catch (Throwable t) {
+            getParentService = null;
+        }
     }
 
-    protected void getAllowedIssues() throws IssueManagementException {
+    protected void preFetchAllowedIssues() throws IssueManagementException {
 
         /**
          * note: this is a bit rubbish but because jira's soap interface doesn't have a getParent function it's the only way to fake it
