@@ -12,7 +12,11 @@ import com.google.inject.Injector;
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.config.ConfigurationException;
 import uk.org.sappho.code.heatmap.config.impl.SimpleConfiguration;
-import uk.org.sappho.code.heatmap.engine.Releases;
+import uk.org.sappho.code.heatmap.data.RawData;
+import uk.org.sappho.code.heatmap.data.RawDataPersistence;
+import uk.org.sappho.code.heatmap.engine.ChangeSet;
+import uk.org.sappho.code.heatmap.engine.Engine;
+import uk.org.sappho.code.heatmap.engine.EngineException;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
@@ -51,6 +55,9 @@ public class CodeHeatMapApp extends AbstractModule {
             bind(IssueManagement.class).to(
                     (Class<? extends IssueManagement>) config.getPlugin("issues.plugin",
                             "uk.org.sappho.code.heatmap.issues"));
+            bind(Engine.class).to(
+                    (Class<? extends Engine>) config.getPlugin("engine.plugin",
+                            "uk.org.sappho.code.heatmap.engine"));
             bind(HeatMapSelector.class).to(
                     (Class<? extends HeatMapSelector>) config.getPlugin("mapping.heatmap.selector.plugin",
                             "uk.org.sappho.code.heatmap.mapping"));
@@ -60,23 +67,26 @@ public class CodeHeatMapApp extends AbstractModule {
     }
 
     protected void run() throws SCMException, ReportException, ConfigurationException, IOException,
-            IssueManagementException {
+            IssueManagementException, EngineException {
 
         Injector injector = Guice.createInjector(this);
-        Releases releases = injector.getInstance(Releases.class);
+        RawData rawData = new RawData();
+        RawDataPersistence rawDataPersistence = new RawDataPersistence(config);
         List<String> actions = config.getPropertyList("app.run.action");
         for (String action : actions) {
             LOG.info("Running " + action);
             if (action.equalsIgnoreCase("load")) {
-                releases.load();
+                rawData = rawDataPersistence.load();
             } else if (action.equalsIgnoreCase("save")) {
-                releases.save();
+                rawDataPersistence.save(rawData);
             } else if (action.equalsIgnoreCase("scan")) {
                 SCM scm = injector.getInstance(SCM.class);
-                scm.processChanges(releases);
+                List<ChangeSet> changeSets = scm.scan();
+                rawData.add(changeSets);
             } else if (action.equalsIgnoreCase("report")) {
-                Report report = injector.getInstance(Report.class);
-                report.writeReport(releases);
+                Engine engine = injector.getInstance(Engine.class);
+                engine.add(rawData.getChangeSets());
+                engine.run();
             } else {
                 throw new ConfigurationException("Action " + action + " is unrecognised");
             }

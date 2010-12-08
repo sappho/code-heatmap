@@ -1,8 +1,10 @@
 package uk.org.sappho.code.heatmap.scm;
 
-import uk.org.sappho.code.heatmap.engine.Releases;
+import java.util.List;
+
+import uk.org.sappho.code.heatmap.engine.ChangeSet;
 
 public interface SCM {
 
-    public void processChanges(Releases heatMapsForReleases) throws SCMException;
+    public List<ChangeSet> scan() throws SCMException;
 }

@@ -10,18 +10,25 @@ import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
 public class RawData {
 
-    private final Map<String, IssueWrapper> issues = new HashMap<String, IssueWrapper>();
-    private final List<ChangeSet> changes = new Vector<ChangeSet>();
+    private final Map<String, IssueWrapper> issueWrappers = new HashMap<String, IssueWrapper>();
+    private final List<ChangeSet> changeSets = new Vector<ChangeSet>();
 
     public void add(ChangeSet change) {
 
-        changes.add(change);
+        changeSets.add(change);
         IssueWrapper issue = change.getIssue();
-        issues.put(issue.getKey(), issue);
+        issueWrappers.put(issue.getKey(), issue);
+    }
+
+    public void add(List<ChangeSet> changeSets) {
+
+        for (ChangeSet changeSet : changeSets) {
+            add(changeSet);
+        }
     }
 
     public List<ChangeSet> getChangeSets() {
 
-        return changes;
+        return changeSets;
     }
 }

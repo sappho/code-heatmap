@@ -18,7 +18,6 @@ import com.google.inject.Inject;
 
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.engine.ChangeSet;
-import uk.org.sappho.code.heatmap.engine.Releases;
 import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 import uk.org.sappho.code.heatmap.warnings.Warnings;
@@ -41,8 +40,9 @@ public class Subversion implements SCM {
         this.issueManagement = issueManagement;
     }
 
-    public void processChanges(Releases releases) throws SCMException {
+    public List<ChangeSet> scan() throws SCMException {
 
+        List<ChangeSet> changeSets = new Vector<ChangeSet>();
         String errorMessage = "Unable to find Subversion session parameters";
         try {
             String url = config.getProperty("svn.url");
@@ -122,8 +122,8 @@ public class Subversion implements SCM {
                                 LOG.debug("Path " + path + " is deleted so not including it");
                             }
                         }
-                        releases.add(new ChangeSet(Long.toString(revisionNumber), commitComment, issue,
-                                changedFiles));
+                        changeSets
+                                .add(new ChangeSet(Long.toString(revisionNumber), commitComment, issue, changedFiles));
                         revisionCount++;
                     }
                 }
@@ -136,5 +136,6 @@ public class Subversion implements SCM {
         } catch (Throwable t) {
             throw new SCMException(errorMessage, t);
         }
+        return changeSets;
     }
 }
