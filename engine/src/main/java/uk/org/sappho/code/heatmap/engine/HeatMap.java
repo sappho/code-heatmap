@@ -6,20 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import uk.org.sappho.code.heatmap.issues.IssueManagementException;
-
 public class HeatMap {
 
     private final Map<String, HeatMapItem> heatMapItems = new HashMap<String, HeatMapItem>();
 
-    public void update(String configurableItemName, ChangeSet changeSet) throws IssueManagementException {
+    public void add(String configurableItemName, ChangeSet changeSet) {
 
         HeatMapItem item = heatMapItems.get(configurableItemName);
         if (item == null) {
             item = new HeatMapItem(configurableItemName);
             heatMapItems.put(configurableItemName, item);
         }
-        item.update(changeSet);
+        item.add(changeSet);
     }
 
     public List<HeatMapItem> getUnsortedHeatMapItems() {

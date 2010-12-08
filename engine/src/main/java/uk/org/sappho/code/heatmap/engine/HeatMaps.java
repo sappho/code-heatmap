@@ -5,14 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 
 public class HeatMaps {
 
     private final Map<String, HeatMap> heatMaps = new HashMap<String, HeatMap>();
 
-    public void update(ChangeSet change, HeatMapSelector heatMapSelector) throws IssueManagementException {
+    public void add(ChangeSet change, HeatMapSelector heatMapSelector) {
 
         for (String changedFile : change.getChangedFiles()) {
             List<HeatMapMapping> mappings = heatMapSelector.map(changedFile);
@@ -23,7 +22,7 @@ public class HeatMaps {
                     heatMap = new HeatMap();
                     heatMaps.put(heatMapName, heatMap);
                 }
-                heatMap.update(mapping.getItem(), change);
+                heatMap.add(mapping.getItem(), change);
             }
         }
     }

@@ -43,12 +43,12 @@ public class Releases {
         this.heatMapSelector = heatMapSelector;
     }
 
-    public void update(ChangeSet change) throws IssueManagementException {
+    public void add(ChangeSet change) {
 
-        update(change, true);
+        add(change, true);
     }
 
-    private void update(ChangeSet change, boolean updateRawData) throws IssueManagementException {
+    private void add(ChangeSet change, boolean updateRawData) {
 
         if (updateRawData) {
             releasesRawData.add(change);
@@ -60,7 +60,7 @@ public class Releases {
                 heatMaps = new HeatMaps();
                 releases.put(issueRelease, heatMaps);
             }
-            heatMaps.update(change, heatMapSelector);
+            heatMaps.add(change, heatMapSelector);
         }
     }
 
@@ -88,7 +88,7 @@ public class Releases {
         releasesRawData = (RawData) xstream.fromXML(reader);
         reader.close();
         for (ChangeSet change : releasesRawData.getChangeSets()) {
-            update(change, false);
+            add(change, false);
         }
     }
 

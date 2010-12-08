@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
 public class HeatMapItem implements Comparable<HeatMapItem> {
@@ -19,7 +18,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         this.configurableItemName = configurableItemName;
     }
 
-    public void update(ChangeSet changeSet) throws IssueManagementException {
+    public void add(ChangeSet changeSet) {
 
         IssueWrapper issue = changeSet.getIssue();
         List<ChangeSet> changes = issues.get(issue);

@@ -122,7 +122,7 @@ public class Subversion implements SCM {
                                 LOG.debug("Path " + path + " is deleted so not including it");
                             }
                         }
-                        releases.update(new ChangeSet(Long.toString(revisionNumber), commitComment, issue,
+                        releases.add(new ChangeSet(Long.toString(revisionNumber), commitComment, issue,
                                 changedFiles));
                         revisionCount++;
                     }
