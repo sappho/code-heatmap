@@ -21,7 +21,6 @@ import uk.org.sappho.code.heatmap.issues.IssueManagement;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 import uk.org.sappho.code.heatmap.report.Report;
-import uk.org.sappho.code.heatmap.report.ReportException;
 import uk.org.sappho.code.heatmap.scm.SCM;
 import uk.org.sappho.code.heatmap.scm.SCMException;
 import uk.org.sappho.code.heatmap.warnings.Warnings;
@@ -66,8 +65,8 @@ public class CodeHeatMapApp extends AbstractModule {
         }
     }
 
-    protected void run() throws SCMException, ReportException, ConfigurationException, IOException,
-            IssueManagementException, EngineException {
+    protected void run() throws ConfigurationException, IOException, IssueManagementException, SCMException,
+            EngineException {
 
         Injector injector = Guice.createInjector(this);
         RawData rawData = new RawData();
