@@ -17,6 +17,7 @@ import com.thoughtworks.xstream.XStream;
 
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.config.ConfigurationException;
+import uk.org.sappho.code.heatmap.data.RawData;
 import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
@@ -26,7 +27,7 @@ public class Releases {
     private final List<String> releaseNames;
     private final String storeFilename;
     private final Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
-    private ReleasesRawData releasesRawData = new ReleasesRawData();
+    private RawData releasesRawData = new RawData();
     private final XStream xstream = new XStream();
     private final HeatMapSelector heatMapSelector;
     private static final Logger LOG = Logger.getLogger(Releases.class);
@@ -36,7 +37,7 @@ public class Releases {
 
         releaseNames = config.getPropertyList("releases");
         storeFilename = config.getProperty("releases.store.filename", "heatmap-data.xml");
-        for (Class clazz : new Class[] { ReleasesRawData.class, IssueWrapper.class, ChangeSet.class }) {
+        for (Class clazz : new Class[] { RawData.class, IssueWrapper.class, ChangeSet.class }) {
             xstream.alias(clazz.getSimpleName(), clazz);
         }
         this.heatMapSelector = heatMapSelector;
@@ -50,7 +51,7 @@ public class Releases {
     private void update(ChangeSet change, boolean updateRawData) throws IssueManagementException {
 
         if (updateRawData) {
-            releasesRawData.update(change);
+            releasesRawData.add(change);
         }
         List<String> issueReleases = change.getIssue().getReleases();
         for (String issueRelease : issueReleases) {
@@ -84,9 +85,9 @@ public class Releases {
 
         LOG.info("Loading data from " + storeFilename);
         Reader reader = new FileReader(storeFilename);
-        releasesRawData = (ReleasesRawData) xstream.fromXML(reader);
+        releasesRawData = (RawData) xstream.fromXML(reader);
         reader.close();
-        for (ChangeSet change : releasesRawData.getChanges()) {
+        for (ChangeSet change : releasesRawData.getChangeSets()) {
             update(change, false);
         }
     }
