@@ -10,10 +10,8 @@ import org.apache.log4j.Logger;
 
 import com.thoughtworks.xstream.XStream;
 
-import uk.org.sappho.code.heatmap.config.Configuration;
-import uk.org.sappho.code.heatmap.engine.ChangeSet;
-import uk.org.sappho.code.heatmap.issues.IssueManagementException;
-import uk.org.sappho.code.heatmap.issues.IssueWrapper;
+import uk.org.sappho.code.change.management.issues.IssueManagementException;
+import uk.org.sappho.configuration.Configuration;
 
 public class RawDataPersistence {
 
@@ -24,7 +22,7 @@ public class RawDataPersistence {
     public RawDataPersistence(Configuration config) {
 
         storeFilename = config.getProperty("raw.data.store.filename", "heatmap-data.xml");
-        for (Class clazz : new Class[] { RawData.class, IssueWrapper.class, ChangeSet.class }) {
+        for (Class clazz : new Class[] { RawData.class, IssueData.class, ChangeSet.class }) {
             xstream.alias(clazz.getSimpleName(), clazz);
         }
     }

@@ -16,9 +16,9 @@ import com.google.inject.Inject;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 
-import uk.org.sappho.code.heatmap.config.Configuration;
-import uk.org.sappho.code.heatmap.engine.Releases;
-import uk.org.sappho.code.heatmap.warnings.Warnings;
+import uk.org.sappho.code.heatmap.engine.simple.Releases;
+import uk.org.sappho.configuration.Configuration;
+import uk.org.sappho.warnings.Warnings;
 
 public class FormattedReport implements Report {
 

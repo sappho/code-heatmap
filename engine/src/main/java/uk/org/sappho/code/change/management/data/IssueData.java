@@ -1,8 +1,8 @@
-package uk.org.sappho.code.heatmap.issues;
+package uk.org.sappho.code.change.management.data;
 
 import java.util.List;
 
-public class IssueWrapper {
+public class IssueData {
 
     private final String issueKey;
     private final String summary;
@@ -10,7 +10,7 @@ public class IssueWrapper {
     private final List<String> releases;
     private final int weight;
 
-    public IssueWrapper(String issueKey, String summary, String subTaskKey, List<String> releases, int weight) {
+    public IssueData(String issueKey, String summary, String subTaskKey, List<String> releases, int weight) {
 
         this.issueKey = issueKey;
         this.summary = summary;

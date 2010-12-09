@@ -16,11 +16,13 @@ import org.tigris.subversion.javahl.SVNClient;
 
 import com.google.inject.Inject;
 
-import uk.org.sappho.code.heatmap.config.Configuration;
-import uk.org.sappho.code.heatmap.engine.ChangeSet;
-import uk.org.sappho.code.heatmap.issues.IssueManagement;
-import uk.org.sappho.code.heatmap.issues.IssueWrapper;
-import uk.org.sappho.code.heatmap.warnings.Warnings;
+import uk.org.sappho.code.change.management.data.ChangeSet;
+import uk.org.sappho.code.change.management.data.IssueData;
+import uk.org.sappho.code.change.management.issues.IssueManagement;
+import uk.org.sappho.code.change.management.scm.SCM;
+import uk.org.sappho.code.change.management.scm.SCMException;
+import uk.org.sappho.configuration.Configuration;
+import uk.org.sappho.warnings.Warnings;
 
 public class Subversion implements SCM {
 
@@ -83,7 +85,7 @@ public class Subversion implements SCM {
                 for (LogMessage logMessage : logMessages) {
                     long revisionNumber = logMessage.getRevisionNumber();
                     String commitComment = logMessage.getMessage();
-                    IssueWrapper issue = issueManagement.getIssue(commitComment);
+                    IssueData issue = issueManagement.getIssue(commitComment);
                     if (issue != null) {
                         LOG.debug("Processing rev. " + revisionNumber + " " + commitComment);
                         List<String> changedFiles = new Vector<String>();

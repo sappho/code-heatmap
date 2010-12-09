@@ -14,15 +14,15 @@ import com.atlassian.jira.rpc.soap.client.RemoteVersion;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import uk.org.sappho.code.heatmap.config.Configuration;
-import uk.org.sappho.code.heatmap.config.ConfigurationException;
-import uk.org.sappho.code.heatmap.issues.IssueManagement;
-import uk.org.sappho.code.heatmap.issues.IssueManagementException;
-import uk.org.sappho.code.heatmap.issues.IssueWrapper;
-import uk.org.sappho.code.heatmap.warnings.Warnings;
-import uk.org.sappho.code.heatmap.warnings.impl.MessageWarning;
+import uk.org.sappho.code.change.management.data.IssueData;
+import uk.org.sappho.code.change.management.issues.IssueManagement;
+import uk.org.sappho.code.change.management.issues.IssueManagementException;
+import uk.org.sappho.configuration.Configuration;
+import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.GetParentService;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
+import uk.org.sappho.warnings.Warnings;
+import uk.org.sappho.warnings.simple.MessageWarning;
 
 @Singleton
 public class JiraService implements IssueManagement {
@@ -31,7 +31,7 @@ public class JiraService implements IssueManagement {
     protected JiraSoapService jiraSoapService = null;
     protected GetParentService getParentService = null;
     protected Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
-    protected Map<String, IssueWrapper> allowedIssues = new HashMap<String, IssueWrapper>();
+    protected Map<String, IssueData> allowedIssues = new HashMap<String, IssueData>();
     protected Map<String, String> warnedSubTasks = new HashMap<String, String>();
     protected Map<String, String> releases = new HashMap<String, String>();
     protected Map<String, String> issueTypes = new HashMap<String, String>();
@@ -127,13 +127,13 @@ public class JiraService implements IssueManagement {
 
     protected void addAllowedIssue(String issueKey, String parentKey) throws IssueManagementException {
 
-        IssueWrapper issueWrapper = parentKey != null ?
+        IssueData issueWrapper = parentKey != null ?
                 createIssueWrapper(mappedRemoteIssues.get(parentKey), issueKey) :
                 createIssueWrapper(mappedRemoteIssues.get(issueKey), null);
         allowedIssues.put(issueKey, issueWrapper);
     }
 
-    protected IssueWrapper createIssueWrapper(RemoteIssue issue, String subTaskKey) throws IssueManagementException {
+    protected IssueData createIssueWrapper(RemoteIssue issue, String subTaskKey) throws IssueManagementException {
 
         List<String> issueReleases = new Vector<String>();
         Map<String, String> issueReleaseMap = new HashMap<String, String>();
@@ -181,7 +181,7 @@ public class JiraService implements IssueManagement {
             warnings.add(new JiraIssueTypeWeightWarning(jiraURL, typeName, weight));
             issueTypeWeightMultipliers.put(typeName, weight);
         }
-        return new IssueWrapper(issue.getKey(), issue.getSummary(), subTaskKey, issueReleases, weight);
+        return new IssueData(issue.getKey(), issue.getSummary(), subTaskKey, issueReleases, weight);
     }
 
     protected String getIssueKeyFromCommitComment(String commitComment) {
@@ -196,9 +196,9 @@ public class JiraService implements IssueManagement {
         return key;
     }
 
-    public IssueWrapper getIssue(String commitComment) {
+    public IssueData getIssue(String commitComment) {
 
-        IssueWrapper issue = null;
+        IssueData issue = null;
         String issueKey = getIssueKeyFromCommitComment(commitComment);
         if (issueKey != null) {
             issue = allowedIssues.get(issueKey);

@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.engine;
+package uk.org.sappho.code.heatmap.engine.simple;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,11 +8,14 @@ import java.util.Vector;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import uk.org.sappho.code.heatmap.config.Configuration;
-import uk.org.sappho.code.heatmap.config.ConfigurationException;
+import uk.org.sappho.code.change.management.data.ChangeSet;
+import uk.org.sappho.code.heatmap.engine.Engine;
+import uk.org.sappho.code.heatmap.engine.EngineException;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.report.ReportException;
+import uk.org.sappho.configuration.Configuration;
+import uk.org.sappho.configuration.ConfigurationException;
 
 @Singleton
 public class Releases implements Engine {

@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.engine;
+package uk.org.sappho.code.heatmap.engine.simple;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,12 +6,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import uk.org.sappho.code.heatmap.issues.IssueWrapper;
+import uk.org.sappho.code.change.management.data.ChangeSet;
+import uk.org.sappho.code.change.management.data.IssueData;
 
 public class HeatMapItem implements Comparable<HeatMapItem> {
 
     private final String configurableItemName;
-    private final Map<IssueWrapper, List<ChangeSet>> issues = new HashMap<IssueWrapper, List<ChangeSet>>();
+    private final Map<IssueData, List<ChangeSet>> issues = new HashMap<IssueData, List<ChangeSet>>();
 
     public HeatMapItem(String configurableItemName) {
 
@@ -20,7 +21,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
 
     public void add(ChangeSet changeSet) {
 
-        IssueWrapper issue = changeSet.getIssue();
+        IssueData issue = changeSet.getIssue();
         List<ChangeSet> changes = issues.get(issue);
         if (changes == null) {
             changes = new Vector<ChangeSet>();
@@ -34,7 +35,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         return configurableItemName;
     }
 
-    public Set<IssueWrapper> getIssues() {
+    public Set<IssueData> getIssues() {
 
         return issues.keySet();
     }
@@ -56,7 +57,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
     public int getWeight() {
 
         int weight = 0;
-        for (IssueWrapper issue : issues.keySet()) {
+        for (IssueData issue : issues.keySet()) {
             weight += issue.getWeight();
         }
         return weight;
@@ -67,7 +68,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         // TODO: make this into something less lame!
         String formula = "";
         String prefix = "";
-        for (IssueWrapper issue : issues.keySet()) {
+        for (IssueData issue : issues.keySet()) {
             formula += prefix + issue.getKey() + ":" + issue.getWeight();
             prefix = " + ";
         }

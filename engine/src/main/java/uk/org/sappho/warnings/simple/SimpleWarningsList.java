@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.warnings.impl;
+package uk.org.sappho.warnings.simple;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,9 +9,11 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-import uk.org.sappho.code.heatmap.warnings.Warnings;
+import uk.org.sappho.warnings.Warnings;
 
+@Singleton
 public class SimpleWarningsList implements Warnings {
 
     private final Map<String, List<Warning>> warnings = new HashMap<String, List<Warning>>();

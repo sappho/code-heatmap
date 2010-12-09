@@ -9,22 +9,22 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import uk.org.sappho.code.change.management.data.ChangeSet;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RawDataPersistence;
-import uk.org.sappho.code.heatmap.config.Configuration;
-import uk.org.sappho.code.heatmap.config.ConfigurationException;
-import uk.org.sappho.code.heatmap.config.impl.SimpleConfiguration;
-import uk.org.sappho.code.heatmap.engine.ChangeSet;
+import uk.org.sappho.code.change.management.issues.IssueManagement;
+import uk.org.sappho.code.change.management.issues.IssueManagementException;
+import uk.org.sappho.code.change.management.scm.SCM;
+import uk.org.sappho.code.change.management.scm.SCMException;
 import uk.org.sappho.code.heatmap.engine.Engine;
 import uk.org.sappho.code.heatmap.engine.EngineException;
-import uk.org.sappho.code.heatmap.issues.IssueManagement;
-import uk.org.sappho.code.heatmap.issues.IssueManagementException;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 import uk.org.sappho.code.heatmap.report.Report;
-import uk.org.sappho.code.heatmap.scm.SCM;
-import uk.org.sappho.code.heatmap.scm.SCMException;
-import uk.org.sappho.code.heatmap.warnings.Warnings;
-import uk.org.sappho.code.heatmap.warnings.impl.SimpleWarningsList;
+import uk.org.sappho.configuration.Configuration;
+import uk.org.sappho.configuration.ConfigurationException;
+import uk.org.sappho.configuration.SimpleConfiguration;
+import uk.org.sappho.warnings.Warnings;
+import uk.org.sappho.warnings.simple.SimpleWarningsList;
 
 public class CodeHeatMapApp extends AbstractModule {
 

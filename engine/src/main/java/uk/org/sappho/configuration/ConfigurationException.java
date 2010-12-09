@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.config;
+package uk.org.sappho.configuration;
 
 public class ConfigurationException extends Exception {
 

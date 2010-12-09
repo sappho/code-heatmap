@@ -1,17 +1,16 @@
-package uk.org.sappho.code.heatmap.engine;
+package uk.org.sappho.code.change.management.data;
 
 import java.util.List;
 
-import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
 public class ChangeSet {
 
     private final String revisionId;
     private final String commitComment;
-    private final IssueWrapper issue;
+    private final IssueData issue;
     private final List<String> changedFiles;
 
-    public ChangeSet(String revisionId, String commitComment, IssueWrapper issue,
+    public ChangeSet(String revisionId, String commitComment, IssueData issue,
             List<String> changedFiles) {
 
         this.revisionId = revisionId;
@@ -30,7 +29,7 @@ public class ChangeSet {
         return commitComment;
     }
 
-    public final IssueWrapper getIssue() {
+    public final IssueData getIssue() {
 
         return issue;
     }

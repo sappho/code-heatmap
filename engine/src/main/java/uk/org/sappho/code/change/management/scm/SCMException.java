@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.scm;
+package uk.org.sappho.code.change.management.scm;
 
 public class SCMException extends Exception {
 

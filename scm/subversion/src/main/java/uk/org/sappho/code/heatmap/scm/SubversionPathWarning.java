@@ -1,6 +1,6 @@
 package uk.org.sappho.code.heatmap.scm;
 
-import uk.org.sappho.code.heatmap.warnings.impl.Warning;
+import uk.org.sappho.warnings.simple.Warning;
 
 public class SubversionPathWarning extends Warning {
 

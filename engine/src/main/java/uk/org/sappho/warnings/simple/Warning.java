@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.warnings.impl;
+package uk.org.sappho.warnings.simple;
 
 public abstract class Warning {
 

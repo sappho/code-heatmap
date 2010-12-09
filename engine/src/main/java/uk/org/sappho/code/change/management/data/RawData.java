@@ -5,18 +5,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import uk.org.sappho.code.heatmap.engine.ChangeSet;
-import uk.org.sappho.code.heatmap.issues.IssueWrapper;
 
 public class RawData {
 
-    private final Map<String, IssueWrapper> issueWrappers = new HashMap<String, IssueWrapper>();
+    private final Map<String, IssueData> issueWrappers = new HashMap<String, IssueData>();
     private final List<ChangeSet> changeSets = new Vector<ChangeSet>();
 
     public void add(ChangeSet change) {
 
         changeSets.add(change);
-        IssueWrapper issue = change.getIssue();
+        IssueData issue = change.getIssue();
         issueWrappers.put(issue.getKey(), issue);
     }
 

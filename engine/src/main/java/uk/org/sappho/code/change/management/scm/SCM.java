@@ -1,8 +1,8 @@
-package uk.org.sappho.code.heatmap.scm;
+package uk.org.sappho.code.change.management.scm;
 
 import java.util.List;
 
-import uk.org.sappho.code.heatmap.engine.ChangeSet;
+import uk.org.sappho.code.change.management.data.ChangeSet;
 
 public interface SCM {
 

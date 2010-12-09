@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.config.impl;
+package uk.org.sappho.configuration;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -13,8 +13,6 @@ import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
 
-import uk.org.sappho.code.heatmap.config.Configuration;
-import uk.org.sappho.code.heatmap.config.ConfigurationException;
 
 public class SimpleConfiguration implements Configuration {
 
