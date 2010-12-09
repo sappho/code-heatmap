@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.app;
+package uk.org.sappho.code.change.management.app;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,13 +26,13 @@ import uk.org.sappho.configuration.SimpleConfiguration;
 import uk.org.sappho.warnings.SimpleWarningsList;
 import uk.org.sappho.warnings.WarningsList;
 
-public class CodeHeatMapApp extends AbstractModule {
+public class CodeChangeManagementApp extends AbstractModule {
 
     private final String[] args;
     private SimpleConfiguration config;
-    private static final Logger LOG = Logger.getLogger(CodeHeatMapApp.class);
+    private static final Logger LOG = Logger.getLogger(CodeChangeManagementApp.class);
 
-    public CodeHeatMapApp(String[] args) {
+    public CodeChangeManagementApp(String[] args) {
 
         this.args = args;
     }
@@ -82,7 +82,7 @@ public class CodeHeatMapApp extends AbstractModule {
                 SCM scm = injector.getInstance(SCM.class);
                 List<ChangeSet> changeSets = scm.scan();
                 rawData.add(changeSets);
-            } else if (action.equalsIgnoreCase("report")) {
+            } else if (action.equalsIgnoreCase("process")) {
                 Engine engine = injector.getInstance(Engine.class);
                 engine.add(rawData.getChangeSets());
                 engine.run();
@@ -95,7 +95,7 @@ public class CodeHeatMapApp extends AbstractModule {
     public static void main(String[] args) {
 
         try {
-            new CodeHeatMapApp(args).run();
+            new CodeChangeManagementApp(args).run();
             LOG.info("Everything done");
         } catch (Throwable t) {
             LOG.error("Application error", t);

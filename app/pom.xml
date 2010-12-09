@@ -57,7 +57,7 @@
 							<repositoryName>lib</repositoryName>
 							<programs>
 								<program>
-									<mainClass>uk.org.sappho.code.heatmap.app.CodeHeatMapApp</mainClass>
+									<mainClass>uk.org.sappho.code.change.management.app.CodeChangeManagementApp</mainClass>
 									<name>heatmap</name>
 								</program>
 							</programs>
