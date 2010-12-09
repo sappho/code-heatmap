@@ -11,7 +11,7 @@ import com.google.inject.Injector;
 
 import uk.org.sappho.code.change.management.data.ChangeSet;
 import uk.org.sappho.code.change.management.data.RawData;
-import uk.org.sappho.code.change.management.data.RawDataPersistence;
+import uk.org.sappho.code.change.management.data.persistence.RawDataPersistence;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
 import uk.org.sappho.code.change.management.scm.SCM;
