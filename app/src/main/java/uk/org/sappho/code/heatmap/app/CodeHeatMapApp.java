@@ -9,11 +9,11 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import uk.org.sappho.code.change.management.data.RawData;
+import uk.org.sappho.code.change.management.data.RawDataPersistence;
 import uk.org.sappho.code.heatmap.config.Configuration;
 import uk.org.sappho.code.heatmap.config.ConfigurationException;
 import uk.org.sappho.code.heatmap.config.impl.SimpleConfiguration;
-import uk.org.sappho.code.heatmap.data.RawData;
-import uk.org.sappho.code.heatmap.data.RawDataPersistence;
 import uk.org.sappho.code.heatmap.engine.ChangeSet;
 import uk.org.sappho.code.heatmap.engine.Engine;
 import uk.org.sappho.code.heatmap.engine.EngineException;
