@@ -1,8 +1,8 @@
-package uk.org.sappho.warnings.simple;
+package uk.org.sappho.warnings;
 
 public abstract class Warning {
 
-    public abstract String getTypeName();
+    public abstract String getCategory();
 
     @Override
     public abstract String toString();

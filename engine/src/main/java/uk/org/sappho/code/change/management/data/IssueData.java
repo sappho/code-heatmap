@@ -8,15 +8,13 @@ public class IssueData {
     private final String summary;
     private final String subTaskKey;
     private final List<String> releases;
-    private final int weight;
 
-    public IssueData(String issueKey, String summary, String subTaskKey, List<String> releases, int weight) {
+    public IssueData(String issueKey, String summary, String subTaskKey, List<String> releases) {
 
         this.issueKey = issueKey;
         this.summary = summary;
         this.subTaskKey = subTaskKey;
         this.releases = releases;
-        this.weight = weight;
     }
 
     public String getKey() {
@@ -37,10 +35,5 @@ public class IssueData {
     public List<String> getReleases() {
 
         return releases;
-    }
-
-    public int getWeight() {
-
-        return weight;
     }
 }

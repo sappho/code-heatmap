@@ -12,8 +12,9 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-
+@Singleton
 public class SimpleConfiguration implements Configuration {
 
     private final Properties properties = new Properties(System.getProperties());

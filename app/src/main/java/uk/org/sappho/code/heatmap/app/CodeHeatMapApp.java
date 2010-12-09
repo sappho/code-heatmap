@@ -23,8 +23,8 @@ import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.configuration.SimpleConfiguration;
-import uk.org.sappho.warnings.Warnings;
-import uk.org.sappho.warnings.simple.SimpleWarningsList;
+import uk.org.sappho.warnings.SimpleWarningsList;
+import uk.org.sappho.warnings.WarningsList;
 
 public class CodeHeatMapApp extends AbstractModule {
 
@@ -43,7 +43,7 @@ public class CodeHeatMapApp extends AbstractModule {
 
         try {
             LOG.debug("Configuring plugins");
-            bind(Warnings.class).toInstance(new SimpleWarningsList());
+            bind(WarningsList.class).toInstance(new SimpleWarningsList());
             config = new SimpleConfiguration();
             for (String configFilename : args)
                 config.load(configFilename);

@@ -1,20 +1,27 @@
 package uk.org.sappho.code.heatmap.issues.jira;
 
-
 public class JiraVersionMappingWarning extends JiraWarning {
 
     private final String version;
     private final String release;
 
-    public JiraVersionMappingWarning(String jiraURL, String version, String release) {
+    public JiraVersionMappingWarning(String baseURL, String issueKey, String version, String release) {
 
-        super(jiraURL);
+        super(baseURL, issueKey);
         this.version = version;
         this.release = release;
     }
 
+    public String getVersion() {
+        return version;
+    }
+
+    public String getRelease() {
+        return release;
+    }
+
     @Override
-    public String getTypeName() {
+    public String getCategory() {
 
         return "Version mapping";
     }

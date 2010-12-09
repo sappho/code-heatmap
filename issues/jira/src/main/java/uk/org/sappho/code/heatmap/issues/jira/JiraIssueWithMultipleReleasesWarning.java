@@ -4,18 +4,16 @@ import java.util.List;
 
 public class JiraIssueWithMultipleReleasesWarning extends JiraWarning {
 
-    private final String issueKey;
     private final List<String> releases;
 
-    public JiraIssueWithMultipleReleasesWarning(String jiraURL, String issueKey, List<String> releases) {
+    public JiraIssueWithMultipleReleasesWarning(String baseURL, String issueKey, List<String> releases) {
 
-        super(jiraURL);
-        this.issueKey = issueKey;
+        super(baseURL, issueKey);
         this.releases = releases;
     }
 
     @Override
-    public String getTypeName() {
+    public String getCategory() {
 
         return "Multiple releases";
     }
@@ -23,7 +21,7 @@ public class JiraIssueWithMultipleReleasesWarning extends JiraWarning {
     @Override
     public String toString() {
 
-        String warning = "issue " + issueKey + " has multiple releases:";
+        String warning = "issue " + getIssueKey() + " has multiple releases:";
         for (String release : releases) {
             warning += " " + release;
         }

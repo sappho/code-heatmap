@@ -21,8 +21,8 @@ import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.GetParentService;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
-import uk.org.sappho.warnings.Warnings;
-import uk.org.sappho.warnings.simple.MessageWarning;
+import uk.org.sappho.warnings.MessageWarning;
+import uk.org.sappho.warnings.WarningsList;
 
 @Singleton
 public class JiraService implements IssueManagement {
@@ -35,8 +35,7 @@ public class JiraService implements IssueManagement {
     protected Map<String, String> warnedSubTasks = new HashMap<String, String>();
     protected Map<String, String> releases = new HashMap<String, String>();
     protected Map<String, String> issueTypes = new HashMap<String, String>();
-    protected Map<String, Integer> issueTypeWeightMultipliers = new HashMap<String, Integer>();
-    protected Warnings warnings;
+    protected WarningsList warnings;
     protected Configuration config;
     protected static final Pattern SIMPLE_JIRA_REGEX = Pattern.compile("^([a-zA-Z]{2,}-\\d+):.*$");
     private static final Logger LOG = Logger.getLogger(JiraService.class);
@@ -44,7 +43,7 @@ public class JiraService implements IssueManagement {
     protected static final String NO_RELEASE = "missing";
 
     @Inject
-    public JiraService(Warnings warnings, Configuration config) throws IssueManagementException {
+    public JiraService(WarningsList warnings, Configuration config) throws IssueManagementException {
 
         LOG.info("Using Jira issue management plugin");
         this.warnings = warnings;
@@ -150,7 +149,7 @@ public class JiraService implements IssueManagement {
                     } catch (ConfigurationException e) {
                         release = "unknown";
                     }
-                    warnings.add(new JiraVersionMappingWarning(jiraURL, remoteVersionName, release));
+                    warnings.add(new JiraVersionMappingWarning(jiraURL, issue.getKey(), remoteVersionName, release));
                     releases.put(remoteVersionName, release);
                 }
                 issueReleaseMap.put(release, release);
@@ -166,22 +165,10 @@ public class JiraService implements IssueManagement {
         String typeName = issueTypes.get(typeId);
         if (typeName == null) {
             typeName = config.getProperty("jira.type.map.id." + typeId, "housekeeping");
-            warnings.add(new JiraIssueTypeMappingWarning(jiraURL, typeId, typeName));
+            warnings.add(new JiraIssueTypeMappingWarning(jiraURL, issue.getKey(), typeId, typeName));
             issueTypes.put(typeId, typeName);
         }
-        Integer weight = issueTypeWeightMultipliers.get(typeName);
-        if (weight == null) {
-            String typeNameKey = "jira.type.multiplier." + typeName;
-            try {
-                weight = Integer.parseInt(config.getProperty(typeNameKey, "0"));
-            } catch (Throwable t) {
-                throw new IssueManagementException(
-                            "Issue type weight configuration \"" + typeNameKey + "\" is invalid", t);
-            }
-            warnings.add(new JiraIssueTypeWeightWarning(jiraURL, typeName, weight));
-            issueTypeWeightMultipliers.put(typeName, weight);
-        }
-        return new IssueData(issue.getKey(), issue.getSummary(), subTaskKey, issueReleases, weight);
+        return new IssueData(issue.getKey(), issue.getSummary(), subTaskKey, issueReleases);
     }
 
     protected String getIssueKeyFromCommitComment(String commitComment) {

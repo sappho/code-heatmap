@@ -5,15 +5,15 @@ public class JiraIssueTypeMappingWarning extends JiraWarning {
     private final String rawIssueType;
     private final String issueType;
 
-    public JiraIssueTypeMappingWarning(String jiraURL, String rawIssueType, String issueType) {
+    public JiraIssueTypeMappingWarning(String baseURL, String issueKey, String rawIssueType, String issueType) {
 
-        super(jiraURL);
+        super(baseURL, issueKey);
         this.rawIssueType = rawIssueType;
         this.issueType = issueType;
     }
 
     @Override
-    public String getTypeName() {
+    public String getCategory() {
 
         return "Issue type mapping";
     }
@@ -21,6 +21,6 @@ public class JiraIssueTypeMappingWarning extends JiraWarning {
     @Override
     public String toString() {
 
-        return "raw issue type " + rawIssueType + " --> issue type " + issueType;
+        return "Raw issue type " + rawIssueType + " --> issue type " + issueType;
     }
 }

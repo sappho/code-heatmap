@@ -58,7 +58,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
 
         int weight = 0;
         for (IssueData issue : issues.keySet()) {
-            weight += issue.getWeight();
+            weight += 1; // TODO: replace issue.getWeight();
         }
         return weight;
     }
@@ -69,7 +69,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         String formula = "";
         String prefix = "";
         for (IssueData issue : issues.keySet()) {
-            formula += prefix + issue.getKey() + ":" + issue.getWeight();
+            formula += prefix + issue.getKey(); // TODO: replace + ":" + issue.getWeight();
             prefix = " + ";
         }
         return formula;

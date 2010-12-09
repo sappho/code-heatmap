@@ -1,6 +1,6 @@
 package uk.org.sappho.code.heatmap.scm;
 
-import uk.org.sappho.warnings.simple.Warning;
+import uk.org.sappho.warnings.Warning;
 
 public class SubversionPathWarning extends Warning {
 
@@ -12,7 +12,7 @@ public class SubversionPathWarning extends Warning {
     }
 
     @Override
-    public String getTypeName() {
+    public String getCategory() {
 
         return "Subversion repository path";
     }

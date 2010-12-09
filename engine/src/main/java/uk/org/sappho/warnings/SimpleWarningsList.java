@@ -1,4 +1,4 @@
-package uk.org.sappho.warnings.simple;
+package uk.org.sappho.warnings;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,10 +11,9 @@ import org.apache.log4j.Logger;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import uk.org.sappho.warnings.Warnings;
 
 @Singleton
-public class SimpleWarningsList implements Warnings {
+public class SimpleWarningsList implements WarningsList {
 
     private final Map<String, List<Warning>> warnings = new HashMap<String, List<Warning>>();
     private static final Logger LOG = Logger.getLogger(SimpleWarningsList.class);
@@ -27,7 +26,7 @@ public class SimpleWarningsList implements Warnings {
 
     public void add(Warning warning) {
 
-        String type = warning.getTypeName();
+        String type = warning.getCategory();
         List<Warning> list = warnings.get(type);
         if (list == null) {
             list = new Vector<Warning>();

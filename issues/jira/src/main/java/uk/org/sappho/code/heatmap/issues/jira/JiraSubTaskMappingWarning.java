@@ -2,18 +2,20 @@ package uk.org.sappho.code.heatmap.issues.jira;
 
 public class JiraSubTaskMappingWarning extends JiraWarning {
 
-    private final String subTaskKey;
     private final String parentIssueKey;
 
-    public JiraSubTaskMappingWarning(String jiraURL, String subTaskKey, String parentIssueKey) {
+    public JiraSubTaskMappingWarning(String baseURL, String subTaskKey, String parentIssueKey) {
 
-        super(jiraURL);
-        this.subTaskKey = subTaskKey;
+        super(baseURL, subTaskKey);
         this.parentIssueKey = parentIssueKey;
     }
 
+    public String getParentIssueKey() {
+        return parentIssueKey;
+    }
+
     @Override
-    public String getTypeName() {
+    public String getCategory() {
 
         return "Issue subtask mapping";
     }
@@ -21,6 +23,6 @@ public class JiraSubTaskMappingWarning extends JiraWarning {
     @Override
     public String toString() {
 
-        return "subtask " + subTaskKey + " --> issue " + parentIssueKey;
+        return "subtask " + getIssueKey() + " --> issue " + parentIssueKey;
     }
 }

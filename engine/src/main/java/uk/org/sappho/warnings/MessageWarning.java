@@ -1,4 +1,5 @@
-package uk.org.sappho.warnings.simple;
+package uk.org.sappho.warnings;
+
 
 public class MessageWarning extends Warning {
 
@@ -10,7 +11,7 @@ public class MessageWarning extends Warning {
     }
 
     @Override
-    public String getTypeName() {
+    public String getCategory() {
 
         return "Warning";
     }

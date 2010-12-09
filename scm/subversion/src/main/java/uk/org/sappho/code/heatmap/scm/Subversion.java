@@ -22,19 +22,19 @@ import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.scm.SCM;
 import uk.org.sappho.code.change.management.scm.SCMException;
 import uk.org.sappho.configuration.Configuration;
-import uk.org.sappho.warnings.Warnings;
+import uk.org.sappho.warnings.WarningsList;
 
 public class Subversion implements SCM {
 
     private final SVNClient svnClient = new SVNClient();
-    protected Warnings warnings;
+    protected WarningsList warnings;
     private final Configuration config;
     private final IssueManagement issueManagement;
     private static final Logger LOG = Logger.getLogger(Subversion.class);
     private static final String START_REV_PROP = "svn.start.rev";
 
     @Inject
-    public Subversion(Warnings warnings, Configuration config, IssueManagement issueManagement) {
+    public Subversion(WarningsList warnings, Configuration config, IssueManagement issueManagement) {
 
         LOG.info("Using Subversion SCM plugin");
         this.warnings = warnings;
