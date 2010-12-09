@@ -26,7 +26,8 @@ public class Jira implements IssueManagement {
     protected JiraSoapService jiraSoapService = null;
     protected GetParentService getParentService = null;
     protected Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
-    protected Map<String, IssueData> allowedIssues = new HashMap<String, IssueData>();
+    protected Map<String, IssueData> parentIssues = new HashMap<String, IssueData>();
+    protected Map<String, String> subTaskParents = new HashMap<String, String>();
     protected Map<String, String> warnedSubTasks = new HashMap<String, String>();
     protected Map<String, String> releases = new HashMap<String, String>();
     protected Map<String, String> issueTypes = new HashMap<String, String>();
@@ -42,16 +43,7 @@ public class Jira implements IssueManagement {
         LOG.info("Using Jira issue management plugin");
         this.warnings = warnings;
         this.config = config;
-    }
-
-    public void init() throws IssueManagementException {
-
-        if (jiraURL == null) {
-            connect();
-            if (getParentService == null) {
-                preFetchAllowedIssues();
-            }
-        }
+        connect();
     }
 
     protected void connect() throws IssueManagementException {
@@ -71,130 +63,112 @@ public class Jira implements IssueManagement {
         } catch (Throwable t) {
             LOG.info("GetParent SOAP web service is not installed or authentication failed");
             getParentService = null;
+            preFetchIssues();
         }
     }
 
-    protected void preFetchAllowedIssues() throws IssueManagementException {
+    protected void preFetchIssues() throws IssueManagementException {
 
-        LOG.info("Getting list of allowed issues");
         try {
-            // get all tasks we're prepared to deal with
             String jql = config.getProperty("jira.jql.issues.allowed");
             int jqlMax = Integer.parseInt(config.getProperty("jira.jql.issues.allowed.max", "1000"));
-            LOG.info("Running Jira query (max. " + jqlMax + " issues): " + jql);
+            LOG.info("Running JQL query (max. " + jqlMax + " issues): " + jql);
             RemoteIssue[] remoteIssues = jiraSoapService.getService().getIssuesFromJqlSearch(
                     jiraSoapService.getToken(), jql, jqlMax);
-            LOG.info("Processing " + remoteIssues.length + " issues returned by query");
-            // map all subtasks back to their parents
-            Map<String, String> subTaskParents = new HashMap<String, String>();
+            LOG.info("Processing " + remoteIssues.length + " issues returned by JQL query");
             for (RemoteIssue remoteIssue : remoteIssues) {
                 String issueKey = remoteIssue.getKey();
-                addRemoteIssue(issueKey, remoteIssue);
+                mappedRemoteIssues.put(issueKey, remoteIssue);
                 RemoteIssue[] remoteSubTasks = jiraSoapService.getService().getIssuesFromJqlSearch(
-                        jiraSoapService.getToken(), "parent = " + issueKey, 200);
+                        jiraSoapService.getToken(), "parent = " + issueKey, 500);
                 for (RemoteIssue remoteSubTask : remoteSubTasks) {
                     String subTaskKey = remoteSubTask.getKey();
-                    warnings.add(new JiraSubTaskMappingWarning(jiraURL, subTaskKey, issueKey));
-                    addRemoteIssue(subTaskKey, remoteSubTask);
+                    if (mappedRemoteIssues.get(subTaskKey) == null) {
+                        mappedRemoteIssues.put(subTaskKey, remoteSubTask);
+                    }
                     subTaskParents.put(subTaskKey, issueKey);
                 }
-            }
-            // create issue wrappers for all allowed root (non-subtask) issues
-            for (String issueKey : mappedRemoteIssues.keySet()) {
-                String parentKey = subTaskParents.get(issueKey);
-                addAllowedIssue(issueKey, parentKey);
             }
             LOG.info("Processed " + mappedRemoteIssues.size()
                     + " issues - added subtasks might have inflated this figure");
         } catch (Throwable t) {
-            throw new IssueManagementException("Unable to get list of allowed issues", t);
+            throw new IssueManagementException("Unable to pre-fetch issues", t);
         }
     }
 
-    protected void addRemoteIssue(String issueKey, RemoteIssue remoteIssue) {
+    public IssueData getIssueData(String issueKey) {
 
-        if (mappedRemoteIssues.get(issueKey) == null) {
-            mappedRemoteIssues.put(issueKey, remoteIssue);
-        }
-    }
-
-    protected void addAllowedIssue(String issueKey, String parentKey) throws IssueManagementException {
-
-        IssueData issueWrapper = parentKey != null ?
-                createIssueWrapper(mappedRemoteIssues.get(parentKey), issueKey) :
-                createIssueWrapper(mappedRemoteIssues.get(issueKey), null);
-        allowedIssues.put(issueKey, issueWrapper);
-    }
-
-    protected IssueData createIssueWrapper(RemoteIssue issue, String subTaskKey) throws IssueManagementException {
-
-        List<String> issueReleases = new Vector<String>();
-        Map<String, String> issueReleaseMap = new HashMap<String, String>();
-        RemoteVersion[] fixVersions = issue.getFixVersions();
-        if (fixVersions.length == 0) {
-            issueReleaseMap.put(NO_RELEASE, NO_RELEASE);
-        } else {
-            for (RemoteVersion remoteVersion : fixVersions) {
-                String remoteVersionName = remoteVersion.getName();
-                String release = releases.get(remoteVersionName);
-                if (release == null) {
-                    try {
-                        release = config.getProperty("jira.version.map.release." + remoteVersionName);
-                    } catch (ConfigurationException e) {
-                        release = "unknown";
-                    }
-                    warnings.add(new JiraVersionMappingWarning(jiraURL, issue.getKey(), remoteVersionName, release));
-                    releases.put(remoteVersionName, release);
+        String subTaskKey = null;
+        if (parentIssues.get(issueKey) == null) {
+            String parentKey = null;
+            if (getParentService != null) {
+                try {
+                    parentKey = getParentService.getParent(issueKey);
+                } catch (Exception e) {
+                    warnings.add(new JiraParentIssueFetchWarning(jiraURL, issueKey));
                 }
-                issueReleaseMap.put(release, release);
+            } else {
+                parentKey = subTaskParents.get(issueKey);
+            }
+            if (parentKey != null) {
+                subTaskKey = issueKey;
+                issueKey = parentKey;
             }
         }
-        for (String release : issueReleaseMap.keySet()) {
-            issueReleases.add(release);
-        }
-        if (issueReleases.size() > 1) {
-            warnings.add(new JiraIssueWithMultipleReleasesWarning(jiraURL, issue.getKey(), issueReleases));
-        }
-        String typeId = issue.getType();
-        String typeName = issueTypes.get(typeId);
-        if (typeName == null) {
-            typeName = config.getProperty("jira.type.map.id." + typeId, "housekeeping");
-            warnings.add(new JiraIssueTypeMappingWarning(jiraURL, issue.getKey(), typeId, typeName));
-            issueTypes.put(typeId, typeName);
-        }
-        return new IssueData(issue.getKey(), issue.getSummary(), subTaskKey, issueReleases);
-    }
-
-    public IssueData getIssue(String issueKey) {
-
-        IssueData issue = null;
-        if (issueKey != null) {
-            issue = allowedIssues.get(issueKey);
-            if (issue == null) {
-                if (getParentService != null) {
-                    try {
-                        RemoteIssue remoteIssue = jiraSoapService.getService()
-                                .getIssue(jiraSoapService.getToken(), issueKey);
-                        addRemoteIssue(issueKey, remoteIssue);
-                        String parentKey = getParentService.getParent(issueKey);
-                        if (parentKey != null) {
-                            RemoteIssue parentRemoteIssue = jiraSoapService.getService()
-                                    .getIssue(jiraSoapService.getToken(), parentKey);
-                            addRemoteIssue(parentKey, parentRemoteIssue);
-                            if (warnedSubTasks.get(issueKey) == null) {
-                                warnings.add(new JiraSubTaskMappingWarning(jiraURL, issueKey, parentKey));
-                                warnedSubTasks.put(issueKey, issueKey);
-                            }
-                        }
-                        addAllowedIssue(issueKey, parentKey);
-                    } catch (Throwable t) {
-                        warnings.add(new JiraIssueNotFoundWarning(jiraURL, issueKey));
-                    }
-                } else {
+        IssueData issueData = parentIssues.get(issueKey);
+        if (issueData == null) {
+            RemoteIssue remoteIssue = mappedRemoteIssues.get(issueKey);
+            if (remoteIssue == null) {
+                try {
+                    remoteIssue = jiraSoapService.getService().getIssue(jiraSoapService.getToken(), issueKey);
+                } catch (Exception e) {
                     warnings.add(new JiraIssueNotFoundWarning(jiraURL, issueKey));
                 }
+                mappedRemoteIssues.put(issueKey, remoteIssue);
+            }
+            if (remoteIssue != null) {
+                List<String> issueReleases = new Vector<String>();
+                Map<String, String> issueReleaseMap = new HashMap<String, String>();
+                RemoteVersion[] fixVersions = remoteIssue.getFixVersions();
+                if (fixVersions.length == 0) {
+                    issueReleaseMap.put(NO_RELEASE, NO_RELEASE);
+                } else {
+                    for (RemoteVersion remoteVersion : fixVersions) {
+                        String remoteVersionName = remoteVersion.getName();
+                        String release = releases.get(remoteVersionName);
+                        if (release == null) {
+                            try {
+                                release = config.getProperty("jira.version.map.release." + remoteVersionName);
+                            } catch (ConfigurationException e) {
+                                release = "unknown";
+                            }
+                            warnings.add(new JiraVersionMappingWarning(jiraURL, issueKey, remoteVersionName,
+                                    release));
+                            releases.put(remoteVersionName, release);
+                        }
+                        issueReleaseMap.put(release, release);
+                    }
+                }
+                for (String release : issueReleaseMap.keySet()) {
+                    issueReleases.add(release);
+                }
+                if (issueReleases.size() > 1) {
+                    warnings.add(new JiraIssueWithMultipleReleasesWarning(jiraURL, issueKey, issueReleases));
+                }
+                String typeId = remoteIssue.getType();
+                String typeName = issueTypes.get(typeId);
+                if (typeName == null) {
+                    typeName = config.getProperty("jira.type.map.id." + typeId, "housekeeping");
+                    warnings.add(new JiraIssueTypeMappingWarning(jiraURL, issueKey, typeId, typeName));
+                    issueTypes.put(typeId, typeName);
+                }
+                issueData = new IssueData(issueKey, typeName, remoteIssue.getSummary(), null);
+                parentIssues.put(issueKey, issueData);
             }
         }
-        return issue;
+        if (issueData != null && subTaskKey != null) {
+            issueData.putSubTaskKey(subTaskKey);
+        }
+        return issueData;
     }
 }

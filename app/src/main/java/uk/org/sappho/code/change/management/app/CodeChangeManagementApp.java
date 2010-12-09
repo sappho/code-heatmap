@@ -9,7 +9,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
+import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.data.mapping.CommitCommentToIssueKeyMapper;
 import uk.org.sappho.code.change.management.data.persistence.RawDataPersistence;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
@@ -85,6 +87,19 @@ public class CodeChangeManagementApp extends AbstractModule {
             } else if (action.equalsIgnoreCase("scan")) {
                 SCM scm = injector.getInstance(SCM.class);
                 scm.scan(rawData);
+                rawData.clearIssueData();
+                IssueManagement issueManagement = injector.getInstance(IssueManagement.class);
+                CommitCommentToIssueKeyMapper commitCommentToIssueKeyMapper = injector
+                        .getInstance(CommitCommentToIssueKeyMapper.class);
+                for (String revisionKey : rawData.getRevisionKeys()) {
+                    RevisionData revisionData = rawData.getRevisionData(revisionKey);
+                    String issueKey = commitCommentToIssueKeyMapper.getIssueKeyFromCommitComment(revisionData
+                            .getCommitComment());
+                    IssueData issueData = issueManagement.getIssueData(issueKey);
+                    if (issueData != null) {
+                        rawData.putIssueData(issueData);
+                    }
+                }
             } else if (action.equalsIgnoreCase("process")) {
                 Engine engine = injector.getInstance(Engine.class);
                 engine.run(rawData);

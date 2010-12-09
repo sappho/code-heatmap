@@ -6,8 +6,13 @@ import java.util.Set;
 
 public class RawData {
 
-    private final Map<String, RevisionData> revisionDataMap = new HashMap<String, RevisionData>();
-    private final Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
+    private Map<String, RevisionData> revisionDataMap = new HashMap<String, RevisionData>();
+    private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
+
+    public void clearRevisionData() {
+
+        revisionDataMap = new HashMap<String, RevisionData>();
+    }
 
     public void putRevisionData(RevisionData revisionData) {
 
@@ -22,6 +27,11 @@ public class RawData {
     public RevisionData getRevisionData(String revisionKey) {
 
         return revisionDataMap.get(revisionKey);
+    }
+
+    public void clearIssueData() {
+
+        issueDataMap = new HashMap<String, IssueData>();
     }
 
     public void putIssueData(IssueData issueData) {
