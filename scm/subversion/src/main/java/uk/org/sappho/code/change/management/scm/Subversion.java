@@ -17,8 +17,8 @@ import org.tigris.subversion.javahl.SVNClient;
 
 import com.google.inject.Inject;
 
-import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.data.RawData;
+import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.warnings.WarningsList;
 
@@ -121,7 +121,7 @@ public class Subversion implements SCM {
                             changedFiles));
                     revisionCount++;
                 }
-                LOG.info("Added " + revisionCount + " revisions to heat maps with " + nodeKindCacheHits
+                LOG.info("Processed " + revisionCount + " revisions with " + nodeKindCacheHits
                         + " node kind cache hits");
                 config.takeSnapshot();
                 config.setProperty(START_REV_PROP, "" + ++endRevision);
