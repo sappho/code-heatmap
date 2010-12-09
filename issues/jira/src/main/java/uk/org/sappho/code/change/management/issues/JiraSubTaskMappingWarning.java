@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.issues.jira;
+package uk.org.sappho.code.change.management.issues;
 
 public class JiraSubTaskMappingWarning extends JiraWarning {
 

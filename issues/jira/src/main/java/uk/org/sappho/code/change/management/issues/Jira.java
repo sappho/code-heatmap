@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.issues.jira;
+package uk.org.sappho.code.change.management.issues;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +25,7 @@ import uk.org.sappho.warnings.MessageWarning;
 import uk.org.sappho.warnings.WarningsList;
 
 @Singleton
-public class JiraService implements IssueManagement {
+public class Jira implements IssueManagement {
 
     protected String jiraURL = null;
     protected JiraSoapService jiraSoapService = null;
@@ -38,12 +38,12 @@ public class JiraService implements IssueManagement {
     protected WarningsList warnings;
     protected Configuration config;
     protected static final Pattern SIMPLE_JIRA_REGEX = Pattern.compile("^([a-zA-Z]{2,}-\\d+):.*$");
-    private static final Logger LOG = Logger.getLogger(JiraService.class);
+    private static final Logger LOG = Logger.getLogger(Jira.class);
     protected static final String ISSUE_FIELDS = "Issue fields";
     protected static final String NO_RELEASE = "missing";
 
     @Inject
-    public JiraService(WarningsList warnings, Configuration config) throws IssueManagementException {
+    public Jira(WarningsList warnings, Configuration config) throws IssueManagementException {
 
         LOG.info("Using Jira issue management plugin");
         this.warnings = warnings;

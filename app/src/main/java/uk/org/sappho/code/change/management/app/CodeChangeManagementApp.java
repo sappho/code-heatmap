@@ -48,15 +48,15 @@ public class CodeChangeManagementApp extends AbstractModule {
             for (String configFilename : args)
                 config.load(configFilename);
             bind(Configuration.class).toInstance(config);
-            bind(SCM.class).to((Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.heatmap.scm"));
+            bind(SCM.class).to(
+                    (Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
             bind(Report.class).to(
                     (Class<? extends Report>) config.getPlugin("report.plugin", "uk.org.sappho.code.heatmap.report"));
             bind(IssueManagement.class).to(
                     (Class<? extends IssueManagement>) config.getPlugin("issues.plugin",
-                            "uk.org.sappho.code.heatmap.issues"));
+                            "uk.org.sappho.code.change.management.issues"));
             bind(Engine.class).to(
-                    (Class<? extends Engine>) config.getPlugin("engine.plugin",
-                            "uk.org.sappho.code.heatmap.engine"));
+                    (Class<? extends Engine>) config.getPlugin("engine.plugin", "uk.org.sappho.code.heatmap.engine"));
             bind(HeatMapSelector.class).to(
                     (Class<? extends HeatMapSelector>) config.getPlugin("mapping.heatmap.selector.plugin",
                             "uk.org.sappho.code.heatmap.mapping"));

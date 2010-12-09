@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.scm;
+package uk.org.sappho.code.change.management.scm;
 
 import java.util.HashMap;
 import java.util.List;
