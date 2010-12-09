@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.thoughtworks.xstream.XStream;
 
-import uk.org.sappho.code.change.management.data.ChangeSet;
+import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
@@ -37,7 +37,7 @@ public class RawDataPersistence {
 
     private void init() {
 
-        for (Class<?> clazz : new Class[] { RawData.class, IssueData.class, ChangeSet.class }) {
+        for (Class<?> clazz : new Class[] { RawData.class, IssueData.class, RevisionData.class }) {
             xstream.alias(clazz.getSimpleName(), clazz);
         }
     }

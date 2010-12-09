@@ -8,7 +8,10 @@ import java.util.Vector;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import uk.org.sappho.code.change.management.data.ChangeSet;
+import uk.org.sappho.code.change.management.data.IssueData;
+import uk.org.sappho.code.change.management.data.RawData;
+import uk.org.sappho.code.change.management.data.RevisionData;
+import uk.org.sappho.code.change.management.data.mapping.CommitCommentToIssueKeyMapper;
 import uk.org.sappho.code.heatmap.engine.Engine;
 import uk.org.sappho.code.heatmap.engine.EngineException;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
@@ -23,34 +26,38 @@ public class Releases implements Engine {
     private final List<String> releaseNames;
     private final Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
     private final HeatMapSelector heatMapSelector;
+    private final CommitCommentToIssueKeyMapper commitCommentToIssueKeyMapper;
     private final Report report;
 
     @Inject
-    public Releases(Configuration config, HeatMapSelector heatMapSelector, Report report) throws ConfigurationException {
+    public Releases(Configuration config, HeatMapSelector heatMapSelector,
+            CommitCommentToIssueKeyMapper commitCommentToIssueKeyMapper, Report report)
+            throws ConfigurationException {
 
         releaseNames = config.getPropertyList("releases");
         this.heatMapSelector = heatMapSelector;
+        this.commitCommentToIssueKeyMapper = commitCommentToIssueKeyMapper;
         this.report = report;
     }
 
-    public void add(List<ChangeSet> changeSets) {
-
-        for (ChangeSet changeSet : changeSets) {
-            List<String> issueReleases = changeSet.getIssue().getReleases();
-            for (String issueRelease : issueReleases) {
-                HeatMaps heatMaps = releases.get(issueRelease);
-                if (heatMaps == null) {
-                    heatMaps = new HeatMaps();
-                    releases.put(issueRelease, heatMaps);
-                }
-                heatMaps.add(changeSet, heatMapSelector);
-            }
-        }
-    }
-
-    public void run() throws EngineException {
+    public void run(RawData rawData) throws EngineException {
 
         try {
+            for (String revisionKey : rawData.getRevisionKeys()) {
+                RevisionData revisionData = rawData.getRevisionData(revisionKey);
+                String commitComment = revisionData.getCommitComment();
+                String issueKey = commitCommentToIssueKeyMapper.getIssueKeyFromCommitComment(commitComment);
+                IssueData issueData = rawData.getIssueData(issueKey);
+                List<String> issueReleases = issueData.getReleases();
+                for (String issueRelease : issueReleases) {
+                    HeatMaps heatMaps = releases.get(issueRelease);
+                    if (heatMaps == null) {
+                        heatMaps = new HeatMaps();
+                        releases.put(issueRelease, heatMaps);
+                    }
+                    heatMaps.add(revisionData, issueData, heatMapSelector);
+                }
+            }
             report.writeReport(this);
         } catch (ReportException e) {
             throw new EngineException("HeatMap engine error", e);

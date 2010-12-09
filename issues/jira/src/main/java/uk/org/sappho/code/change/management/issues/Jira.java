@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -15,13 +13,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import uk.org.sappho.code.change.management.data.IssueData;
-import uk.org.sappho.code.change.management.issues.IssueManagement;
-import uk.org.sappho.code.change.management.issues.IssueManagementException;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.GetParentService;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
-import uk.org.sappho.warnings.MessageWarning;
 import uk.org.sappho.warnings.WarningsList;
 
 @Singleton
@@ -37,7 +32,6 @@ public class Jira implements IssueManagement {
     protected Map<String, String> issueTypes = new HashMap<String, String>();
     protected WarningsList warnings;
     protected Configuration config;
-    protected static final Pattern SIMPLE_JIRA_REGEX = Pattern.compile("^([a-zA-Z]{2,}-\\d+):.*$");
     private static final Logger LOG = Logger.getLogger(Jira.class);
     protected static final String ISSUE_FIELDS = "Issue fields";
     protected static final String NO_RELEASE = "missing";
@@ -171,22 +165,9 @@ public class Jira implements IssueManagement {
         return new IssueData(issue.getKey(), issue.getSummary(), subTaskKey, issueReleases);
     }
 
-    protected String getIssueKeyFromCommitComment(String commitComment) {
-
-        String key = null;
-        Matcher matcher = SIMPLE_JIRA_REGEX.matcher(commitComment.split("\n")[0]);
-        if (matcher.matches()) {
-            key = matcher.group(1);
-        } else {
-            warnings.add(new MessageWarning("No Jira issue key found in commit comment: " + commitComment));
-        }
-        return key;
-    }
-
-    public IssueData getIssue(String commitComment) {
+    public IssueData getIssue(String issueKey) {
 
         IssueData issue = null;
-        String issueKey = getIssueKeyFromCommitComment(commitComment);
         if (issueKey != null) {
             issue = allowedIssues.get(issueKey);
             if (issue == null) {

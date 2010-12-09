@@ -1,12 +1,8 @@
 package uk.org.sappho.code.heatmap.engine;
 
-import java.util.List;
-
-import uk.org.sappho.code.change.management.data.ChangeSet;
+import uk.org.sappho.code.change.management.data.RawData;
 
 public interface Engine {
 
-    public void add(List<ChangeSet> changeSets);
-
-    public void run() throws EngineException;
+    public void run(RawData rawData) throws EngineException;
 }

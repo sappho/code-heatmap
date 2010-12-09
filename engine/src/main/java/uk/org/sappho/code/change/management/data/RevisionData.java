@@ -3,27 +3,24 @@ package uk.org.sappho.code.change.management.data;
 import java.util.Date;
 import java.util.List;
 
-public class ChangeSet {
+public class RevisionData {
 
-    private final String revisionId;
+    private final String revisionKey;
     private final Date date;
     private final String commitComment;
-    private final IssueData issue;
     private final List<String> changedFiles;
 
-    public ChangeSet(String revisionId, Date date, String commitComment, IssueData issue,
-            List<String> changedFiles) {
+    public RevisionData(String revisionKey, Date date, String commitComment, List<String> changedFiles) {
 
-        this.revisionId = revisionId;
+        this.revisionKey = revisionKey;
         this.date = date;
         this.commitComment = commitComment;
-        this.issue = issue;
         this.changedFiles = changedFiles;
     }
 
-    public final String getRevisionId() {
+    public final String getKey() {
 
-        return revisionId;
+        return revisionKey;
     }
 
     public final Date getDate() {
@@ -34,11 +31,6 @@ public class ChangeSet {
     public final String getCommitComment() {
 
         return commitComment;
-    }
-
-    public final IssueData getIssue() {
-
-        return issue;
     }
 
     public final List<String> getChangedFiles() {

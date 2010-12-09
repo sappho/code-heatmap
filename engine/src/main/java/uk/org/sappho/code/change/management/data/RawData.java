@@ -1,32 +1,41 @@
 package uk.org.sappho.code.change.management.data;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
-
+import java.util.Set;
 
 public class RawData {
 
-    private final Map<String, IssueData> issueWrappers = new HashMap<String, IssueData>();
-    private final List<ChangeSet> changeSets = new Vector<ChangeSet>();
+    private final Map<String, RevisionData> revisionDataMap = new HashMap<String, RevisionData>();
+    private final Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
 
-    public void add(ChangeSet change) {
+    public void putRevisionData(RevisionData revisionData) {
 
-        changeSets.add(change);
-        IssueData issue = change.getIssue();
-        issueWrappers.put(issue.getKey(), issue);
+        revisionDataMap.put(revisionData.getKey(), revisionData);
     }
 
-    public void add(List<ChangeSet> changeSets) {
+    public Set<String> getRevisionKeys() {
 
-        for (ChangeSet changeSet : changeSets) {
-            add(changeSet);
-        }
+        return revisionDataMap.keySet();
     }
 
-    public List<ChangeSet> getChangeSets() {
+    public RevisionData getRevisionData(String revisionKey) {
 
-        return changeSets;
+        return revisionDataMap.get(revisionKey);
+    }
+
+    public void putIssueData(IssueData issueData) {
+
+        issueDataMap.put(issueData.getKey(), issueData);
+    }
+
+    public Set<String> getIssueKeys() {
+
+        return issueDataMap.keySet();
+    }
+
+    public IssueData getIssueData(String issueKey) {
+
+        return issueDataMap.get(issueKey);
     }
 }

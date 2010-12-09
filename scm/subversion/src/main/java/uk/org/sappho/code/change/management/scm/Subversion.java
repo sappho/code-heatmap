@@ -17,33 +17,29 @@ import org.tigris.subversion.javahl.SVNClient;
 
 import com.google.inject.Inject;
 
-import uk.org.sappho.code.change.management.data.ChangeSet;
-import uk.org.sappho.code.change.management.data.IssueData;
-import uk.org.sappho.code.change.management.issues.IssueManagement;
+import uk.org.sappho.code.change.management.data.RevisionData;
+import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.warnings.WarningsList;
 
 public class Subversion implements SCM {
 
     private final SVNClient svnClient = new SVNClient();
-    protected WarningsList warnings;
+    protected WarningsList warningsList;
     private final Configuration config;
-    private final IssueManagement issueManagement;
     private static final Logger LOG = Logger.getLogger(Subversion.class);
     private static final String START_REV_PROP = "svn.start.rev";
 
     @Inject
-    public Subversion(WarningsList warnings, Configuration config, IssueManagement issueManagement) {
+    public Subversion(WarningsList warningsList, Configuration config) {
 
         LOG.info("Using Subversion SCM plugin");
-        this.warnings = warnings;
+        this.warningsList = warningsList;
         this.config = config;
-        this.issueManagement = issueManagement;
     }
 
-    public List<ChangeSet> scan() throws SCMException {
+    public void scan(RawData rawData) throws SCMException {
 
-        List<ChangeSet> changeSets = new Vector<ChangeSet>();
         String errorMessage = "Unable to find Subversion session parameters";
         try {
             String url = config.getProperty("svn.url");
@@ -72,7 +68,6 @@ public class Subversion implements SCM {
                         + " to rev. " + endRevision
                         + " - if incrememntal then this probably means there are no new revisions");
             } else {
-                issueManagement.init();
                 Map<String, Integer> nodeKindCache = new HashMap<String, Integer>();
                 int nodeKindCacheHits = 0;
                 LOG.info("Reading Subversion history for " + url + basePath + " from rev. " + startRevision
@@ -85,50 +80,46 @@ public class Subversion implements SCM {
                     long revisionNumber = logMessage.getRevisionNumber();
                     Date date = logMessage.getDate();
                     String commitComment = logMessage.getMessage();
-                    IssueData issue = issueManagement.getIssue(commitComment);
-                    if (issue != null) {
-                        LOG.debug("Processing rev. " + revisionNumber + " " + commitComment);
-                        List<String> changedFiles = new Vector<String>();
-                        for (ChangePath changePath : logMessage.getChangedPaths()) {
-                            String path = changePath.getPath();
-                            if (changePath.getAction() != 'D') {
-                                int nodeKind = changePath.getNodeKind();
-                                if (nodeKind == NodeKind.unknown) {
-                                    Integer nodeKindObj = nodeKindCache.get(path);
-                                    if (nodeKindObj != null) {
-                                        nodeKind = nodeKindObj;
-                                        nodeKindCacheHits++;
+                    LOG.debug("Processing rev. " + revisionNumber + " " + commitComment);
+                    List<String> changedFiles = new Vector<String>();
+                    for (ChangePath changePath : logMessage.getChangedPaths()) {
+                        String path = changePath.getPath();
+                        if (changePath.getAction() != 'D') {
+                            int nodeKind = changePath.getNodeKind();
+                            if (nodeKind == NodeKind.unknown) {
+                                Integer nodeKindObj = nodeKindCache.get(path);
+                                if (nodeKindObj != null) {
+                                    nodeKind = nodeKindObj;
+                                    nodeKindCacheHits++;
+                                } else {
+                                    Revision revisionId = Revision.getInstance(revisionNumber);
+                                    Info2[] info = svnClient.info2(url + path, revisionId, revisionId, false);
+                                    if (info.length == 1) {
+                                        nodeKind = info[0].getKind();
+                                        nodeKindCache.put(path, nodeKind);
                                     } else {
-                                        Revision revisionId = Revision.getInstance(revisionNumber);
-                                        Info2[] info = svnClient.info2(url + path, revisionId, revisionId, false);
-                                        if (info.length == 1) {
-                                            nodeKind = info[0].getKind();
-                                            nodeKindCache.put(path, nodeKind);
-                                        } else {
-                                            warnings.add(new SubversionPathWarning(path));
-                                        }
+                                        warningsList.add(new SubversionPathWarning(path));
                                     }
                                 }
-                                switch (nodeKind) {
-                                case NodeKind.file:
-                                    LOG.debug("Processing changed file " + path);
-                                    changedFiles.add(path);
-                                    break;
-                                case NodeKind.dir:
-                                    LOG.debug("Path " + path + " is a directory so not including it");
-                                    break;
-                                default:
-                                    LOG.debug("Path " + path + " is of unknown type so not including it");
-                                }
-                            } else {
-                                LOG.debug("Path " + path + " is deleted so not including it");
                             }
+                            switch (nodeKind) {
+                            case NodeKind.file:
+                                LOG.debug("Processing changed file " + path);
+                                changedFiles.add(path);
+                                break;
+                            case NodeKind.dir:
+                                LOG.debug("Path " + path + " is a directory so not including it");
+                                break;
+                            default:
+                                LOG.debug("Path " + path + " is of unknown type so not including it");
+                            }
+                        } else {
+                            LOG.debug("Path " + path + " is deleted so not including it");
                         }
-                        changeSets
-                                .add(new ChangeSet(Long.toString(revisionNumber), date, commitComment, issue,
-                                        changedFiles));
-                        revisionCount++;
                     }
+                    rawData.putRevisionData(new RevisionData(Long.toString(revisionNumber), date, commitComment,
+                            changedFiles));
+                    revisionCount++;
                 }
                 LOG.info("Added " + revisionCount + " revisions to heat maps with " + nodeKindCacheHits
                         + " node kind cache hits");
@@ -139,6 +130,13 @@ public class Subversion implements SCM {
         } catch (Throwable t) {
             throw new SCMException(errorMessage, t);
         }
-        return changeSets;
+    }
+
+    public int compare(RevisionData changeData1, RevisionData changeData2) {
+
+        long revision1 = Long.parseLong(changeData1.getKey());
+        long revision2 = Long.parseLong(changeData2.getKey());
+        int comparison = (revision1 == revision2) ? 0 : (revision1 > revision2) ? 1 : -1;
+        return comparison;
     }
 }

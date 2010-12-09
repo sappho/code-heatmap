@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import uk.org.sappho.code.change.management.data.ChangeSet;
+import uk.org.sappho.code.change.management.data.IssueData;
+import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.heatmap.engine.HeatMapMapping;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 
@@ -13,9 +14,9 @@ public class HeatMaps {
 
     private final Map<String, HeatMap> heatMaps = new HashMap<String, HeatMap>();
 
-    public void add(ChangeSet change, HeatMapSelector heatMapSelector) {
+    public void add(RevisionData revisionData, IssueData issueData, HeatMapSelector heatMapSelector) {
 
-        for (String changedFile : change.getChangedFiles()) {
+        for (String changedFile : revisionData.getChangedFiles()) {
             List<HeatMapMapping> mappings = heatMapSelector.map(changedFile);
             for (HeatMapMapping mapping : mappings) {
                 String heatMapName = mapping.getName();
@@ -24,7 +25,7 @@ public class HeatMaps {
                     heatMap = new HeatMap();
                     heatMaps.put(heatMapName, heatMap);
                 }
-                heatMap.add(mapping.getItem(), change);
+                heatMap.add(mapping.getItem(), revisionData, issueData);
             }
         }
     }

@@ -1,10 +1,11 @@
 package uk.org.sappho.code.change.management.scm;
 
-import java.util.List;
-
-import uk.org.sappho.code.change.management.data.ChangeSet;
+import uk.org.sappho.code.change.management.data.RevisionData;
+import uk.org.sappho.code.change.management.data.RawData;
 
 public interface SCM {
 
-    public List<ChangeSet> scan() throws SCMException;
+    public void scan(RawData rawData) throws SCMException;
+
+    public int compare(RevisionData changeData1, RevisionData changeData2);
 }

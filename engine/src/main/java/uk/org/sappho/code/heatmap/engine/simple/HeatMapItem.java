@@ -1,33 +1,27 @@
 package uk.org.sappho.code.heatmap.engine.simple;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
-import uk.org.sappho.code.change.management.data.ChangeSet;
 import uk.org.sappho.code.change.management.data.IssueData;
+import uk.org.sappho.code.change.management.data.RevisionData;
 
 public class HeatMapItem implements Comparable<HeatMapItem> {
 
     private final String configurableItemName;
-    private final Map<IssueData, List<ChangeSet>> issues = new HashMap<IssueData, List<ChangeSet>>();
+    private final Map<IssueData, IssueData> issues = new HashMap<IssueData, IssueData>();
+    private final Map<RevisionData, RevisionData> revisions = new HashMap<RevisionData, RevisionData>();
 
     public HeatMapItem(String configurableItemName) {
 
         this.configurableItemName = configurableItemName;
     }
 
-    public void add(ChangeSet changeSet) {
+    public void add(RevisionData revisionData, IssueData issueData) {
 
-        IssueData issue = changeSet.getIssue();
-        List<ChangeSet> changes = issues.get(issue);
-        if (changes == null) {
-            changes = new Vector<ChangeSet>();
-            issues.put(issue, changes);
-        }
-        changes.add(changeSet);
+        issues.put(issueData, issueData);
+        revisions.put(revisionData, revisionData);
     }
 
     public String getHeatMapItemName() {
@@ -47,11 +41,7 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
 
     public int getChangeCount() {
 
-        int count = 0;
-        for (List<ChangeSet> changes : issues.values()) {
-            count += changes.size();
-        }
-        return count;
+        return revisions.keySet().size();
     }
 
     public int getWeight() {

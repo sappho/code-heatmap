@@ -9,8 +9,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import uk.org.sappho.code.change.management.data.ChangeSet;
 import uk.org.sappho.code.change.management.data.RawData;
+import uk.org.sappho.code.change.management.data.mapping.CommitCommentToIssueKeyMapper;
 import uk.org.sappho.code.change.management.data.persistence.RawDataPersistence;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
@@ -50,6 +50,10 @@ public class CodeChangeManagementApp extends AbstractModule {
             bind(Configuration.class).toInstance(config);
             bind(SCM.class).to(
                     (Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
+            bind(CommitCommentToIssueKeyMapper.class).to(
+                    (Class<? extends CommitCommentToIssueKeyMapper>) config.getPlugin(
+                            "commit.comment.to.issue.key.mapper.plugin",
+                            "uk.org.sappho.code.change.management.issues"));
             bind(Report.class).to(
                     (Class<? extends Report>) config.getPlugin("report.plugin", "uk.org.sappho.code.heatmap.report"));
             bind(IssueManagement.class).to(
@@ -80,12 +84,10 @@ public class CodeChangeManagementApp extends AbstractModule {
                 rawDataPersistence.save(rawData);
             } else if (action.equalsIgnoreCase("scan")) {
                 SCM scm = injector.getInstance(SCM.class);
-                List<ChangeSet> changeSets = scm.scan();
-                rawData.add(changeSets);
+                scm.scan(rawData);
             } else if (action.equalsIgnoreCase("process")) {
                 Engine engine = injector.getInstance(Engine.class);
-                engine.add(rawData.getChangeSets());
-                engine.run();
+                engine.run(rawData);
             } else {
                 throw new ConfigurationException("Action " + action + " is unrecognised");
             }
