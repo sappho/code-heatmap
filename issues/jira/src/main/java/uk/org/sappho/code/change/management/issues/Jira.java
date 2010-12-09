@@ -22,20 +22,19 @@ import uk.org.sappho.warnings.WarningsList;
 @Singleton
 public class Jira implements IssueManagement {
 
-    protected String jiraURL = null;
-    protected JiraSoapService jiraSoapService = null;
-    protected GetParentService getParentService = null;
-    protected Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
-    protected Map<String, IssueData> parentIssues = new HashMap<String, IssueData>();
-    protected Map<String, String> subTaskParents = new HashMap<String, String>();
-    protected Map<String, String> warnedSubTasks = new HashMap<String, String>();
-    protected Map<String, String> releases = new HashMap<String, String>();
-    protected Map<String, String> issueTypes = new HashMap<String, String>();
-    protected WarningsList warnings;
-    protected Configuration config;
+    private String jiraURL = null;
+    private JiraSoapService jiraSoapService = null;
+    private GetParentService getParentService = null;
+    private final Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
+    private final Map<String, IssueData> parentIssues = new HashMap<String, IssueData>();
+    private final Map<String, String> subTaskParents = new HashMap<String, String>();
+    private final Map<String, String> warnedSubTasks = new HashMap<String, String>();
+    private final Map<String, String> releases = new HashMap<String, String>();
+    private final Map<String, String> issueTypes = new HashMap<String, String>();
+    private final WarningsList warnings;
+    private final Configuration config;
     private static final Logger LOG = Logger.getLogger(Jira.class);
-    protected static final String ISSUE_FIELDS = "Issue fields";
-    protected static final String NO_RELEASE = "missing";
+    private static final String NO_RELEASE = "missing";
 
     @Inject
     public Jira(WarningsList warnings, Configuration config) throws IssueManagementException {
@@ -46,7 +45,7 @@ public class Jira implements IssueManagement {
         connect();
     }
 
-    protected void connect() throws IssueManagementException {
+    private void connect() throws IssueManagementException {
 
         jiraURL = config.getProperty("jira.url", "http://example.com");
         String username = config.getProperty("jira.username", "nobody");
@@ -67,7 +66,7 @@ public class Jira implements IssueManagement {
         }
     }
 
-    protected void preFetchIssues() throws IssueManagementException {
+    private void preFetchIssues() throws IssueManagementException {
 
         try {
             String jql = config.getProperty("jira.jql.issues.allowed");
@@ -111,6 +110,10 @@ public class Jira implements IssueManagement {
                 parentKey = subTaskParents.get(issueKey);
             }
             if (parentKey != null) {
+                if (warnedSubTasks.get(issueKey) == null) {
+                    warnings.add(new JiraSubTaskMappingWarning(jiraURL, issueKey, parentKey));
+                    warnedSubTasks.put(issueKey, issueKey);
+                }
                 subTaskKey = issueKey;
                 issueKey = parentKey;
             }
@@ -121,10 +124,10 @@ public class Jira implements IssueManagement {
             if (remoteIssue == null) {
                 try {
                     remoteIssue = jiraSoapService.getService().getIssue(jiraSoapService.getToken(), issueKey);
+                    mappedRemoteIssues.put(issueKey, remoteIssue);
                 } catch (Exception e) {
                     warnings.add(new JiraIssueNotFoundWarning(jiraURL, issueKey));
                 }
-                mappedRemoteIssues.put(issueKey, remoteIssue);
             }
             if (remoteIssue != null) {
                 List<String> issueReleases = new Vector<String>();
