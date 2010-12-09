@@ -69,6 +69,9 @@ public class Subversion implements SCM {
                         + " - if incrememntal then this probably means there are no new revisions");
             } else {
                 Map<String, Integer> nodeKindCache = new HashMap<String, Integer>();
+                int nodeCount = 0;
+                int fileCount = 0;
+                int deleteCount = 0;
                 int nodeKindCacheHits = 0;
                 LOG.info("Reading Subversion history for " + url + basePath + " from rev. " + startRevision
                         + " to rev. " + endRevision);
@@ -83,6 +86,7 @@ public class Subversion implements SCM {
                     LOG.debug("Processing rev. " + revisionNumber + " " + commitComment);
                     List<String> changedFiles = new Vector<String>();
                     for (ChangePath changePath : logMessage.getChangedPaths()) {
+                        nodeCount++;
                         String path = changePath.getPath();
                         if (changePath.getAction() != 'D') {
                             int nodeKind = changePath.getNodeKind();
@@ -106,6 +110,7 @@ public class Subversion implements SCM {
                             case NodeKind.file:
                                 LOG.debug("Processing changed file " + path);
                                 changedFiles.add(path);
+                                fileCount++;
                                 break;
                             case NodeKind.dir:
                                 LOG.debug("Path " + path + " is a directory so not including it");
@@ -115,14 +120,16 @@ public class Subversion implements SCM {
                             }
                         } else {
                             LOG.debug("Path " + path + " is deleted so not including it");
+                            deleteCount++;
                         }
                     }
                     rawData.putRevisionData(new RevisionData(Long.toString(revisionNumber), date, commitComment,
                             changedFiles));
                     revisionCount++;
                 }
-                LOG.info("Processed " + revisionCount + " revisions with " + nodeKindCacheHits
-                        + " node kind cache hits");
+                LOG.info("Processed " + revisionCount + " revisions");
+                LOG.info("Stats: " + nodeCount + " nodes " + fileCount + " files " + deleteCount + " deletes "
+                        + nodeKindCacheHits + " cache hits");
                 config.takeSnapshot();
                 config.setProperty(START_REV_PROP, "" + ++endRevision);
                 config.saveChanged(START_REV_PROP + ".save.filename");
