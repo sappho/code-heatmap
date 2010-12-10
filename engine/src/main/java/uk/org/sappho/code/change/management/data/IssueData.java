@@ -11,17 +11,19 @@ public class IssueData {
     private final String summary;
     private final Date createdDate;
     private final Date lastUpdatedDate;
-    private final List<String> subTaskKeys = new Vector<String>();
+    private final List<String> components;
     private final List<String> releases;
+    private final List<String> subTaskKeys = new Vector<String>();
 
     public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate,
-            List<String> releases) {
+            List<String> components, List<String> releases) {
 
         this.key = key;
         this.type = type;
         this.summary = summary;
         this.createdDate = createdDate;
         this.lastUpdatedDate = lastUpdatedDate;
+        this.components = components;
         this.releases = releases;
     }
 
@@ -50,6 +52,16 @@ public class IssueData {
         return lastUpdatedDate;
     }
 
+    public List<String> getComponents() {
+
+        return components;
+    }
+
+    public List<String> getReleases() {
+
+        return releases;
+    }
+
     public void putSubTaskKey(String issueKey) {
 
         if (!subTaskKeys.contains(issueKey)) {
@@ -60,10 +72,5 @@ public class IssueData {
     public List<String> getSubTaskKeys() {
 
         return subTaskKeys;
-    }
-
-    public List<String> getReleases() {
-
-        return releases;
     }
 }

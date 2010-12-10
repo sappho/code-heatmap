@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.rpc.soap.client.RemoteComponent;
 import com.atlassian.jira.rpc.soap.client.RemoteIssue;
 import com.atlassian.jira.rpc.soap.client.RemoteVersion;
 import com.google.inject.Inject;
@@ -168,8 +169,13 @@ public class Jira implements IssueManagement {
                     warnings.add(new JiraIssueTypeMappingWarning(jiraURL, issueKey, typeId, typeName));
                     issueTypes.put(typeId, typeName);
                 }
+                RemoteComponent[] remoteComponents = remoteIssue.getComponents();
+                List<String> components = new Vector<String>();
+                for (RemoteComponent remoteComponent : remoteComponents) {
+                    components.add(remoteComponent.getName());
+                }
                 issueData = new IssueData(issueKey, typeName, remoteIssue.getSummary(), remoteIssue.getCreated()
-                        .getTime(), remoteIssue.getUpdated().getTime(), null);
+                        .getTime(), remoteIssue.getUpdated().getTime(), components, issueReleases);
                 parentIssues.put(issueKey, issueData);
             }
         }
