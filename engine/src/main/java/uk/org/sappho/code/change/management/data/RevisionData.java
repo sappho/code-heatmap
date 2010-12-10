@@ -6,6 +6,7 @@ import java.util.List;
 public class RevisionData {
 
     private final String revisionKey;
+    private String issueKey = null;
     private final Date date;
     private final String commitComment;
     private final List<String> changedFiles;
@@ -36,5 +37,13 @@ public class RevisionData {
     public final List<String> getChangedFiles() {
 
         return changedFiles;
+    }
+
+    public void setIssueKey(String issueKey) {
+        this.issueKey = issueKey;
+    }
+
+    public String getIssueKey() {
+        return issueKey;
     }
 }

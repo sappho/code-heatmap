@@ -32,6 +32,8 @@ public class CodeChangeManagementApp extends AbstractModule {
 
     private final String[] args;
     private SimpleConfiguration config;
+    private RawData rawData = new RawData();
+    private Injector injector;
     private static final Logger LOG = Logger.getLogger(CodeChangeManagementApp.class);
 
     public CodeChangeManagementApp(String[] args) {
@@ -71,11 +73,28 @@ public class CodeChangeManagementApp extends AbstractModule {
         }
     }
 
+    protected void refresh() {
+
+        rawData.clearIssueData();
+        IssueManagement issueManagement = injector.getInstance(IssueManagement.class);
+        CommitCommentToIssueKeyMapper commitCommentToIssueKeyMapper = injector
+                .getInstance(CommitCommentToIssueKeyMapper.class);
+        for (String revisionKey : rawData.getRevisionKeys()) {
+            RevisionData revisionData = rawData.getRevisionData(revisionKey);
+            String issueKey = commitCommentToIssueKeyMapper.getIssueKeyFromCommitComment(revisionKey,
+                    revisionData.getCommitComment());
+            IssueData issueData = issueManagement.getIssueData(issueKey);
+            if (issueData != null) {
+                rawData.putIssueData(issueData);
+            }
+        }
+        rawData.reWire(commitCommentToIssueKeyMapper);
+    }
+
     protected void run() throws ConfigurationException, IOException, IssueManagementException, SCMException,
             EngineException {
 
-        Injector injector = Guice.createInjector(this);
-        RawData rawData = new RawData();
+        injector = Guice.createInjector(this);
         RawDataPersistence rawDataPersistence = new RawDataPersistence(config);
         List<String> actions = config.getPropertyList("app.run.action");
         for (String action : actions) {
@@ -87,19 +106,9 @@ public class CodeChangeManagementApp extends AbstractModule {
             } else if (action.equalsIgnoreCase("scan")) {
                 SCM scm = injector.getInstance(SCM.class);
                 scm.scan(rawData);
-                rawData.clearIssueData();
-                IssueManagement issueManagement = injector.getInstance(IssueManagement.class);
-                CommitCommentToIssueKeyMapper commitCommentToIssueKeyMapper = injector
-                        .getInstance(CommitCommentToIssueKeyMapper.class);
-                for (String revisionKey : rawData.getRevisionKeys()) {
-                    RevisionData revisionData = rawData.getRevisionData(revisionKey);
-                    String issueKey = commitCommentToIssueKeyMapper.getIssueKeyFromCommitComment(revisionKey,
-                            revisionData.getCommitComment());
-                    IssueData issueData = issueManagement.getIssueData(issueKey);
-                    if (issueData != null) {
-                        rawData.putIssueData(issueData);
-                    }
-                }
+                refresh();
+            } else if (action.equalsIgnoreCase("refresh")) {
+                refresh();
             } else if (action.equalsIgnoreCase("process")) {
                 Engine engine = injector.getInstance(Engine.class);
                 engine.run(rawData);
