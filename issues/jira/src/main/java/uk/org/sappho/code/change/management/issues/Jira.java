@@ -99,15 +99,18 @@ public class Jira implements IssueManagement {
 
         String subTaskKey = null;
         if (parentIssues.get(issueKey) == null) {
-            String parentKey = null;
-            if (getParentService != null) {
-                try {
-                    parentKey = getParentService.getParent(issueKey);
-                } catch (Exception e) {
-                    warnings.add(new JiraParentIssueFetchWarning(jiraURL, issueKey));
+            String parentKey = subTaskParents.get(issueKey);
+            if (parentKey == null) {
+                if (getParentService != null) {
+                    try {
+                        parentKey = getParentService.getParent(issueKey);
+                        if (parentKey != null) {
+                            subTaskParents.put(issueKey, parentKey);
+                        }
+                    } catch (Exception e) {
+                        warnings.add(new JiraParentIssueFetchWarning(jiraURL, issueKey));
+                    }
                 }
-            } else {
-                parentKey = subTaskParents.get(issueKey);
             }
             if (parentKey != null) {
                 if (warnedSubTasks.get(issueKey) == null) {
