@@ -1,10 +1,8 @@
 package uk.org.sappho.code.change.management.data;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.Vector;
 
 public class IssueData {
 
@@ -13,7 +11,7 @@ public class IssueData {
     private final String summary;
     private final Date createdDate;
     private final Date lastUpdatedDate;
-    private final Map<String, String> subTaskKeys = new HashMap<String, String>();
+    private final List<String> subTaskKeys = new Vector<String>();
     private final List<String> releases;
 
     public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate,
@@ -54,12 +52,14 @@ public class IssueData {
 
     public void putSubTaskKey(String issueKey) {
 
-        subTaskKeys.put(issueKey, issueKey);
+        if (!subTaskKeys.contains(issueKey)) {
+            subTaskKeys.add(issueKey);
+        }
     }
 
-    public Set<String> getSubTaskKeys() {
+    public List<String> getSubTaskKeys() {
 
-        return subTaskKeys.keySet();
+        return subTaskKeys;
     }
 
     public List<String> getReleases() {
