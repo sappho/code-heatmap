@@ -168,7 +168,8 @@ public class Jira implements IssueManagement {
                     warnings.add(new JiraIssueTypeMappingWarning(jiraURL, issueKey, typeId, typeName));
                     issueTypes.put(typeId, typeName);
                 }
-                issueData = new IssueData(issueKey, typeName, remoteIssue.getSummary(), null);
+                issueData = new IssueData(issueKey, typeName, remoteIssue.getSummary(), remoteIssue.getCreated()
+                        .getTime(), remoteIssue.getUpdated().getTime(), null);
                 parentIssues.put(issueKey, issueData);
             }
         }
