@@ -49,23 +49,17 @@ public class Subversion implements SCM {
                 try {
                     Info2[] info = svnClient.info2(url + basePath, Revision.HEAD, Revision.HEAD, false);
                     endRevision = info[0].getLastChangedRev();
-                    LOG.debug("Using HEAD revision because svn.end.rev property requires it");
                 } catch (ClientException e) {
-                    LOG.error("Unable to determine head revision of " + url + basePath, e);
+                    throw new SCMException("Unable to determine head revision of " + url + basePath, e);
                 }
             }
             long startRevision = Long
                     .parseLong(config.getProperty(START_REV_PROP, Long.toString(endRevision - 49)));
-            errorMessage = "Unable to read Subversion history for " + url + basePath + " from rev. " + startRevision
-                    + " to rev. " + endRevision;
-            LOG.debug("Subversion history scan parameters:");
-            LOG.debug("url:           " + url);
-            LOG.debug("basePath:      " + basePath);
-            LOG.debug("startRevision: " + startRevision);
-            LOG.debug("endRevision:   " + endRevision);
+            errorMessage = "Unable to read Subversion history for " + url + basePath + " from revision "
+                    + startRevision + " to revision " + endRevision;
             if (endRevision < startRevision) {
-                LOG.info("Unable to read Subversion history for " + url + basePath + " from rev. " + startRevision
-                        + " to rev. " + endRevision
+                LOG.info("Unable to read Subversion history for " + url + basePath + " from revision " + startRevision
+                        + " to revision " + endRevision
                         + " - if incrememntal then this probably means there are no new revisions");
             } else {
                 Map<String, Integer> nodeKindCache = new HashMap<String, Integer>();
@@ -73,8 +67,8 @@ public class Subversion implements SCM {
                 int fileCount = 0;
                 int deleteCount = 0;
                 int nodeKindCacheHits = 0;
-                LOG.info("Reading Subversion history for " + url + basePath + " from rev. " + startRevision
-                        + " to rev. " + endRevision);
+                LOG.info("Reading Subversion history for " + url + basePath + " from revision " + startRevision
+                        + " to revision " + endRevision);
                 LogMessage[] logMessages = svnClient.logMessages(url + basePath, Revision.getInstance(startRevision),
                         Revision.getInstance(endRevision), false, true);
                 LOG.info("Starting to process " + logMessages.length + " revisions");
@@ -83,12 +77,12 @@ public class Subversion implements SCM {
                     long revisionNumber = logMessage.getRevisionNumber();
                     Date date = logMessage.getDate();
                     String commitComment = logMessage.getMessage();
-                    LOG.debug("Processing rev. " + revisionNumber + " " + commitComment);
                     List<String> changedFiles = new Vector<String>();
                     for (ChangePath changePath : logMessage.getChangedPaths()) {
                         nodeCount++;
                         String path = changePath.getPath();
-                        if (changePath.getAction() != 'D') {
+                        char action = changePath.getAction();
+                        if (action != 'D') {
                             int nodeKind = changePath.getNodeKind();
                             if (nodeKind == NodeKind.unknown) {
                                 Integer nodeKindObj = nodeKindCache.get(path);
@@ -106,20 +100,11 @@ public class Subversion implements SCM {
                                     }
                                 }
                             }
-                            switch (nodeKind) {
-                            case NodeKind.file:
-                                LOG.debug("Processing changed file " + path);
+                            if (nodeKind == NodeKind.file) {
                                 changedFiles.add(path);
                                 fileCount++;
-                                break;
-                            case NodeKind.dir:
-                                LOG.debug("Path " + path + " is a directory so not including it");
-                                break;
-                            default:
-                                LOG.debug("Path " + path + " is of unknown type so not including it");
                             }
                         } else {
-                            LOG.debug("Path " + path + " is deleted so not including it");
                             deleteCount++;
                         }
                     }
