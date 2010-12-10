@@ -77,7 +77,7 @@ public class Subversion implements SCM {
                         + " to rev. " + endRevision);
                 LogMessage[] logMessages = svnClient.logMessages(url + basePath, Revision.getInstance(startRevision),
                         Revision.getInstance(endRevision), false, true);
-                LOG.info("Processing " + logMessages.length + " revisions");
+                LOG.info("Starting to process " + logMessages.length + " revisions");
                 int revisionCount = 0;
                 for (LogMessage logMessage : logMessages) {
                     long revisionNumber = logMessage.getRevisionNumber();
@@ -123,9 +123,13 @@ public class Subversion implements SCM {
                             deleteCount++;
                         }
                     }
-                    rawData.putRevisionData(new RevisionData(Long.toString(revisionNumber), date, commitComment,
-                            changedFiles));
-                    revisionCount++;
+                    String revisionKey = Long.toString(revisionNumber);
+                    if (changedFiles.size() > 0) {
+                        rawData.putRevisionData(new RevisionData(revisionKey, date, commitComment, changedFiles));
+                        revisionCount++;
+                    } else {
+                        warningsList.add(new RevisionHasNoChangesWarning(revisionKey));
+                    }
                 }
                 LOG.info("Processed " + revisionCount + " revisions");
                 LOG.info("Stats: " + nodeCount + " nodes " + fileCount + " files " + deleteCount + " deletes "

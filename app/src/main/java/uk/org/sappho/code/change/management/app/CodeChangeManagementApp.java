@@ -93,8 +93,8 @@ public class CodeChangeManagementApp extends AbstractModule {
                         .getInstance(CommitCommentToIssueKeyMapper.class);
                 for (String revisionKey : rawData.getRevisionKeys()) {
                     RevisionData revisionData = rawData.getRevisionData(revisionKey);
-                    String issueKey = commitCommentToIssueKeyMapper.getIssueKeyFromCommitComment(revisionData
-                            .getCommitComment());
+                    String issueKey = commitCommentToIssueKeyMapper.getIssueKeyFromCommitComment(revisionKey,
+                            revisionData.getCommitComment());
                     IssueData issueData = issueManagement.getIssueData(issueKey);
                     if (issueData != null) {
                         rawData.putIssueData(issueData);

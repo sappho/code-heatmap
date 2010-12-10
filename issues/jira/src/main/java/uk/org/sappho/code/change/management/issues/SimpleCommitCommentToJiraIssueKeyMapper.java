@@ -7,7 +7,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import uk.org.sappho.code.change.management.data.mapping.CommitCommentToIssueKeyMapper;
-import uk.org.sappho.warnings.MessageWarning;
 import uk.org.sappho.warnings.WarningsList;
 
 @Singleton
@@ -22,14 +21,14 @@ public class SimpleCommitCommentToJiraIssueKeyMapper implements CommitCommentToI
         this.warningsList = warningsList;
     }
 
-    public String getIssueKeyFromCommitComment(String commitComment) {
+    public String getIssueKeyFromCommitComment(String revisionKey, String commitComment) {
 
         String key = null;
         Matcher matcher = SIMPLE_JIRA_REGEX.matcher(commitComment.split("\n")[0]);
         if (matcher.matches()) {
             key = matcher.group(1);
         } else {
-            warningsList.add(new MessageWarning("No Jira issue key found in commit comment: " + commitComment));
+            warningsList.add(new IssueKeyNotFoundWarning(revisionKey, commitComment));
         }
         return key;
     }

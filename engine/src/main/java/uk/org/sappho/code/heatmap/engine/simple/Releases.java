@@ -46,7 +46,8 @@ public class Releases implements Engine {
             for (String revisionKey : rawData.getRevisionKeys()) {
                 RevisionData revisionData = rawData.getRevisionData(revisionKey);
                 String commitComment = revisionData.getCommitComment();
-                String issueKey = commitCommentToIssueKeyMapper.getIssueKeyFromCommitComment(commitComment);
+                String issueKey = commitCommentToIssueKeyMapper
+                        .getIssueKeyFromCommitComment(revisionKey, commitComment);
                 IssueData issueData = rawData.getIssueData(issueKey);
                 List<String> issueReleases = issueData.getReleases();
                 for (String issueRelease : issueReleases) {
