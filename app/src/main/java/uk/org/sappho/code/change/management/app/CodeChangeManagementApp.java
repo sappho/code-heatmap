@@ -8,12 +8,13 @@ import org.apache.log4j.Logger;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.name.Names;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
-import uk.org.sappho.code.change.management.data.mapping.CommitCommentToIssueKeyMapper;
 import uk.org.sappho.code.change.management.data.persistence.RawDataPersistence;
+import uk.org.sappho.code.change.management.issues.IssueKeyNotFoundWarning;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
 import uk.org.sappho.code.change.management.scm.SCM;
@@ -25,15 +26,20 @@ import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.configuration.SimpleConfiguration;
+import uk.org.sappho.string.mapping.Mapper;
+import uk.org.sappho.string.mapping.MapperSet;
 import uk.org.sappho.warnings.SimpleWarningsList;
 import uk.org.sappho.warnings.WarningsList;
 
 public class CodeChangeManagementApp extends AbstractModule {
 
     private final String[] args;
+    private WarningsList warningsList;
     private SimpleConfiguration config;
     private RawData rawData = new RawData();
     private Injector injector;
+    private MapperSet mapperSet;
+    private Mapper commitCommentToIssueKeyMapper;
     private static final Logger LOG = Logger.getLogger(CodeChangeManagementApp.class);
 
     public CodeChangeManagementApp(String[] args) {
@@ -47,17 +53,20 @@ public class CodeChangeManagementApp extends AbstractModule {
 
         try {
             LOG.debug("Configuring plugins");
-            bind(WarningsList.class).toInstance(new SimpleWarningsList());
+            warningsList = new SimpleWarningsList();
+            bind(WarningsList.class).toInstance(warningsList);
             config = new SimpleConfiguration();
             for (String configFilename : args)
                 config.load(configFilename);
             bind(Configuration.class).toInstance(config);
+            mapperSet = (MapperSet) config.getPlugin("string.mapper.plugin", "uk.org.sappho.string.mapping")
+                    .newInstance();
+            commitCommentToIssueKeyMapper = mapperSet.getMapper(config, "commit.comment.to.issue.key");
+            bind(MapperSet.class).toInstance(mapperSet);
+            bind(Mapper.class).annotatedWith(Names.named("commitCommentToIssueKeyMapper")).toInstance(
+                    commitCommentToIssueKeyMapper);
             bind(SCM.class).to(
                     (Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
-            bind(CommitCommentToIssueKeyMapper.class).to(
-                    (Class<? extends CommitCommentToIssueKeyMapper>) config.getPlugin(
-                            "commit.comment.to.issue.key.mapper.plugin",
-                            "uk.org.sappho.code.change.management.issues"));
             bind(Report.class).to(
                     (Class<? extends Report>) config.getPlugin("report.plugin", "uk.org.sappho.code.heatmap.report"));
             bind(IssueManagement.class).to(
@@ -73,19 +82,21 @@ public class CodeChangeManagementApp extends AbstractModule {
         }
     }
 
-    protected void refresh() {
+    protected void refresh() throws ConfigurationException {
 
-        rawData.clearIssueData();
         IssueManagement issueManagement = injector.getInstance(IssueManagement.class);
-        CommitCommentToIssueKeyMapper commitCommentToIssueKeyMapper = injector
-                .getInstance(CommitCommentToIssueKeyMapper.class);
+        rawData.clearIssueData();
         for (String revisionKey : rawData.getRevisionKeys()) {
             RevisionData revisionData = rawData.getRevisionData(revisionKey);
-            String issueKey = commitCommentToIssueKeyMapper.getIssueKeyFromCommitComment(revisionKey,
-                    revisionData.getCommitComment());
-            IssueData issueData = issueManagement.getIssueData(issueKey);
-            if (issueData != null) {
-                rawData.putIssueData(issueData);
+            String commitComment = revisionData.getCommitComment().split("\n")[0];
+            String issueKey = commitCommentToIssueKeyMapper.map(commitComment);
+            if (issueKey != null) {
+                IssueData issueData = issueManagement.getIssueData(issueKey);
+                if (issueData != null) {
+                    rawData.putIssueData(issueData);
+                }
+            } else {
+                warningsList.add(new IssueKeyNotFoundWarning(revisionKey, commitComment));
             }
         }
         rawData.reWire(commitCommentToIssueKeyMapper);

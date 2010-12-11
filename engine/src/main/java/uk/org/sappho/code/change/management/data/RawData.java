@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import uk.org.sappho.code.change.management.data.mapping.CommitCommentToIssueKeyMapper;
+import uk.org.sappho.string.mapping.Mapper;
 
 public class RawData {
 
@@ -12,7 +12,7 @@ public class RawData {
     private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
 
-    public void reWire(CommitCommentToIssueKeyMapper commitCommentToIssueKeyMapper) {
+    public void reWire(Mapper commitCommentToIssueKeyMapper) {
 
         issueKeyToIssueKeyMap = new HashMap<String, String>();
         for (String issueKey : issueDataMap.keySet()) {
@@ -25,7 +25,7 @@ public class RawData {
         for (String revisionKey : revisionDataMap.keySet()) {
             RevisionData revisionData = revisionDataMap.get(revisionKey);
             String commitComment = revisionData.getCommitComment();
-            String issueKey = commitCommentToIssueKeyMapper.getIssueKeyFromCommitComment(revisionKey, commitComment);
+            String issueKey = commitCommentToIssueKeyMapper.map(commitComment);
             revisionData.setIssueKey(issueKey);
         }
     }
