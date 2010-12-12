@@ -27,7 +27,6 @@ import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.configuration.SimpleConfiguration;
 import uk.org.sappho.string.mapping.Mapper;
-import uk.org.sappho.string.mapping.MapperSet;
 import uk.org.sappho.warnings.SimpleWarningsList;
 import uk.org.sappho.warnings.WarningsList;
 
@@ -38,7 +37,6 @@ public class CodeChangeManagementApp extends AbstractModule {
     private SimpleConfiguration config;
     private RawData rawData = new RawData();
     private Injector injector;
-    private MapperSet mapperSet;
     private Mapper commitCommentToIssueKeyMapper;
     private static final Logger LOG = Logger.getLogger(CodeChangeManagementApp.class);
 
@@ -59,10 +57,7 @@ public class CodeChangeManagementApp extends AbstractModule {
             for (String configFilename : args)
                 config.load(configFilename);
             bind(Configuration.class).toInstance(config);
-            mapperSet = (MapperSet) config.getPlugin("string.mapper.plugin", "uk.org.sappho.string.mapping")
-                    .newInstance();
-            commitCommentToIssueKeyMapper = mapperSet.getMapper(config, "commit.comment.to.issue.key");
-            bind(MapperSet.class).toInstance(mapperSet);
+            commitCommentToIssueKeyMapper = (Mapper) config.getGroovyScriptObject("mapper.commit.comment.to.issue.key");
             bind(Mapper.class).annotatedWith(Names.named("commitCommentToIssueKeyMapper")).toInstance(
                     commitCommentToIssueKeyMapper);
             bind(SCM.class).to(
