@@ -57,9 +57,14 @@ public class CodeChangeManagementApp extends AbstractModule {
             for (String configFilename : args)
                 config.load(configFilename);
             bind(Configuration.class).toInstance(config);
+            // load data mapping scripts
+            // TODO: delete SimpleHeatMapSelector when it's turned into a script
+            HeatMapSelector heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
+            bind(HeatMapSelector.class).toInstance(heatMapSelector);
             commitCommentToIssueKeyMapper = (Mapper) config.getGroovyScriptObject("mapper.commit.comment.to.issue.key");
             bind(Mapper.class).annotatedWith(Names.named("commitCommentToIssueKeyMapper")).toInstance(
                     commitCommentToIssueKeyMapper);
+            // load plugins
             bind(SCM.class).to(
                     (Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
             bind(Report.class).to(
@@ -69,9 +74,6 @@ public class CodeChangeManagementApp extends AbstractModule {
                             "uk.org.sappho.code.change.management.issues"));
             bind(Engine.class).to(
                     (Class<? extends Engine>) config.getPlugin("engine.plugin", "uk.org.sappho.code.heatmap.engine"));
-            bind(HeatMapSelector.class).to(
-                    (Class<? extends HeatMapSelector>) config.getPlugin("mapping.heatmap.selector.plugin",
-                            "uk.org.sappho.code.heatmap.mapping"));
         } catch (Throwable t) {
             LOG.error("Unable to load plugins", t);
         }

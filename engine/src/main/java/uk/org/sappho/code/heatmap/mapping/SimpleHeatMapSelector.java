@@ -8,8 +8,6 @@ import java.util.regex.Pattern;
 
 import com.google.inject.Singleton;
 
-import uk.org.sappho.code.heatmap.engine.HeatMapMapping;
-
 @Singleton
 public class SimpleHeatMapSelector implements HeatMapSelector {
 

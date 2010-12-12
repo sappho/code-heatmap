@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.engine;
+package uk.org.sappho.code.heatmap.mapping;
 
 public class HeatMapMapping {
 
