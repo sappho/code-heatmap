@@ -18,6 +18,7 @@ import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.GetParentService;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
+import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.warnings.WarningsList;
 
 @Singleton
@@ -34,15 +35,16 @@ public class Jira implements IssueManagement {
     private final Map<String, String> issueTypes = new HashMap<String, String>();
     private final WarningsList warnings;
     private final Configuration config;
+    private final Mapper fixVersionMapper;
     private static final Logger LOG = Logger.getLogger(Jira.class);
-    private static final String NO_RELEASE = "missing";
 
     @Inject
-    public Jira(WarningsList warnings, Configuration config) throws IssueManagementException {
+    public Jira(WarningsList warnings, Configuration config) throws IssueManagementException, ConfigurationException {
 
         LOG.info("Using Jira issue management plugin");
         this.warnings = warnings;
         this.config = config;
+        fixVersionMapper = (Mapper) config.getGroovyScriptObject("mapper.fix.version.to.release");
         connect();
     }
 
@@ -137,21 +139,17 @@ public class Jira implements IssueManagement {
                 List<String> issueReleases = new Vector<String>();
                 Map<String, String> issueReleaseMap = new HashMap<String, String>();
                 RemoteVersion[] fixVersions = remoteIssue.getFixVersions();
-                if (fixVersions.length == 0) {
-                    issueReleaseMap.put(NO_RELEASE, NO_RELEASE);
-                } else {
+                if (fixVersions.length > 0) {
                     for (RemoteVersion remoteVersion : fixVersions) {
                         String remoteVersionName = remoteVersion.getName();
                         String release = releases.get(remoteVersionName);
                         if (release == null) {
-                            try {
-                                release = config.getProperty("jira.version.map.release." + remoteVersionName);
-                            } catch (ConfigurationException e) {
-                                release = "unknown";
+                            release = fixVersionMapper.map(remoteVersionName);
+                            if (release != null) {
+                                warnings.add(new JiraVersionMappingWarning(jiraURL, issueKey, remoteVersionName,
+                                        release));
+                                releases.put(remoteVersionName, release);
                             }
-                            warnings.add(new JiraVersionMappingWarning(jiraURL, issueKey, remoteVersionName,
-                                    release));
-                            releases.put(remoteVersionName, release);
                         }
                         issueReleaseMap.put(release, release);
                     }
