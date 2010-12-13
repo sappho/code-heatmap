@@ -5,12 +5,14 @@ import java.util.Map;
 import java.util.Set;
 
 import uk.org.sappho.string.mapping.Mapper;
+import uk.org.sappho.warnings.WarningsList;
 
 public class RawData {
 
     private Map<String, RevisionData> revisionDataMap = new HashMap<String, RevisionData>();
     private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
+    private WarningsList warnings = null;
 
     public void reWire(Mapper commitCommentToIssueKeyMapper) {
 
@@ -69,5 +71,15 @@ public class RawData {
     public IssueData getIssueData(String issueKey) {
 
         return issueDataMap.get(issueKeyToIssueKeyMap.get(issueKey));
+    }
+
+    public void setWarnings(WarningsList warnings) {
+
+        this.warnings = warnings;
+    }
+
+    public WarningsList getWarnings() {
+
+        return warnings;
     }
 }

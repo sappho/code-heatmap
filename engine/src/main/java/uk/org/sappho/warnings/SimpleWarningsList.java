@@ -8,47 +8,31 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
-
-@Singleton
 public class SimpleWarningsList implements WarningsList {
 
-    private final Map<String, List<Warning>> warnings = new HashMap<String, List<Warning>>();
-    private static final Logger LOG = Logger.getLogger(SimpleWarningsList.class);
+    private final Map<String, List<String>> warningLists = new HashMap<String, List<String>>();
+    private static final Logger log = Logger.getLogger(SimpleWarningsList.class);
 
-    @Inject
-    public SimpleWarningsList() {
+    public void add(String category, String warning) {
 
-        LOG.info("Using simple warning logging plugin");
-    }
-
-    public void add(Warning warning) {
-
-        String type = warning.getCategory();
-        List<Warning> list = warnings.get(type);
+        List<String> list = warningLists.get(category);
         if (list == null) {
-            list = new Vector<Warning>();
-            warnings.put(type, list);
+            list = new Vector<String>();
+            warningLists.put(category, list);
         }
-        String warningText = warning.toString();
-        for (Warning existingWarning : list) {
-            if (warningText.equals(existingWarning.toString())) {
-                return;
-            }
+        if (!list.contains(warning)) {
+            log.info(category + ": " + warning);
+            list.add(warning);
         }
-        LOG.info(type + ": " + warningText);
-        list.add(warning);
     }
 
-    public Set<String> getTypes() {
+    public Set<String> getCategories() {
 
-        return warnings.keySet();
+        return warningLists.keySet();
     }
 
-    public List<Warning> getWarnings(String type) {
+    public List<String> getWarnings(String category) {
 
-        return warnings.get(type);
+        return warningLists.get(category);
     }
 }

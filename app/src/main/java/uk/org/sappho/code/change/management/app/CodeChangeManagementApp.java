@@ -14,7 +14,6 @@ import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.data.persistence.RawDataPersistence;
-import uk.org.sappho.code.change.management.issues.IssueKeyNotFoundWarning;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
 import uk.org.sappho.code.change.management.scm.SCM;
@@ -33,7 +32,7 @@ import uk.org.sappho.warnings.WarningsList;
 public class CodeChangeManagementApp extends AbstractModule {
 
     private final String[] args;
-    private WarningsList warningsList;
+    private WarningsList warnings;
     private SimpleConfiguration config;
     private RawData rawData = new RawData();
     private Injector injector;
@@ -51,8 +50,8 @@ public class CodeChangeManagementApp extends AbstractModule {
 
         try {
             LOG.debug("Configuring plugins");
-            warningsList = new SimpleWarningsList();
-            bind(WarningsList.class).toInstance(warningsList);
+            warnings = new SimpleWarningsList();
+            bind(WarningsList.class).toInstance(warnings);
             config = new SimpleConfiguration();
             for (String configFilename : args)
                 config.load(configFilename);
@@ -93,10 +92,12 @@ public class CodeChangeManagementApp extends AbstractModule {
                     rawData.putIssueData(issueData);
                 }
             } else {
-                warningsList.add(new IssueKeyNotFoundWarning(revisionKey, commitComment));
+                warnings.add("Issue not found", "Unable to find an issue to match revision " + revisionKey + " \""
+                        + commitComment + "\"");
             }
         }
         rawData.reWire(commitCommentToIssueKeyMapper);
+        rawData.setWarnings(warnings);
     }
 
     protected void run() throws ConfigurationException, IOException, IssueManagementException, SCMException,
