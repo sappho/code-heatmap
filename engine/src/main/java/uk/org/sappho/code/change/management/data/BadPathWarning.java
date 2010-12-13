@@ -1,12 +1,12 @@
-package uk.org.sappho.code.change.management.scm;
+package uk.org.sappho.code.change.management.data;
 
 import uk.org.sappho.warnings.Warning;
 
-public class SubversionPathWarning extends Warning {
+public class BadPathWarning extends Warning {
 
     private final String path;
 
-    public SubversionPathWarning(String path) {
+    public BadPathWarning(String path) {
 
         this.path = path;
     }
