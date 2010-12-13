@@ -131,12 +131,4 @@ public class Subversion implements SCM {
             throw new SCMException(errorMessage, t);
         }
     }
-
-    public int compare(RevisionData changeData1, RevisionData changeData2) {
-
-        long revision1 = Long.parseLong(changeData1.getKey());
-        long revision2 = Long.parseLong(changeData2.getKey());
-        int comparison = (revision1 == revision2) ? 0 : (revision1 > revision2) ? 1 : -1;
-        return comparison;
-    }
 }
