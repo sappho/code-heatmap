@@ -26,13 +26,13 @@ import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.configuration.SimpleConfiguration;
 import uk.org.sappho.string.mapping.Mapper;
-import uk.org.sappho.warnings.SimpleWarningsList;
-import uk.org.sappho.warnings.WarningsList;
+import uk.org.sappho.warnings.SimpleWarningList;
+import uk.org.sappho.warnings.WarningList;
 
 public class CodeChangeManagementApp extends AbstractModule {
 
     private final String[] args;
-    private WarningsList warnings;
+    private WarningList warningList;
     private SimpleConfiguration config;
     private RawData rawData = new RawData();
     private Injector injector;
@@ -50,14 +50,13 @@ public class CodeChangeManagementApp extends AbstractModule {
 
         try {
             LOG.debug("Configuring plugins");
-            warnings = new SimpleWarningsList();
-            bind(WarningsList.class).toInstance(warnings);
+            warningList = new SimpleWarningList();
+            bind(WarningList.class).toInstance(warningList);
             config = new SimpleConfiguration();
             for (String configFilename : args)
                 config.load(configFilename);
             bind(Configuration.class).toInstance(config);
             // load data mapping scripts
-            // TODO: delete SimpleHeatMapSelector when it's turned into a script
             HeatMapSelector heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
             bind(HeatMapSelector.class).toInstance(heatMapSelector);
             commitCommentToIssueKeyMapper = (Mapper) config.getGroovyScriptObject("mapper.commit.comment.to.issue.key");
@@ -80,6 +79,7 @@ public class CodeChangeManagementApp extends AbstractModule {
 
     protected void refresh() throws ConfigurationException {
 
+        LOG.info("Refreshing issue management data");
         IssueManagement issueManagement = injector.getInstance(IssueManagement.class);
         rawData.clearIssueData();
         for (String revisionKey : rawData.getRevisionKeys()) {
@@ -92,12 +92,20 @@ public class CodeChangeManagementApp extends AbstractModule {
                     rawData.putIssueData(issueData);
                 }
             } else {
-                warnings.add("Issue not found", "Unable to find an issue to match revision " + revisionKey + " \""
+                warningList.add("Issue not found", "Unable to find an issue to match revision " + revisionKey + " \""
                         + commitComment + "\"");
             }
         }
         rawData.reWire(commitCommentToIssueKeyMapper);
-        rawData.setWarnings(warnings);
+        for (String rawIssueType : issueManagement.getIssueTypeMappings().keySet()) {
+            warningList.add("Issue type mapping", "Raw issue type \"" + rawIssueType + "\" mapped to \""
+                    + issueManagement.getIssueTypeMappings().get(rawIssueType) + "\"");
+        }
+        for (String rawRelease : issueManagement.getReleaseMappings().keySet()) {
+            warningList.add("Release mapping", "Raw release \"" + rawRelease + "\" mapped to \""
+                    + issueManagement.getReleaseMappings().get(rawRelease) + "\"");
+        }
+        rawData.putWarnings(warningList);
     }
 
     protected void run() throws ConfigurationException, IOException, IssueManagementException, SCMException,

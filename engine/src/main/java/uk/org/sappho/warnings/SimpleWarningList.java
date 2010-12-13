@@ -8,12 +8,17 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
-public class SimpleWarningsList implements WarningsList {
+public class SimpleWarningList implements WarningList {
 
     private final Map<String, List<String>> warningLists = new HashMap<String, List<String>>();
-    private static final Logger log = Logger.getLogger(SimpleWarningsList.class);
+    private static final Logger log = Logger.getLogger(SimpleWarningList.class);
 
     public void add(String category, String warning) {
+
+        add(category, warning, true);
+    }
+
+    public void add(String category, String warning, boolean logIt) {
 
         List<String> list = warningLists.get(category);
         if (list == null) {
@@ -21,7 +26,9 @@ public class SimpleWarningsList implements WarningsList {
             warningLists.put(category, list);
         }
         if (!list.contains(warning)) {
-            log.info(category + ": " + warning);
+            if (logIt) {
+                log.info(category + ": " + warning);
+            }
             list.add(warning);
         }
     }

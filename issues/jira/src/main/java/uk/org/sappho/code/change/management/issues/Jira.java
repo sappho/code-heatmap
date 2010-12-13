@@ -19,14 +19,14 @@ import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.GetParentService;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
 import uk.org.sappho.string.mapping.Mapper;
-import uk.org.sappho.warnings.SimpleWarningsList;
+import uk.org.sappho.warnings.SimpleWarningList;
 
 public class Jira implements IssueManagement {
 
     private final Configuration config;
     private final Mapper fixVersionMapper;
     private final Mapper issueTypeMapper;
-    private final SimpleWarningsList warnings;
+    private final SimpleWarningList warnings;
     private String jiraURL = null;
     private JiraSoapService jiraSoapService = null;
     private GetParentService getParentService = null;
@@ -39,7 +39,7 @@ public class Jira implements IssueManagement {
     private static final Logger log = Logger.getLogger(Jira.class);
 
     @Inject
-    public Jira(Configuration config, SimpleWarningsList warnings) throws ConfigurationException,
+    public Jira(Configuration config, SimpleWarningList warnings) throws ConfigurationException,
             IssueManagementException {
 
         log.info("Using Jira issue management plugin");

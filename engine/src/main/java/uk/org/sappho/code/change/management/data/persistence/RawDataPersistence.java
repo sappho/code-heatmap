@@ -16,7 +16,7 @@ import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
-import uk.org.sappho.warnings.SimpleWarningsList;
+import uk.org.sappho.warnings.SimpleWarningList;
 
 public class RawDataPersistence {
 
@@ -39,7 +39,7 @@ public class RawDataPersistence {
     private void init() {
 
         for (Class<?> clazz : new Class[] { RawData.class, IssueData.class, RevisionData.class,
-                SimpleWarningsList.class }) {
+                SimpleWarningList.class }) {
             xstream.alias(clazz.getSimpleName(), clazz);
         }
     }
