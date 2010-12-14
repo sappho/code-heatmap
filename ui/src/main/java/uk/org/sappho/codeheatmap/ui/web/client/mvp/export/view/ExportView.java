@@ -1,7 +1,5 @@
 package uk.org.sappho.codeheatmap.ui.web.client.mvp.export.view;
 
-import net.customware.gwt.presenter.client.EventBus;
-
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -15,7 +13,7 @@ public class ExportView extends Composite implements ExportPresenter.Display {
     private final LayoutPanel containerPanel;
 
     @Inject
-    public ExportView(CodeHeatmapResources resources, EventBus eventBus) {
+    public ExportView(CodeHeatmapResources resources) {
 
         containerPanel = new LayoutPanel();
         containerPanel.setWidth("960px");

@@ -15,6 +15,8 @@ import uk.org.sappho.codeheatmap.ui.web.client.mvp.importx.ImportPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.importx.view.ImportView;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view.MainView;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view.Menu;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view.SubMenuWidget;
 import uk.org.sappho.codeheatmap.ui.web.client.place.CodeHeatmapPlaceManager;
 
 public class CodeHeatmapModule extends AbstractPresenterModule {
@@ -24,6 +26,8 @@ public class CodeHeatmapModule extends AbstractPresenterModule {
         bind(TokenFormatter.class).to(ParameterTokenFormatter.class);
         bind(PlaceManager.class).to(CodeHeatmapPlaceManager.class).asEagerSingleton();
         bind(EventBus.class).to(DefaultEventBus.class);
+
+        bind(Menu.class).to(SubMenuWidget.class);
 
         bindPresenter(MainPresenter.class, MainPresenter.Display.class, MainView.class);
         bindPresenter(ImportPresenter.class, ImportPresenter.Display.class, ImportView.class);

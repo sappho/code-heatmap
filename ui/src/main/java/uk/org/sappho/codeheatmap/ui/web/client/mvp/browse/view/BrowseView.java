@@ -3,8 +3,6 @@ package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.view;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import net.customware.gwt.presenter.client.EventBus;
-
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -31,7 +29,7 @@ public class BrowseView extends Composite implements BrowsePresenter.Display {
     private final TextBox searchTerm;
 
     @Inject
-    public BrowseView(CodeHeatmapResources resources, EventBus eventBus) {
+    public BrowseView(CodeHeatmapResources resources) {
 
         VerticalPanel container = new VerticalPanel();
         container.addStyleName(resources.css().centerLayout());

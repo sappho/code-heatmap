@@ -43,6 +43,11 @@ body,td,p {
 
 .subMenuContainer {
 	background-color: color1;
+	white-space: nowrap;
+}
+
+.subMenuContainer div {
+	padding: 4px 10px;
 }
 
 .footer {

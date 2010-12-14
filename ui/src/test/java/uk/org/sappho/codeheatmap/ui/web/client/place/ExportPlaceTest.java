@@ -14,8 +14,7 @@ import com.google.inject.Provider;
 
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.export.ExportPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
-import uk.org.sappho.codeheatmap.ui.web.client.place.ExportPlace;
-import uk.org.sappho.codeheatmap.ui.web.client.place.MainPlace;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view.Menu;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExportPlaceTest {
@@ -32,6 +31,8 @@ public class ExportPlaceTest {
     private MainPlace mockMainPlace;
     @Mock
     private MainPresenter mockMainPresenter;
+    @Mock
+    private Menu mockSubMenu;
 
     @Test
     public void shouldTellLayoutToDisplayTheExportWidget() {
@@ -39,7 +40,7 @@ public class ExportPlaceTest {
         when(mockMainPlaceProvider.get()).thenReturn(mockMainPlace);
         when(mockMainPlace.getPresenter()).thenReturn(mockMainPresenter);
         when(mockPresenter.getDisplay()).thenReturn(mockDisplay);
-        ExportPlace exportPlace = new ExportPlace(mockPresenterProvider, mockMainPlaceProvider);
+        ExportPlace exportPlace = new ExportPlace(mockPresenterProvider, mockMainPlaceProvider, mockSubMenu);
 
         exportPlace.preparePresenter(null, mockPresenter);
 
