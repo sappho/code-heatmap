@@ -1,5 +1,6 @@
 package uk.org.sappho.code.change.management.issues;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,8 +152,11 @@ public class Jira implements IssueManagement {
                 for (RemoteComponent remoteComponent : remoteComponents) {
                     components.add(remoteComponent.getName());
                 }
-                issueData = new IssueData(issueKey, rawTypeName, remoteIssue.getSummary(), remoteIssue.getCreated()
-                        .getTime(), remoteIssue.getUpdated().getTime(), components, issueRawReleases);
+                String assignee = remoteIssue.getAssignee();
+                Date createdOn = remoteIssue.getCreated().getTime();
+                Date updatedOn = remoteIssue.getUpdated().getTime();
+                issueData = new IssueData(issueKey, rawTypeName, remoteIssue.getSummary(), createdOn, updatedOn,
+                        assignee, components, issueRawReleases);
                 parentIssues.put(issueKey, issueData);
             }
         }

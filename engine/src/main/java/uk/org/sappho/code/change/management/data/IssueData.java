@@ -11,11 +11,12 @@ public class IssueData {
     private final String summary;
     private final Date createdDate;
     private final Date lastUpdatedDate;
+    private final String assignee;
     private final List<String> components;
     private List<String> releases;
     private final List<String> subTaskKeys = new Vector<String>();
 
-    public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate,
+    public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate, String assignee,
             List<String> components, List<String> releases) {
 
         this.key = key;
@@ -23,6 +24,7 @@ public class IssueData {
         this.summary = summary;
         this.createdDate = createdDate;
         this.lastUpdatedDate = lastUpdatedDate;
+        this.assignee = assignee;
         this.components = components;
         this.releases = releases;
     }
@@ -55,6 +57,11 @@ public class IssueData {
     public Date getLastUpdatedDate() {
 
         return lastUpdatedDate;
+    }
+
+    public String getAssignee() {
+
+        return assignee;
     }
 
     public List<String> getComponents() {
