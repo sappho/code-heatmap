@@ -83,7 +83,7 @@ public class CodeChangeManagementApp extends AbstractModule {
         IssueManagement issueManagement = injector.getInstance(IssueManagement.class);
         // clear out issue data from a previous scan or refresh
         rawData.clearIssueData();
-        // run through all the stored revisions to update links to issues
+        // run through all the stored revisions to pick up fresh linked issue data
         for (String revisionKey : rawData.getRevisionKeys()) {
             RevisionData revisionData = rawData.getRevisionData(revisionKey);
             String commitComment = revisionData.getCommitComment().split("\n")[0];
@@ -98,6 +98,7 @@ public class CodeChangeManagementApp extends AbstractModule {
                         + commitComment + "\"");
             }
         }
+        // re-wire the newly acquired issue data into the revisions
         rawData.reWire(commitCommentToIssueKeyMapper);
         // set up a map of raw release names to meaningful cooked ones
         Mapper releaseMapper = (Mapper) config.getGroovyScriptObject("mapper.raw.release.to.release");
