@@ -15,7 +15,7 @@ import com.google.inject.Injector;
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
-import uk.org.sappho.code.change.management.data.persistence.RawDataPersistence;
+import uk.org.sappho.code.change.management.data.persistence.ConfigurationRawDataPersistence;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
 import uk.org.sappho.code.change.management.scm.SCM;
@@ -32,42 +32,37 @@ import uk.org.sappho.warnings.WarningList;
 
 public class CodeChangeManagementApp extends AbstractModule {
 
-    private final String[] args;
-    private WarningList warningList;
-    private SimpleConfiguration config;
-    private RawData rawData = new RawData();
-    private Injector injector;
     private static final Logger LOG = Logger.getLogger(CodeChangeManagementApp.class);
 
-    public CodeChangeManagementApp(String[] args) {
+    private WarningList warningList;
+    private RawData rawData = new RawData();
+    private Injector injector;
 
-        this.args = args;
+    private final Configuration config;
+
+    public CodeChangeManagementApp(Configuration config) {
+        this.config = config;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void configure() {
+        LOG.debug("Configuring plugins");
 
         try {
-            LOG.debug("Configuring plugins");
             warningList = new SimpleWarningList();
             bind(WarningList.class).toInstance(warningList);
-            config = new SimpleConfiguration();
-            for (String configFilename : args)
-                config.load(configFilename);
             bind(Configuration.class).toInstance(config);
-            // load plugins
-            bind(SCM.class).to(
-                    (Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
-            bind(Report.class).to(
-                    (Class<? extends Report>) config.getPlugin("report.plugin", "uk.org.sappho.code.heatmap.report"));
-            bind(IssueManagement.class).to(
-                    (Class<? extends IssueManagement>) config.getPlugin("issues.plugin",
+            bind(SCM.class)
+                    .to(config.<SCM> getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
+            bind(Report.class)
+                    .to(config.<Report> getPlugin("report.plugin", "uk.org.sappho.code.heatmap.report"));
+            bind(IssueManagement.class)
+                    .to(config.<IssueManagement> getPlugin("issues.plugin",
                             "uk.org.sappho.code.change.management.issues"));
             bind(Engine.class).to(
-                    (Class<? extends Engine>) config.getPlugin("engine.plugin", "uk.org.sappho.code.heatmap.engine"));
-        } catch (Throwable t) {
-            LOG.error("Unable to load plugins", t);
+                    config.<Engine> getPlugin("engine.plugin", "uk.org.sappho.code.heatmap.engine"));
+        } catch (ConfigurationException e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -120,15 +115,25 @@ public class CodeChangeManagementApp extends AbstractModule {
             issueData.setType(cookedType);
             List<String> rawReleases = issueData.getReleases();
             List<String> cookedReleases = new Vector<String>();
+            String rawReleasesStr = "";
+            String cookedReleasesStr = "";
             for (String rawRelease : rawReleases) {
+                rawReleasesStr += " \"" + rawRelease + "\"";
                 String cookedRelease = releaseMappings.get(rawRelease);
                 if (cookedRelease != null) {
                     if (!cookedReleases.contains(cookedRelease)) {
+                        cookedReleasesStr += " \"" + cookedRelease + "\"";
                         cookedReleases.add(cookedRelease);
                     }
                 }
             }
             issueData.setReleases(cookedReleases);
+            if (rawReleases.size() == 0) {
+                warningList.add("Issue releases", "Issue " + issueKey + " has no association to a release");
+            } else if (rawReleases.size() != 1) {
+                warningList.add("Issue releases", "Issue " + issueKey + " is associated with more than one raw release"
+                        + rawReleasesStr + " mapping to" + cookedReleasesStr);
+            }
         }
         rawData.putWarnings(warningList);
     }
@@ -137,7 +142,7 @@ public class CodeChangeManagementApp extends AbstractModule {
             EngineException {
 
         injector = Guice.createInjector(this);
-        RawDataPersistence rawDataPersistence = new RawDataPersistence(config);
+        ConfigurationRawDataPersistence rawDataPersistence = new ConfigurationRawDataPersistence(config);
         List<String> actions = config.getPropertyList("app.run.action");
         for (String action : actions) {
             LOG.info("Running " + action);
@@ -163,7 +168,11 @@ public class CodeChangeManagementApp extends AbstractModule {
     public static void main(String[] args) {
 
         try {
-            new CodeChangeManagementApp(args).run();
+            Configuration config = new SimpleConfiguration();
+            for (String configFilename : args) {
+                config.load(configFilename);
+            }
+            new CodeChangeManagementApp(config).run();
             LOG.info("Everything done");
         } catch (Throwable t) {
             LOG.error("Application error", t);

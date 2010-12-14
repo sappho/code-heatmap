@@ -1,7 +1,5 @@
 package uk.org.sappho.code.change.management.data.persistence;
 
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -13,50 +11,32 @@ import com.thoughtworks.xstream.XStream;
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
-import uk.org.sappho.code.change.management.issues.IssueManagementException;
-import uk.org.sappho.configuration.Configuration;
-import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.warnings.SimpleWarningList;
 
-public class RawDataPersistence {
+public abstract class RawDataPersistence {
+
+    protected static final Logger log = Logger.getLogger(RawDataPersistence.class);
 
     private final XStream xstream = new XStream();
-    private final String filename;
-    private static final Logger LOG = Logger.getLogger(RawDataPersistence.class);
 
-    public RawDataPersistence(String filename) {
+    public RawDataPersistence() {
 
-        this.filename = filename;
-        init();
-    }
-
-    public RawDataPersistence(Configuration config) throws ConfigurationException {
-
-        filename = config.getProperty("raw.data.store.filename");
-        init();
-    }
-
-    private void init() {
-
-        for (Class<?> clazz : new Class[] { RawData.class, IssueData.class, RevisionData.class,
-                SimpleWarningList.class }) {
+        for (Class<?> clazz : new Class[] { RawData.class, IssueData.class, RevisionData.class, SimpleWarningList.class }) {
             xstream.alias(clazz.getSimpleName(), clazz);
         }
     }
 
-    public RawData load() throws IOException, IssueManagementException {
+    public RawData load(Reader reader) throws IOException {
 
-        LOG.info("Loading data from " + filename);
-        Reader reader = new FileReader(filename);
+        log.info("Loading data");
         RawData rawData = (RawData) xstream.fromXML(reader);
         reader.close();
         return rawData;
     }
 
-    public void save(RawData rawData) throws IOException {
+    public void save(RawData rawData, Writer writer) throws IOException {
 
-        LOG.info("Saving data to " + filename);
-        Writer writer = new FileWriter(filename);
+        log.info("Writing data");
         xstream.toXML(rawData, writer);
         writer.close();
     }
