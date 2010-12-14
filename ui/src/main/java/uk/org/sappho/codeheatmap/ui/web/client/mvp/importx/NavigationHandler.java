@@ -1,21 +1,10 @@
 package uk.org.sappho.codeheatmap.ui.web.client.mvp.importx;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.customware.gwt.dispatch.client.DispatchAsync;
-
-import com.google.inject.Inject;
-
-import uk.org.sappho.codeheatmap.ui.web.client.dispatch.DispatchCallback;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.importx.ImportPresenter.Display;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.importx.ImportPresenter.Display.Page;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchDataDifferences;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchDataInfo;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchHeaderNamesComparison;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.ImportData;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.ImportDataResult;
-import uk.org.sappho.codeheatmap.ui.web.shared.model.HeaderMatch;
+
+import com.google.inject.Inject;
 
 public class NavigationHandler {
     private final Display display;
@@ -55,11 +44,8 @@ public class NavigationHandler {
 
     private void handlePagePopulation(Page targetPage) {
         if (targetPage == Page.REVIEW_HEADERS) {
-            dispatch.execute(new FetchHeaderNamesComparison(), new HeaderNamesComparisonHandler(display));
         }
         if (targetPage == Page.REVIEW_DATA) {
-            dispatch.execute(new FetchDataInfo(), new DataInfoHandler(display));
-            dispatch.execute(new FetchDataDifferences(), new DataDifferencesHandler(display));
         }
     }
 
@@ -73,11 +59,5 @@ public class NavigationHandler {
     }
 
     public void finish() {
-        List<HeaderMatch> headerNameMatches = new ArrayList<HeaderMatch>(display.getHeaderNameMatches());
-        dispatch.execute(new ImportData(headerNameMatches), new DispatchCallback<ImportDataResult>() {
-            @Override
-            public void onSuccess(ImportDataResult result) {
-            }
-        });
     }
 }

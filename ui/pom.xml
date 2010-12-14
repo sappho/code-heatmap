@@ -86,6 +86,11 @@
 			<version>1.8.5</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.google.gwt.google-apis</groupId>
+			<artifactId>gwt-visualization</artifactId>
+			<version>1.0.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>

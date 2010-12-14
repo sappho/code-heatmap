@@ -11,10 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import uk.org.sappho.codeheatmap.ui.web.client.dispatch.DispatchCallback;
 import uk.org.sappho.codeheatmap.ui.web.client.events.SearchCriteriaChangeEvent;
-import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchParties;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BrowsePresenterTest {
@@ -36,14 +33,6 @@ public class BrowsePresenterTest {
     @Test
     public void shouldBindToSomething() {
         presenter.bind();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void shouldFetchPartiesOnReveal() {
-        presenter.onRevealDisplay();
-
-        verify(mockDispatch).execute(isA(FetchParties.class), isA(DispatchCallback.class));
     }
 
     @Test

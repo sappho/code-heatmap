@@ -6,14 +6,10 @@ import net.customware.gwt.dispatch.client.DispatchAsync;
 import net.customware.gwt.presenter.client.EventBus;
 import net.customware.gwt.presenter.client.widget.WidgetDisplay;
 import net.customware.gwt.presenter.client.widget.WidgetPresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.events.SearchCriteriaChangeEvent;
+import uk.org.sappho.codeheatmap.ui.web.shared.model.Party;
 
 import com.google.inject.Inject;
-
-import uk.org.sappho.codeheatmap.ui.web.client.dispatch.DispatchCallback;
-import uk.org.sappho.codeheatmap.ui.web.client.events.SearchCriteriaChangeEvent;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchParties;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchPartiesResult;
-import uk.org.sappho.codeheatmap.ui.web.shared.model.Party;
 
 public class BrowsePresenter extends WidgetPresenter<BrowsePresenter.Display> {
 
@@ -37,12 +33,6 @@ public class BrowsePresenter extends WidgetPresenter<BrowsePresenter.Display> {
     }
 
     private void runSearch(String searchTerm) {
-        dispatch.execute(new FetchParties(searchTerm), new DispatchCallback<FetchPartiesResult>() {
-            @Override
-            public void onSuccess(FetchPartiesResult result) {
-                display.setData(result.getParties());
-            }
-        });
     }
 
     @Override
