@@ -6,15 +6,18 @@ import java.util.Vector;
 
 public class IssueData {
 
-    private final String key;
+    private String key;
     private String type;
-    private final String summary;
-    private final Date createdDate;
-    private final Date lastUpdatedDate;
-    private final String assignee;
-    private final List<String> components;
+    private String summary;
+    private Date createdDate;
+    private Date lastUpdatedDate;
+    private String assignee;
+    private List<String> components;
     private List<String> releases;
     private final List<String> subTaskKeys = new Vector<String>();
+
+    public IssueData() {
+    }
 
     public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate, String assignee,
             List<String> components, List<String> releases) {
