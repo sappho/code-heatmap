@@ -8,12 +8,11 @@ import org.apache.log4j.Logger;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.name.Names;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
-import uk.org.sappho.code.change.management.data.persistence.RawDataPersistence;
+import uk.org.sappho.code.change.management.data.persistence.ConfigurationRawDataPersistence;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
 import uk.org.sappho.code.change.management.scm.SCM;
@@ -51,14 +50,12 @@ public class CodeChangeManagementApp extends AbstractModule {
         try {
             warningList = new SimpleWarningList();
             bind(WarningList.class).toInstance(warningList);
-
             bind(Configuration.class).toInstance(config);
+
             // load data mapping scripts
             HeatMapSelector heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
             bind(HeatMapSelector.class).toInstance(heatMapSelector);
             commitCommentToIssueKeyMapper = (Mapper) config.getGroovyScriptObject("mapper.commit.comment.to.issue.key");
-            bind(Mapper.class).annotatedWith(Names.named("commitCommentToIssueKeyMapper"))
-                    .toInstance(commitCommentToIssueKeyMapper);
             bind(SCM.class)
                     .to(config.<SCM> getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
             bind(Report.class)
@@ -108,12 +105,14 @@ public class CodeChangeManagementApp extends AbstractModule {
             EngineException {
 
         injector = Guice.createInjector(this);
-        RawDataPersistence rawDataPersistence = new RawDataPersistence(config);
+        ConfigurationRawDataPersistence rawDataPersistence = injector
+                .getInstance(ConfigurationRawDataPersistence.class);
+
         List<String> actions = config.getPropertyList("app.run.action");
         for (String action : actions) {
             LOG.info("Running " + action);
             if (action.equalsIgnoreCase("load")) {
-                rawData = rawDataPersistence.load();
+                rawData = rawDataPersistence.load(config);
             } else if (action.equalsIgnoreCase("save")) {
                 rawDataPersistence.save(rawData);
             } else if (action.equalsIgnoreCase("scan")) {
