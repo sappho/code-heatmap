@@ -12,7 +12,7 @@ public class IssueData {
     private final Date createdDate;
     private final Date lastUpdatedDate;
     private final List<String> components;
-    private final List<String> releases;
+    private List<String> releases;
     private final List<String> subTaskKeys = new Vector<String>();
 
     public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate,
@@ -55,6 +55,11 @@ public class IssueData {
     public List<String> getComponents() {
 
         return components;
+    }
+
+    public void setReleases(List<String> releases) {
+
+        this.releases = releases;
     }
 
     public List<String> getReleases() {

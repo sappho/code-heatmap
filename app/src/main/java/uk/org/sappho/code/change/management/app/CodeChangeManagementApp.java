@@ -1,7 +1,10 @@
 package uk.org.sappho.code.change.management.app;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
@@ -81,7 +84,9 @@ public class CodeChangeManagementApp extends AbstractModule {
 
         LOG.info("Refreshing issue management data");
         IssueManagement issueManagement = injector.getInstance(IssueManagement.class);
+        // clear out issue data from a previous scan or refresh
         rawData.clearIssueData();
+        // run through all the stored revisions to update links to issues
         for (String revisionKey : rawData.getRevisionKeys()) {
             RevisionData revisionData = rawData.getRevisionData(revisionKey);
             String commitComment = revisionData.getCommitComment().split("\n")[0];
@@ -97,13 +102,37 @@ public class CodeChangeManagementApp extends AbstractModule {
             }
         }
         rawData.reWire(commitCommentToIssueKeyMapper);
+        // set up a map of raw release names to meaningful cooked ones
+        Mapper releaseMapper = (Mapper) config.getGroovyScriptObject("mapper.raw.release.to.release");
+        Map<String, String> releaseMappings = new HashMap<String, String>();
+        for (String rawRelease : issueManagement.getRawReleases()) {
+            String cookedRelease = releaseMapper.map(rawRelease);
+            if (cookedRelease != null) {
+                warningList.add("Release mapping", "Raw release \"" + rawRelease + "\" mapped to \"" + cookedRelease
+                        + "\"");
+                releaseMappings.put(rawRelease, cookedRelease);
+            } else {
+                warningList.add("Release mapping", "Raw release \"" + rawRelease + "\" will be ignored");
+            }
+        }
+        // run through all the retrieved issues
+        for (String issueKey : rawData.getIssueKeys()) {
+            IssueData issueData = rawData.getIssueData(issueKey);
+            List<String> rawReleases = issueData.getReleases();
+            List<String> cookedReleases = new Vector<String>();
+            for (String rawRelease : rawReleases) {
+                String cookedRelease = releaseMappings.get(rawRelease);
+                if (cookedRelease != null) {
+                    if (!cookedReleases.contains(cookedRelease)) {
+                        cookedReleases.add(cookedRelease);
+                    }
+                }
+            }
+            issueData.setReleases(cookedReleases);
+        }
         for (String rawIssueType : issueManagement.getIssueTypeMappings().keySet()) {
             warningList.add("Issue type mapping", "Raw issue type \"" + rawIssueType + "\" mapped to \""
                     + issueManagement.getIssueTypeMappings().get(rawIssueType) + "\"");
-        }
-        for (String rawRelease : issueManagement.getReleaseMappings().keySet()) {
-            warningList.add("Release mapping", "Raw release \"" + rawRelease + "\" mapped to \""
-                    + issueManagement.getReleaseMappings().get(rawRelease) + "\"");
         }
         rawData.putWarnings(warningList);
     }
