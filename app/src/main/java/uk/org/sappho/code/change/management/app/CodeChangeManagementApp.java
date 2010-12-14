@@ -120,15 +120,25 @@ public class CodeChangeManagementApp extends AbstractModule {
             issueData.setType(cookedType);
             List<String> rawReleases = issueData.getReleases();
             List<String> cookedReleases = new Vector<String>();
+            String rawReleasesStr = "";
+            String cookedReleasesStr = "";
             for (String rawRelease : rawReleases) {
+                rawReleasesStr += " \"" + rawRelease + "\"";
                 String cookedRelease = releaseMappings.get(rawRelease);
                 if (cookedRelease != null) {
                     if (!cookedReleases.contains(cookedRelease)) {
+                        cookedReleasesStr += " \"" + cookedRelease + "\"";
                         cookedReleases.add(cookedRelease);
                     }
                 }
             }
             issueData.setReleases(cookedReleases);
+            if (rawReleases.size() == 0) {
+                warningList.add("Issue releases", "Issue " + issueKey + " has no association to a release");
+            } else if (rawReleases.size() != 1) {
+                warningList.add("Issue releases", "Issue " + issueKey + " is associated with more than one raw release"
+                        + rawReleasesStr + " mapping to" + cookedReleasesStr);
+            }
         }
         rawData.putWarnings(warningList);
     }
