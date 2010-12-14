@@ -1,0 +1,37 @@
+<RawData>
+  <revisionDataMap>
+    <entry>
+      <string>88337</string>
+      <RevisionData>
+        <revisionKey>88337</revisionKey>
+        <date>2010-11-08 14:36:13.889 GMT</date>
+        <commitComment>ABC-1: A commit comment</commitComment>
+        <changedFiles class="vector">
+          <string>/projects/someproject/pom.xml</string>
+        </changedFiles>
+      </RevisionData>
+    </entry>
+    <entry>
+      <string>88330</string>
+      <RevisionData>
+        <revisionKey>88330</revisionKey>
+        <date>2010-11-08 13:52:06.471 GMT</date>
+        <commitComment>ABC-1: Another commit comment</commitComment>
+        <changedFiles class="vector">
+          <string>/projects/someproject/pom2.xml</string>
+        </changedFiles>
+      </RevisionData>
+    </entry>
+  </revisionDataMap>
+  <issueDataMap>
+    <entry>
+      <string>ABC-1</string>
+      <IssueData>
+        <key>ABC-1</key>
+        <type>defect</type>
+        <summary>Some test Jira description</summary>
+        <subTaskKeys/>
+      </IssueData>
+    </entry>
+  </issueDataMap>
+</RawData>
