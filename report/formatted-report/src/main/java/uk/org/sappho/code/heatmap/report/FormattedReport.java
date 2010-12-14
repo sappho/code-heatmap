@@ -18,16 +18,16 @@ import freemarker.template.Template;
 
 import uk.org.sappho.code.heatmap.engine.simple.Releases;
 import uk.org.sappho.configuration.Configuration;
-import uk.org.sappho.warnings.WarningsList;
+import uk.org.sappho.warnings.WarningList;
 
 public class FormattedReport implements Report {
 
-    private final WarningsList warnings;
+    private final WarningList warnings;
     private final Configuration config;
     private static final Logger LOG = Logger.getLogger(FormattedReport.class);
 
     @Inject
-    public FormattedReport(WarningsList warnings, Configuration config) {
+    public FormattedReport(WarningList warnings, Configuration config) {
 
         LOG.info("Using Formatted Report plugin");
         this.warnings = warnings;

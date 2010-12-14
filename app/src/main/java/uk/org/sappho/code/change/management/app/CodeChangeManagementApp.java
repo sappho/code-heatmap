@@ -8,11 +8,11 @@ import org.apache.log4j.Logger;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.name.Names;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
-import uk.org.sappho.code.change.management.data.mapping.CommitCommentToIssueKeyMapper;
 import uk.org.sappho.code.change.management.data.persistence.RawDataPersistence;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
@@ -25,15 +25,18 @@ import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.configuration.SimpleConfiguration;
-import uk.org.sappho.warnings.SimpleWarningsList;
-import uk.org.sappho.warnings.WarningsList;
+import uk.org.sappho.string.mapping.Mapper;
+import uk.org.sappho.warnings.SimpleWarningList;
+import uk.org.sappho.warnings.WarningList;
 
 public class CodeChangeManagementApp extends AbstractModule {
 
     private final String[] args;
+    private WarningList warningList;
     private SimpleConfiguration config;
     private RawData rawData = new RawData();
     private Injector injector;
+    private Mapper commitCommentToIssueKeyMapper;
     private static final Logger LOG = Logger.getLogger(CodeChangeManagementApp.class);
 
     public CodeChangeManagementApp(String[] args) {
@@ -47,17 +50,21 @@ public class CodeChangeManagementApp extends AbstractModule {
 
         try {
             LOG.debug("Configuring plugins");
-            bind(WarningsList.class).toInstance(new SimpleWarningsList());
+            warningList = new SimpleWarningList();
+            bind(WarningList.class).toInstance(warningList);
             config = new SimpleConfiguration();
             for (String configFilename : args)
                 config.load(configFilename);
             bind(Configuration.class).toInstance(config);
+            // load data mapping scripts
+            HeatMapSelector heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
+            bind(HeatMapSelector.class).toInstance(heatMapSelector);
+            commitCommentToIssueKeyMapper = (Mapper) config.getGroovyScriptObject("mapper.commit.comment.to.issue.key");
+            bind(Mapper.class).annotatedWith(Names.named("commitCommentToIssueKeyMapper")).toInstance(
+                    commitCommentToIssueKeyMapper);
+            // load plugins
             bind(SCM.class).to(
                     (Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
-            bind(CommitCommentToIssueKeyMapper.class).to(
-                    (Class<? extends CommitCommentToIssueKeyMapper>) config.getPlugin(
-                            "commit.comment.to.issue.key.mapper.plugin",
-                            "uk.org.sappho.code.change.management.issues"));
             bind(Report.class).to(
                     (Class<? extends Report>) config.getPlugin("report.plugin", "uk.org.sappho.code.heatmap.report"));
             bind(IssueManagement.class).to(
@@ -65,30 +72,40 @@ public class CodeChangeManagementApp extends AbstractModule {
                             "uk.org.sappho.code.change.management.issues"));
             bind(Engine.class).to(
                     (Class<? extends Engine>) config.getPlugin("engine.plugin", "uk.org.sappho.code.heatmap.engine"));
-            bind(HeatMapSelector.class).to(
-                    (Class<? extends HeatMapSelector>) config.getPlugin("mapping.heatmap.selector.plugin",
-                            "uk.org.sappho.code.heatmap.mapping"));
         } catch (Throwable t) {
             LOG.error("Unable to load plugins", t);
         }
     }
 
-    protected void refresh() {
+    protected void refresh() throws ConfigurationException {
 
-        rawData.clearIssueData();
+        LOG.info("Refreshing issue management data");
         IssueManagement issueManagement = injector.getInstance(IssueManagement.class);
-        CommitCommentToIssueKeyMapper commitCommentToIssueKeyMapper = injector
-                .getInstance(CommitCommentToIssueKeyMapper.class);
+        rawData.clearIssueData();
         for (String revisionKey : rawData.getRevisionKeys()) {
             RevisionData revisionData = rawData.getRevisionData(revisionKey);
-            String issueKey = commitCommentToIssueKeyMapper.getIssueKeyFromCommitComment(revisionKey,
-                    revisionData.getCommitComment());
-            IssueData issueData = issueManagement.getIssueData(issueKey);
-            if (issueData != null) {
-                rawData.putIssueData(issueData);
+            String commitComment = revisionData.getCommitComment().split("\n")[0];
+            String issueKey = commitCommentToIssueKeyMapper.map(commitComment);
+            if (issueKey != null) {
+                IssueData issueData = issueManagement.getIssueData(issueKey);
+                if (issueData != null) {
+                    rawData.putIssueData(issueData);
+                }
+            } else {
+                warningList.add("Issue not found", "Unable to find an issue to match revision " + revisionKey + " \""
+                        + commitComment + "\"");
             }
         }
         rawData.reWire(commitCommentToIssueKeyMapper);
+        for (String rawIssueType : issueManagement.getIssueTypeMappings().keySet()) {
+            warningList.add("Issue type mapping", "Raw issue type \"" + rawIssueType + "\" mapped to \""
+                    + issueManagement.getIssueTypeMappings().get(rawIssueType) + "\"");
+        }
+        for (String rawRelease : issueManagement.getReleaseMappings().keySet()) {
+            warningList.add("Release mapping", "Raw release \"" + rawRelease + "\" mapped to \""
+                    + issueManagement.getReleaseMappings().get(rawRelease) + "\"");
+        }
+        rawData.putWarnings(warningList);
     }
 
     protected void run() throws ConfigurationException, IOException, IssueManagementException, SCMException,

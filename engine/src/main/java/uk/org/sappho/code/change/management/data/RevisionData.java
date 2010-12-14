@@ -10,13 +10,16 @@ public class RevisionData {
     private final Date date;
     private final String commitComment;
     private final List<String> changedFiles;
+    private final List<String> badPaths;
 
-    public RevisionData(String revisionKey, Date date, String commitComment, List<String> changedFiles) {
+    public RevisionData(String revisionKey, Date date, String commitComment, List<String> changedFiles,
+            List<String> badPaths) {
 
         this.revisionKey = revisionKey;
         this.date = date;
         this.commitComment = commitComment;
         this.changedFiles = changedFiles;
+        this.badPaths = badPaths;
     }
 
     public final String getKey() {
@@ -37,6 +40,11 @@ public class RevisionData {
     public final List<String> getChangedFiles() {
 
         return changedFiles;
+    }
+
+    public final List<String> getBadPaths() {
+
+        return badPaths;
     }
 
     public void setIssueKey(String issueKey) {

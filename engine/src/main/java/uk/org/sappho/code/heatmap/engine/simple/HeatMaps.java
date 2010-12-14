@@ -7,7 +7,7 @@ import java.util.Vector;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RevisionData;
-import uk.org.sappho.code.heatmap.engine.HeatMapMapping;
+import uk.org.sappho.code.heatmap.mapping.HeatMapMapping;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 
 public class HeatMaps {

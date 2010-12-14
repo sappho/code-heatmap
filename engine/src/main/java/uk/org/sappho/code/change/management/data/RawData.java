@@ -4,15 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import uk.org.sappho.code.change.management.data.mapping.CommitCommentToIssueKeyMapper;
+import uk.org.sappho.string.mapping.Mapper;
+import uk.org.sappho.warnings.SimpleWarningList;
+import uk.org.sappho.warnings.WarningList;
 
 public class RawData {
 
     private Map<String, RevisionData> revisionDataMap = new HashMap<String, RevisionData>();
     private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
+    private final WarningList warningList = new SimpleWarningList();
 
-    public void reWire(CommitCommentToIssueKeyMapper commitCommentToIssueKeyMapper) {
+    public void reWire(Mapper commitCommentToIssueKeyMapper) {
 
         issueKeyToIssueKeyMap = new HashMap<String, String>();
         for (String issueKey : issueDataMap.keySet()) {
@@ -25,7 +28,7 @@ public class RawData {
         for (String revisionKey : revisionDataMap.keySet()) {
             RevisionData revisionData = revisionDataMap.get(revisionKey);
             String commitComment = revisionData.getCommitComment();
-            String issueKey = commitCommentToIssueKeyMapper.getIssueKeyFromCommitComment(revisionKey, commitComment);
+            String issueKey = commitCommentToIssueKeyMapper.map(commitComment);
             revisionData.setIssueKey(issueKey);
         }
     }
@@ -69,5 +72,19 @@ public class RawData {
     public IssueData getIssueData(String issueKey) {
 
         return issueDataMap.get(issueKeyToIssueKeyMap.get(issueKey));
+    }
+
+    public void putWarnings(WarningList warningList) {
+
+        for (String category : warningList.getCategories()) {
+            for (String warning : warningList.getWarnings(category)) {
+                this.warningList.add(category, warning, false);
+            }
+        }
+    }
+
+    public WarningList getWarnings() {
+
+        return warningList;
     }
 }

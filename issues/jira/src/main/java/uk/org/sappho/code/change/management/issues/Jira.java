@@ -9,40 +9,44 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.jira.rpc.soap.client.RemoteComponent;
 import com.atlassian.jira.rpc.soap.client.RemoteIssue;
+import com.atlassian.jira.rpc.soap.client.RemoteIssueType;
 import com.atlassian.jira.rpc.soap.client.RemoteVersion;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.GetParentService;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
-import uk.org.sappho.warnings.WarningsList;
+import uk.org.sappho.string.mapping.Mapper;
+import uk.org.sappho.warnings.SimpleWarningList;
 
-@Singleton
 public class Jira implements IssueManagement {
 
+    private final Configuration config;
+    private final Mapper fixVersionMapper;
+    private final Mapper issueTypeMapper;
+    private final SimpleWarningList warnings;
     private String jiraURL = null;
     private JiraSoapService jiraSoapService = null;
     private GetParentService getParentService = null;
+    private final Map<String, String> mappedRemoteIssueTypes = new HashMap<String, String>();
     private final Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
     private final Map<String, IssueData> parentIssues = new HashMap<String, IssueData>();
     private final Map<String, String> subTaskParents = new HashMap<String, String>();
-    private final Map<String, String> warnedSubTasks = new HashMap<String, String>();
     private final Map<String, String> releases = new HashMap<String, String>();
     private final Map<String, String> issueTypes = new HashMap<String, String>();
-    private final WarningsList warnings;
-    private final Configuration config;
-    private static final Logger LOG = Logger.getLogger(Jira.class);
-    private static final String NO_RELEASE = "missing";
+    private static final Logger log = Logger.getLogger(Jira.class);
 
     @Inject
-    public Jira(WarningsList warnings, Configuration config) throws IssueManagementException {
+    public Jira(Configuration config, SimpleWarningList warnings) throws ConfigurationException,
+            IssueManagementException {
 
-        LOG.info("Using Jira issue management plugin");
-        this.warnings = warnings;
+        log.info("Using Jira issue management plugin");
         this.config = config;
+        this.warnings = warnings;
+        fixVersionMapper = (Mapper) config.getGroovyScriptObject("mapper.fix.version.to.release");
+        issueTypeMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.type");
         connect();
     }
 
@@ -51,17 +55,21 @@ public class Jira implements IssueManagement {
         jiraURL = config.getProperty("jira.url", "http://example.com");
         String username = config.getProperty("jira.username", "nobody");
         String password = config.getProperty("jira.password", "nopassword");
-        LOG.info("Connecting to " + jiraURL + " as " + username);
+        log.info("Connecting to " + jiraURL + " as " + username);
         try {
             jiraSoapService = new JiraSoapService(jiraURL, username, password);
+            RemoteIssueType[] remoteIssueTypes = jiraSoapService.getService().getIssueTypes(jiraSoapService.getToken());
+            for (RemoteIssueType remoteIssueType : remoteIssueTypes) {
+                mappedRemoteIssueTypes.put(remoteIssueType.getId(), remoteIssueType.getName());
+            }
         } catch (Throwable t) {
             throw new IssueManagementException("Unable to log in to Jira at " + jiraURL + " as user " + username, t);
         }
         try {
             getParentService = new GetParentService(jiraURL, username, password);
-            LOG.info("Using optional GetParent SOAP web service");
+            log.info("Using optional GetParent SOAP web service");
         } catch (Throwable t) {
-            LOG.info("GetParent SOAP web service is not installed or authentication failed");
+            log.info("GetParent SOAP web service is not installed or authentication failed");
             getParentService = null;
             preFetchIssues();
         }
@@ -72,10 +80,10 @@ public class Jira implements IssueManagement {
         try {
             String jql = config.getProperty("jira.jql.issues.allowed");
             int jqlMax = Integer.parseInt(config.getProperty("jira.jql.issues.allowed.max", "1000"));
-            LOG.info("Running JQL query (max. " + jqlMax + " issues): " + jql);
+            log.info("Running JQL query (max. " + jqlMax + " issues): " + jql);
             RemoteIssue[] remoteIssues = jiraSoapService.getService().getIssuesFromJqlSearch(
                     jiraSoapService.getToken(), jql, jqlMax);
-            LOG.info("Processing " + remoteIssues.length + " issues returned by JQL query");
+            log.info("Processing " + remoteIssues.length + " issues returned by JQL query");
             for (RemoteIssue remoteIssue : remoteIssues) {
                 String issueKey = remoteIssue.getKey();
                 mappedRemoteIssues.put(issueKey, remoteIssue);
@@ -89,7 +97,7 @@ public class Jira implements IssueManagement {
                     subTaskParents.put(subTaskKey, issueKey);
                 }
             }
-            LOG.info("Processed " + mappedRemoteIssues.size()
+            log.info("Processed " + mappedRemoteIssues.size()
                     + " issues - added subtasks might have inflated this figure");
         } catch (Throwable t) {
             throw new IssueManagementException("Unable to pre-fetch issues", t);
@@ -109,15 +117,11 @@ public class Jira implements IssueManagement {
                             subTaskParents.put(issueKey, parentKey);
                         }
                     } catch (Exception e) {
-                        warnings.add(new JiraParentIssueFetchWarning(jiraURL, issueKey));
+                        warnings.add("Parent issue", "Unable to get parent issue of issue " + issueKey);
                     }
                 }
             }
             if (parentKey != null) {
-                if (warnedSubTasks.get(issueKey) == null) {
-                    warnings.add(new JiraSubTaskMappingWarning(jiraURL, issueKey, parentKey));
-                    warnedSubTasks.put(issueKey, issueKey);
-                }
                 subTaskKey = issueKey;
                 issueKey = parentKey;
             }
@@ -128,30 +132,25 @@ public class Jira implements IssueManagement {
             if (remoteIssue == null) {
                 try {
                     remoteIssue = jiraSoapService.getService().getIssue(jiraSoapService.getToken(), issueKey);
-                    mappedRemoteIssues.put(issueKey, remoteIssue);
+                    if (remoteIssue != null) {
+                        mappedRemoteIssues.put(issueKey, remoteIssue);
+                    }
                 } catch (Exception e) {
-                    warnings.add(new JiraIssueNotFoundWarning(jiraURL, issueKey));
                 }
             }
             if (remoteIssue != null) {
                 List<String> issueReleases = new Vector<String>();
                 Map<String, String> issueReleaseMap = new HashMap<String, String>();
                 RemoteVersion[] fixVersions = remoteIssue.getFixVersions();
-                if (fixVersions.length == 0) {
-                    issueReleaseMap.put(NO_RELEASE, NO_RELEASE);
-                } else {
+                if (fixVersions.length > 0) {
                     for (RemoteVersion remoteVersion : fixVersions) {
                         String remoteVersionName = remoteVersion.getName();
                         String release = releases.get(remoteVersionName);
                         if (release == null) {
-                            try {
-                                release = config.getProperty("jira.version.map.release." + remoteVersionName);
-                            } catch (ConfigurationException e) {
-                                release = "unknown";
+                            release = fixVersionMapper.map(remoteVersionName);
+                            if (release != null) {
+                                releases.put(remoteVersionName, release);
                             }
-                            warnings.add(new JiraVersionMappingWarning(jiraURL, issueKey, remoteVersionName,
-                                    release));
-                            releases.put(remoteVersionName, release);
                         }
                         issueReleaseMap.put(release, release);
                     }
@@ -159,15 +158,14 @@ public class Jira implements IssueManagement {
                 for (String release : issueReleaseMap.keySet()) {
                     issueReleases.add(release);
                 }
-                if (issueReleases.size() > 1) {
-                    warnings.add(new JiraIssueWithMultipleReleasesWarning(jiraURL, issueKey, issueReleases));
-                }
-                String typeId = remoteIssue.getType();
-                String typeName = issueTypes.get(typeId);
+                String rawTypeId = remoteIssue.getType();
+                String rawTypeName = mappedRemoteIssueTypes.get(rawTypeId);
+                String typeName = issueTypes.get(rawTypeName);
                 if (typeName == null) {
-                    typeName = config.getProperty("jira.type.map.id." + typeId, "housekeeping");
-                    warnings.add(new JiraIssueTypeMappingWarning(jiraURL, issueKey, typeId, typeName));
-                    issueTypes.put(typeId, typeName);
+                    typeName = issueTypeMapper.map(rawTypeName);
+                    if (typeName != null) {
+                        issueTypes.put(rawTypeName, typeName);
+                    }
                 }
                 RemoteComponent[] remoteComponents = remoteIssue.getComponents();
                 List<String> components = new Vector<String>();
@@ -183,5 +181,15 @@ public class Jira implements IssueManagement {
             issueData.putSubTaskKey(subTaskKey);
         }
         return issueData;
+    }
+
+    public Map<String, String> getReleaseMappings() {
+
+        return releases;
+    }
+
+    public Map<String, String> getIssueTypeMappings() {
+
+        return issueTypes;
     }
 }
