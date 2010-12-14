@@ -7,7 +7,7 @@ import java.util.Vector;
 public class IssueData {
 
     private final String key;
-    private final String type;
+    private String type;
     private final String summary;
     private final Date createdDate;
     private final Date lastUpdatedDate;
@@ -30,6 +30,11 @@ public class IssueData {
     public String getKey() {
 
         return key;
+    }
+
+    public void setType(String type) {
+
+        this.type = type;
     }
 
     public String getType() {

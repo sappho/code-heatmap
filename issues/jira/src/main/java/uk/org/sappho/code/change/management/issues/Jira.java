@@ -18,13 +18,11 @@ import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.GetParentService;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
-import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.warnings.SimpleWarningList;
 
 public class Jira implements IssueManagement {
 
     private final Configuration config;
-    private final Mapper issueTypeMapper;
     private final SimpleWarningList warnings;
     private String jiraURL = null;
     private JiraSoapService jiraSoapService = null;
@@ -34,7 +32,6 @@ public class Jira implements IssueManagement {
     private final Map<String, IssueData> parentIssues = new HashMap<String, IssueData>();
     private final Map<String, String> subTaskParents = new HashMap<String, String>();
     private final List<String> allRawReleases = new Vector<String>();
-    private final Map<String, String> issueTypes = new HashMap<String, String>();
     private static final Logger log = Logger.getLogger(Jira.class);
 
     @Inject
@@ -44,7 +41,6 @@ public class Jira implements IssueManagement {
         log.info("Using Jira issue management plugin");
         this.config = config;
         this.warnings = warnings;
-        issueTypeMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.type");
         connect();
     }
 
@@ -150,19 +146,12 @@ public class Jira implements IssueManagement {
                 }
                 String rawTypeId = remoteIssue.getType();
                 String rawTypeName = mappedRemoteIssueTypes.get(rawTypeId);
-                String typeName = issueTypes.get(rawTypeName);
-                if (typeName == null) {
-                    typeName = issueTypeMapper.map(rawTypeName);
-                    if (typeName != null) {
-                        issueTypes.put(rawTypeName, typeName);
-                    }
-                }
                 RemoteComponent[] remoteComponents = remoteIssue.getComponents();
                 List<String> components = new Vector<String>();
                 for (RemoteComponent remoteComponent : remoteComponents) {
                     components.add(remoteComponent.getName());
                 }
-                issueData = new IssueData(issueKey, typeName, remoteIssue.getSummary(), remoteIssue.getCreated()
+                issueData = new IssueData(issueKey, rawTypeName, remoteIssue.getSummary(), remoteIssue.getCreated()
                         .getTime(), remoteIssue.getUpdated().getTime(), components, issueRawReleases);
                 parentIssues.put(issueKey, issueData);
             }
@@ -176,10 +165,5 @@ public class Jira implements IssueManagement {
     public List<String> getRawReleases() {
 
         return allRawReleases;
-    }
-
-    public Map<String, String> getIssueTypeMappings() {
-
-        return issueTypes;
     }
 }

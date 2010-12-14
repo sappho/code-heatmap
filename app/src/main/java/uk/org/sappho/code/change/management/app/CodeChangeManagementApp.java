@@ -113,9 +113,15 @@ public class CodeChangeManagementApp extends AbstractModule {
                 warningList.add("Release mapping", "Raw release \"" + rawRelease + "\" will be ignored");
             }
         }
-        // run through all the retrieved issues
+        // run through all the retrieved issues settings mapped types and releases
+        Mapper issueTypeMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.type");
         for (String issueKey : rawData.getIssueKeys()) {
             IssueData issueData = rawData.getIssueData(issueKey);
+            String rawType = issueData.getType();
+            String cookedType = issueTypeMapper.map(rawType);
+            warningList
+                    .add("Issue type mapping", "Raw issue type \"" + rawType + "\" mapped to \"" + cookedType + "\"");
+            issueData.setType(cookedType);
             List<String> rawReleases = issueData.getReleases();
             List<String> cookedReleases = new Vector<String>();
             for (String rawRelease : rawReleases) {
@@ -127,10 +133,6 @@ public class CodeChangeManagementApp extends AbstractModule {
                 }
             }
             issueData.setReleases(cookedReleases);
-        }
-        for (String rawIssueType : issueManagement.getIssueTypeMappings().keySet()) {
-            warningList.add("Issue type mapping", "Raw issue type \"" + rawIssueType + "\" mapped to \""
-                    + issueManagement.getIssueTypeMappings().get(rawIssueType) + "\"");
         }
         rawData.putWarnings(warningList);
     }
