@@ -5,16 +5,13 @@ import java.util.List;
 
 public class RevisionData {
 
-    private String revisionKey;
+    private final String revisionKey;
     private String issueKey = null;
-    private Date date;
-    private String commitComment;
-    private String committer;
-    private List<String> changedFiles;
-    private List<String> badPaths;
-
-    public RevisionData() {
-    }
+    private final Date date;
+    private final String commitComment;
+    private final String committer;
+    private final List<String> changedFiles;
+    private final List<String> badPaths;
 
     public RevisionData(String revisionKey, Date date, String commitComment, String committer,
             List<String> changedFiles, List<String> badPaths) {

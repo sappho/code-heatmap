@@ -18,6 +18,25 @@
 		<connection>scm:git:https://github.com/andrewheald/code-heatmap.git</connection>
 	</scm>
 
+	<repositories>
+		<repository>
+			<id>heald.co.uk-snapshots</id>
+			<url>http://sappho.org.uk/nexus/content/repositories/snapshots</url>
+		</repository>
+		<repository>
+			<id>heald.co.uk-releases</id>
+			<url>http://sappho.org.uk/nexus/content/repositories/releases</url>
+		</repository>
+		<repository>
+			<id>atlassian-public</id>
+			<url>https://maven.atlassian.com/content/repositories/atlassian-public</url>
+		</repository>
+		<repository>
+			<id>other-atlassian-public</id>
+			<url>https://m2proxy.atlassian.com/repository/public</url>
+		</repository>
+	</repositories>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

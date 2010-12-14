@@ -23,39 +23,41 @@ public class RawDataPersistence {
 
     private final XStream xstream = new XStream();
     private String filename;
+    private static final Logger LOG = Logger.getLogger(RawDataPersistence.class);
     private Reader dataReader;
-    private static final Logger log = Logger.getLogger(RawDataPersistence.class);
 
     private RawDataPersistence() {
-
         for (Class<?> clazz : new Class[] { RawData.class, IssueData.class, RevisionData.class, SimpleWarningList.class }) {
             xstream.alias(clazz.getSimpleName(), clazz);
         }
     }
 
-    public RawDataPersistence(String filename) throws FileNotFoundException {
-
+    public RawDataPersistence(String filename) {
         this();
-        this.filename = filename;
-        dataReader = new FileReader(filename);
+        try {
+            dataReader = new FileReader(filename);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public RawDataPersistence(Configuration config) throws ConfigurationException, FileNotFoundException {
-
+    public RawDataPersistence(Configuration config) throws ConfigurationException {
         this();
-        filename = config.getProperty("raw.data.store.filename");
-        dataReader = new FileReader(filename);
+        try {
+            dataReader = new FileReader(config.getProperty("raw.data.store.filename"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public RawDataPersistence(Reader dataReader) {
-
+    public RawDataPersistence(Reader reader) {
         this();
-        this.dataReader = dataReader;
+        this.dataReader = reader;
     }
 
     public RawData load() throws IOException, IssueManagementException {
 
-        log.info("Loading data from " + filename);
+        LOG.info("Loading data from " + filename);
         Reader reader = new FileReader(filename);
         RawData rawData = (RawData) xstream.fromXML(reader);
         reader.close();
@@ -63,16 +65,17 @@ public class RawDataPersistence {
     }
 
     public RawData loadFromInputStream() {
-        log.info("Loading data from inputStream");
+        LOG.info("Loading data from inputStream");
         RawData rawData = (RawData) xstream.fromXML(dataReader);
         return rawData;
     }
 
     public void save(RawData rawData) throws IOException {
 
-        log.info("Saving data to " + filename);
+        LOG.info("Saving data to " + filename);
         Writer writer = new FileWriter(filename);
         xstream.toXML(rawData, writer);
         writer.close();
     }
+
 }
