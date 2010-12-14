@@ -1,22 +1,20 @@
 package uk.org.sappho.codeheatmap.ui.web.client.place;
 
 import net.customware.gwt.presenter.client.gin.ProvidedPresenterPlace;
+import net.customware.gwt.presenter.client.widget.WidgetPresenter;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
-
-public class SubMenuPlace extends ProvidedPresenterPlace<BrowsePresenter> {
+public abstract class SubMenuPlace<T extends WidgetPresenter<?>> extends ProvidedPresenterPlace<T> {
 
     @Inject
-    public SubMenuPlace(Provider<BrowsePresenter> presenter) {
+    public SubMenuPlace(Provider<T> presenter) {
         super(presenter);
     }
 
-    @Override
-    public String getName() {
-        return null;
+    protected String getPrefix() {
+        return "sub-";
     }
 
 }

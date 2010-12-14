@@ -5,3 +5,4 @@ target
 bin
 classes/
 ui/war/codeheatmap/
+ui/war/WEB-INF/
