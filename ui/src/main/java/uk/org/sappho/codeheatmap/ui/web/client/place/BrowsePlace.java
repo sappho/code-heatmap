@@ -8,6 +8,7 @@ import com.google.inject.Provider;
 
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view.Menu;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view.SubMenuItem;
 
 public class BrowsePlace extends ProvidedPresenterPlace<BrowsePresenter> {
 
@@ -33,7 +34,7 @@ public class BrowsePlace extends ProvidedPresenterPlace<BrowsePresenter> {
         presenter.bind();
         mainPlaceProvider.get().getPresenter().setContent(presenter.getDisplay().asWidget());
         subMenu.clear();
-        subMenu.addMenuItem("Cumulative Value");
+        subMenu.addMenuItem(new SubMenuItem("Cumulative Value", null));
     }
 
 }

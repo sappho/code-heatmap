@@ -4,6 +4,6 @@ public interface Menu {
 
     void clear();
 
-    void addMenuItem(String... menuItems);
+    void addMenuItem(SubMenuItem... menuItems);
 
 }

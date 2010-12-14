@@ -32,7 +32,6 @@ public class ExportPlace extends ProvidedPresenterPlace<ExportPresenter> {
         presenter.bind();
         mainPlaceProvider.get().getPresenter().setContent(presenter.getDisplay().asWidget());
         subMenu.clear();
-        subMenu.addMenuItem("sub-menu-1", "sub-menu-2");
     }
 
 }
