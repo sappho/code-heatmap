@@ -24,15 +24,14 @@ public class Releases implements Engine {
 
     private final List<String> releaseNames;
     private final Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
-    private final HeatMapSelector heatMapSelector;
     private final Report report;
+    private final HeatMapSelector heatMapSelector;
 
     @Inject
-    public Releases(Configuration config, HeatMapSelector heatMapSelector, Report report)
-            throws ConfigurationException {
+    public Releases(Configuration config, Report report) throws ConfigurationException {
 
+        heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
         releaseNames = config.getPropertyList("releases");
-        this.heatMapSelector = heatMapSelector;
         this.report = report;
     }
 

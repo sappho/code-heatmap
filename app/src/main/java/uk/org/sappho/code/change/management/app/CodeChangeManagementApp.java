@@ -22,7 +22,6 @@ import uk.org.sappho.code.change.management.scm.SCM;
 import uk.org.sappho.code.change.management.scm.SCMException;
 import uk.org.sappho.code.heatmap.engine.Engine;
 import uk.org.sappho.code.heatmap.engine.EngineException;
-import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
@@ -57,9 +56,6 @@ public class CodeChangeManagementApp extends AbstractModule {
             for (String configFilename : args)
                 config.load(configFilename);
             bind(Configuration.class).toInstance(config);
-            // load data mapping scripts
-            HeatMapSelector heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
-            bind(HeatMapSelector.class).toInstance(heatMapSelector);
             // load plugins
             bind(SCM.class).to(
                     (Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
