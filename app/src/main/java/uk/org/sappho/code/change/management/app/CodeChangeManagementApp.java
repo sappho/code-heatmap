@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.name.Names;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
@@ -39,7 +38,6 @@ public class CodeChangeManagementApp extends AbstractModule {
     private SimpleConfiguration config;
     private RawData rawData = new RawData();
     private Injector injector;
-    private Mapper commitCommentToIssueKeyMapper;
     private static final Logger LOG = Logger.getLogger(CodeChangeManagementApp.class);
 
     public CodeChangeManagementApp(String[] args) {
@@ -62,9 +60,6 @@ public class CodeChangeManagementApp extends AbstractModule {
             // load data mapping scripts
             HeatMapSelector heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
             bind(HeatMapSelector.class).toInstance(heatMapSelector);
-            commitCommentToIssueKeyMapper = (Mapper) config.getGroovyScriptObject("mapper.commit.comment.to.issue.key");
-            bind(Mapper.class).annotatedWith(Names.named("commitCommentToIssueKeyMapper")).toInstance(
-                    commitCommentToIssueKeyMapper);
             // load plugins
             bind(SCM.class).to(
                     (Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
@@ -83,6 +78,8 @@ public class CodeChangeManagementApp extends AbstractModule {
     protected void refresh() throws ConfigurationException {
 
         LOG.info("Refreshing issue management data");
+        Mapper commitCommentToIssueKeyMapper = (Mapper) config
+                .getGroovyScriptObject("mapper.commit.comment.to.issue.key");
         IssueManagement issueManagement = injector.getInstance(IssueManagement.class);
         // clear out issue data from a previous scan or refresh
         rawData.clearIssueData();
