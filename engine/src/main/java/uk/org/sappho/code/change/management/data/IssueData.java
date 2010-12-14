@@ -6,16 +6,20 @@ import java.util.Vector;
 
 public class IssueData {
 
-    private final String key;
-    private final String type;
-    private final String summary;
-    private final Date createdDate;
-    private final Date lastUpdatedDate;
-    private final List<String> components;
-    private final List<String> releases;
+    private String key;
+    private String type;
+    private String summary;
+    private Date createdDate;
+    private Date lastUpdatedDate;
+    private String assignee;
+    private List<String> components;
+    private List<String> releases;
     private final List<String> subTaskKeys = new Vector<String>();
 
-    public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate,
+    public IssueData() {
+    }
+
+    public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate, String assignee,
             List<String> components, List<String> releases) {
 
         this.key = key;
@@ -23,6 +27,7 @@ public class IssueData {
         this.summary = summary;
         this.createdDate = createdDate;
         this.lastUpdatedDate = lastUpdatedDate;
+        this.assignee = assignee;
         this.components = components;
         this.releases = releases;
     }
@@ -30,6 +35,11 @@ public class IssueData {
     public String getKey() {
 
         return key;
+    }
+
+    public void setType(String type) {
+
+        this.type = type;
     }
 
     public String getType() {
@@ -52,9 +62,19 @@ public class IssueData {
         return lastUpdatedDate;
     }
 
+    public String getAssignee() {
+
+        return assignee;
+    }
+
     public List<String> getComponents() {
 
         return components;
+    }
+
+    public void setReleases(List<String> releases) {
+
+        this.releases = releases;
     }
 
     public List<String> getReleases() {

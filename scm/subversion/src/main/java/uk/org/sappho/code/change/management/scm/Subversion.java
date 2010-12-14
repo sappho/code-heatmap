@@ -79,6 +79,7 @@ public class Subversion implements SCM {
                     long revisionNumber = logMessage.getRevisionNumber();
                     Date date = logMessage.getDate();
                     String commitComment = logMessage.getMessage();
+                    String committer = logMessage.getAuthor();
                     List<String> changedFiles = new Vector<String>();
                     List<String> badPaths = new Vector<String>();
                     for (ChangePath changePath : logMessage.getChangedPaths()) {
@@ -116,8 +117,8 @@ public class Subversion implements SCM {
                     if (changedFiles.size() == 0) {
                         noFilesCount++;
                     }
-                    rawData.putRevisionData(new RevisionData(revisionKey, date, commitComment, changedFiles,
-                                badPaths));
+                    rawData.putRevisionData(new RevisionData(revisionKey, date, commitComment, committer, changedFiles,
+                            badPaths));
                 }
                 log.info("Processed " + revisionCount + " revisions");
                 log.info("Stats: " + nodeCount + " nodes, " + fileCount + " files, " + deleteCount + " deletes, "

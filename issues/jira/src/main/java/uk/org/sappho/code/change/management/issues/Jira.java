@@ -1,5 +1,6 @@
 package uk.org.sappho.code.change.management.issues;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,14 +19,11 @@ import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.GetParentService;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
-import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.warnings.SimpleWarningList;
 
 public class Jira implements IssueManagement {
 
     private final Configuration config;
-    private final Mapper fixVersionMapper;
-    private final Mapper issueTypeMapper;
     private final SimpleWarningList warnings;
     private String jiraURL = null;
     private JiraSoapService jiraSoapService = null;
@@ -34,8 +32,7 @@ public class Jira implements IssueManagement {
     private final Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
     private final Map<String, IssueData> parentIssues = new HashMap<String, IssueData>();
     private final Map<String, String> subTaskParents = new HashMap<String, String>();
-    private final Map<String, String> releases = new HashMap<String, String>();
-    private final Map<String, String> issueTypes = new HashMap<String, String>();
+    private final List<String> allRawReleases = new Vector<String>();
     private static final Logger log = Logger.getLogger(Jira.class);
 
     @Inject
@@ -45,8 +42,6 @@ public class Jira implements IssueManagement {
         log.info("Using Jira issue management plugin");
         this.config = config;
         this.warnings = warnings;
-        fixVersionMapper = (Mapper) config.getGroovyScriptObject("mapper.fix.version.to.release");
-        issueTypeMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.type");
         connect();
     }
 
@@ -139,41 +134,29 @@ public class Jira implements IssueManagement {
                 }
             }
             if (remoteIssue != null) {
-                List<String> issueReleases = new Vector<String>();
-                Map<String, String> issueReleaseMap = new HashMap<String, String>();
+                List<String> issueRawReleases = new Vector<String>();
                 RemoteVersion[] fixVersions = remoteIssue.getFixVersions();
-                if (fixVersions.length > 0) {
-                    for (RemoteVersion remoteVersion : fixVersions) {
-                        String remoteVersionName = remoteVersion.getName();
-                        String release = releases.get(remoteVersionName);
-                        if (release == null) {
-                            release = fixVersionMapper.map(remoteVersionName);
-                            if (release != null) {
-                                releases.put(remoteVersionName, release);
-                            }
-                        }
-                        issueReleaseMap.put(release, release);
+                for (RemoteVersion remoteVersion : fixVersions) {
+                    String remoteVersionName = remoteVersion.getName();
+                    if (!issueRawReleases.contains(remoteVersionName)) {
+                        issueRawReleases.add(remoteVersionName);
                     }
-                }
-                for (String release : issueReleaseMap.keySet()) {
-                    issueReleases.add(release);
+                    if (!allRawReleases.contains(remoteVersionName)) {
+                        allRawReleases.add(remoteVersionName);
+                    }
                 }
                 String rawTypeId = remoteIssue.getType();
                 String rawTypeName = mappedRemoteIssueTypes.get(rawTypeId);
-                String typeName = issueTypes.get(rawTypeName);
-                if (typeName == null) {
-                    typeName = issueTypeMapper.map(rawTypeName);
-                    if (typeName != null) {
-                        issueTypes.put(rawTypeName, typeName);
-                    }
-                }
                 RemoteComponent[] remoteComponents = remoteIssue.getComponents();
                 List<String> components = new Vector<String>();
                 for (RemoteComponent remoteComponent : remoteComponents) {
                     components.add(remoteComponent.getName());
                 }
-                issueData = new IssueData(issueKey, typeName, remoteIssue.getSummary(), remoteIssue.getCreated()
-                        .getTime(), remoteIssue.getUpdated().getTime(), components, issueReleases);
+                String assignee = remoteIssue.getAssignee();
+                Date createdOn = remoteIssue.getCreated().getTime();
+                Date updatedOn = remoteIssue.getUpdated().getTime();
+                issueData = new IssueData(issueKey, rawTypeName, remoteIssue.getSummary(), createdOn, updatedOn,
+                        assignee, components, issueRawReleases);
                 parentIssues.put(issueKey, issueData);
             }
         }
@@ -183,13 +166,8 @@ public class Jira implements IssueManagement {
         return issueData;
     }
 
-    public Map<String, String> getReleaseMappings() {
+    public List<String> getRawReleases() {
 
-        return releases;
-    }
-
-    public Map<String, String> getIssueTypeMappings() {
-
-        return issueTypes;
+        return allRawReleases;
     }
 }

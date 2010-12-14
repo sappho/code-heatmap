@@ -7,7 +7,6 @@ import java.util.Vector;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
@@ -19,25 +18,20 @@ import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.report.ReportException;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
-import uk.org.sappho.string.mapping.Mapper;
 
 @Singleton
 public class Releases implements Engine {
 
     private final List<String> releaseNames;
     private final Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
-    private final HeatMapSelector heatMapSelector;
-    private final Mapper commitCommentToIssueKeyMapper;
     private final Report report;
+    private final HeatMapSelector heatMapSelector;
 
     @Inject
-    public Releases(Configuration config, HeatMapSelector heatMapSelector,
-            @Named("commitCommentToIssueKeyMapper") Mapper commitCommentToIssueKeyMapper, Report report)
-            throws ConfigurationException {
+    public Releases(Configuration config, Report report) throws ConfigurationException {
 
+        heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
         releaseNames = config.getPropertyList("releases");
-        this.heatMapSelector = heatMapSelector;
-        this.commitCommentToIssueKeyMapper = commitCommentToIssueKeyMapper;
         this.report = report;
     }
 
@@ -46,8 +40,7 @@ public class Releases implements Engine {
         try {
             for (String revisionKey : rawData.getRevisionKeys()) {
                 RevisionData revisionData = rawData.getRevisionData(revisionKey);
-                String commitComment = revisionData.getCommitComment();
-                String issueKey = commitCommentToIssueKeyMapper.map(commitComment);
+                String issueKey = revisionData.getIssueKey();
                 IssueData issueData = rawData.getIssueData(issueKey);
                 List<String> issueReleases = issueData.getReleases();
                 for (String issueRelease : issueReleases) {
