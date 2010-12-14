@@ -31,49 +31,45 @@ import uk.org.sappho.warnings.WarningList;
 
 public class CodeChangeManagementApp extends AbstractModule {
 
-    private final String[] args;
+    private static final Logger LOG = Logger.getLogger(CodeChangeManagementApp.class);
+
     private WarningList warningList;
-    private SimpleConfiguration config;
     private RawData rawData = new RawData();
     private Injector injector;
     private Mapper commitCommentToIssueKeyMapper;
-    private static final Logger LOG = Logger.getLogger(CodeChangeManagementApp.class);
 
-    public CodeChangeManagementApp(String[] args) {
+    private final Configuration config;
 
-        this.args = args;
+    public CodeChangeManagementApp(Configuration config) {
+        this.config = config;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void configure() {
+        LOG.debug("Configuring plugins");
 
         try {
-            LOG.debug("Configuring plugins");
             warningList = new SimpleWarningList();
             bind(WarningList.class).toInstance(warningList);
-            config = new SimpleConfiguration();
-            for (String configFilename : args)
-                config.load(configFilename);
+
             bind(Configuration.class).toInstance(config);
             // load data mapping scripts
             HeatMapSelector heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
             bind(HeatMapSelector.class).toInstance(heatMapSelector);
             commitCommentToIssueKeyMapper = (Mapper) config.getGroovyScriptObject("mapper.commit.comment.to.issue.key");
-            bind(Mapper.class).annotatedWith(Names.named("commitCommentToIssueKeyMapper")).toInstance(
-                    commitCommentToIssueKeyMapper);
-            // load plugins
-            bind(SCM.class).to(
-                    (Class<? extends SCM>) config.getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
-            bind(Report.class).to(
-                    (Class<? extends Report>) config.getPlugin("report.plugin", "uk.org.sappho.code.heatmap.report"));
-            bind(IssueManagement.class).to(
-                    (Class<? extends IssueManagement>) config.getPlugin("issues.plugin",
+            bind(Mapper.class).annotatedWith(Names.named("commitCommentToIssueKeyMapper"))
+                    .toInstance(commitCommentToIssueKeyMapper);
+            bind(SCM.class)
+                    .to(config.<SCM> getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
+            bind(Report.class)
+                    .to(config.<Report> getPlugin("report.plugin", "uk.org.sappho.code.heatmap.report"));
+            bind(IssueManagement.class)
+                    .to(config.<IssueManagement> getPlugin("issues.plugin",
                             "uk.org.sappho.code.change.management.issues"));
             bind(Engine.class).to(
-                    (Class<? extends Engine>) config.getPlugin("engine.plugin", "uk.org.sappho.code.heatmap.engine"));
-        } catch (Throwable t) {
-            LOG.error("Unable to load plugins", t);
+                    config.<Engine> getPlugin("engine.plugin", "uk.org.sappho.code.heatmap.engine"));
+        } catch (ConfigurationException e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -138,7 +134,11 @@ public class CodeChangeManagementApp extends AbstractModule {
     public static void main(String[] args) {
 
         try {
-            new CodeChangeManagementApp(args).run();
+            Configuration config = new SimpleConfiguration();
+            for (String configFilename : args) {
+                config.load(configFilename);
+            }
+            new CodeChangeManagementApp(config).run();
             LOG.info("Everything done");
         } catch (Throwable t) {
             LOG.error("Application error", t);
