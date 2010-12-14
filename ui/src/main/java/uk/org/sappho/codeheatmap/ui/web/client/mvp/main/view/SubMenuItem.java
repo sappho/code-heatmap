@@ -5,18 +5,18 @@ import uk.org.sappho.codeheatmap.ui.web.client.place.SubMenuPlace;
 public class SubMenuItem {
 
     private final String caption;
-    private final SubMenuPlace place;
+    private final SubMenuPlace<?> subMenuplace;
 
-    public SubMenuItem(String caption, SubMenuPlace subMenuPlace) {
+    public SubMenuItem(String caption, SubMenuPlace<?> subMenuPlace) {
         this.caption = caption;
-        place = subMenuPlace;
+        this.subMenuplace = subMenuPlace;
     }
 
     public String getCaption() {
         return caption;
     }
 
-    public SubMenuPlace getPlace() {
-        return place;
+    public SubMenuPlace<?> getPlace() {
+        return subMenuplace;
     }
 }

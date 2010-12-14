@@ -5,13 +5,17 @@ import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
 
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.inject.Inject;
 
 public class CumulativeFlowView extends Composite implements CumulativeFlowPresenter.Display {
 
     @Inject
     public CumulativeFlowView(CodeHeatmapResources resources) {
-        Label label = new Label("cf");
-        initWidget(label);
+        VerticalPanel container = new VerticalPanel();
+        container.addStyleName(resources.css().centerLayout());
+        initWidget(container);
+
+        container.add(new Label("cf"));
     }
 }
