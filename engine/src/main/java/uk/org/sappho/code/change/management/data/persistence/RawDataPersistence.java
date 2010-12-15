@@ -6,12 +6,12 @@ import java.io.Writer;
 
 import org.apache.log4j.Logger;
 
-import com.thoughtworks.xstream.XStream;
-
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.warnings.SimpleWarningList;
+
+import com.thoughtworks.xstream.XStream;
 
 public abstract class RawDataPersistence {
 
@@ -31,6 +31,7 @@ public abstract class RawDataPersistence {
         log.info("Loading data");
         RawData rawData = (RawData) xstream.fromXML(reader);
         reader.close();
+        log.info("Loaded data");
         return rawData;
     }
 

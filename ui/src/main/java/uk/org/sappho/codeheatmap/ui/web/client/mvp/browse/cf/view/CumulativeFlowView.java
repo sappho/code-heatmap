@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.visualizations.AreaChart;
 import com.google.gwt.visualization.client.visualizations.AreaChart.Options;
 import com.google.inject.Inject;
@@ -32,8 +33,8 @@ public class CumulativeFlowView extends Composite implements CumulativeFlowPrese
     public void run() {
         DataTable dataTable = DataTable.create();
         dataTable.addColumn(ColumnType.STRING, "Release");
-        dataTable.addColumn(ColumnType.NUMBER, "Total changes");
-        dataTable.addColumn(ColumnType.NUMBER, "Total defects");
+        dataTable.addColumn(ColumnType.NUMBER, "Change issues");
+        dataTable.addColumn(ColumnType.NUMBER, "Defect issues");
         dataTable.addRows(data.size());
         int row = 0;
         for (DataItem dataItem : data) {
@@ -44,9 +45,10 @@ public class CumulativeFlowView extends Composite implements CumulativeFlowPrese
         }
 
         Options options = AreaChart.Options.create();
-        options.setWidth(800);
+        options.setWidth(1024);
         options.setHeight(600);
-        options.setStacked(true);
+        options.setStacked(false);
+        options.setLegend(LegendPosition.BOTTOM);
 
         AreaChart chart = new AreaChart(dataTable, options);
         container.add(chart);
