@@ -1,10 +1,10 @@
 package uk.org.sappho.warnings;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
@@ -22,7 +22,7 @@ public class SimpleWarningList implements WarningList {
 
         List<String> list = warningLists.get(category);
         if (list == null) {
-            list = new Vector<String>();
+            list = new ArrayList<String>();
             warningLists.put(category, list);
         }
         if (!list.contains(warning)) {

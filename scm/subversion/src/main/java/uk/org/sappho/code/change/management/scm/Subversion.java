@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.tigris.subversion.javahl.ChangePath;
@@ -80,8 +80,8 @@ public class Subversion implements SCM {
                     Date date = logMessage.getDate();
                     String commitComment = logMessage.getMessage();
                     String committer = logMessage.getAuthor();
-                    List<String> changedFiles = new Vector<String>();
-                    List<String> badPaths = new Vector<String>();
+                    List<String> changedFiles = new ArrayList<String>();
+                    List<String> badPaths = new ArrayList<String>();
                     for (ChangePath changePath : logMessage.getChangedPaths()) {
                         nodeCount++;
                         String path = changePath.getPath();

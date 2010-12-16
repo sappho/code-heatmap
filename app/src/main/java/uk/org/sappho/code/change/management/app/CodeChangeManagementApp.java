@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -114,7 +114,7 @@ public class CodeChangeManagementApp extends AbstractModule {
                     .add("Issue type mapping", "Raw issue type \"" + rawType + "\" mapped to \"" + cookedType + "\"");
             issueData.setType(cookedType);
             List<String> rawReleases = issueData.getReleases();
-            List<String> cookedReleases = new Vector<String>();
+            List<String> cookedReleases = new ArrayList<String>();
             String rawReleasesStr = "";
             String cookedReleasesStr = "";
             for (String rawRelease : rawReleases) {

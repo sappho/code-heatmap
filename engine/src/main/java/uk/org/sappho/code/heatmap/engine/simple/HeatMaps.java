@@ -3,7 +3,7 @@ package uk.org.sappho.code.heatmap.engine.simple;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RevisionData;
@@ -32,7 +32,7 @@ public class HeatMaps {
 
     public List<String> getHeatMapNames() {
 
-        List<String> names = new Vector<String>();
+        List<String> names = new ArrayList<String>();
         for (String name : heatMaps.keySet()) {
             if (heatMaps.get(name).getUnsortedHeatMapItems().size() != 0) {
                 names.add(name);

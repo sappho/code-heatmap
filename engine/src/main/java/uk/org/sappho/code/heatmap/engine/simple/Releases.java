@@ -3,7 +3,7 @@ package uk.org.sappho.code.heatmap.engine.simple;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -60,7 +60,7 @@ public class Releases implements Engine {
 
     public final List<String> getUsedReleaseNames() {
 
-        List<String> usedReleaseNames = new Vector<String>();
+        List<String> usedReleaseNames = new ArrayList<String>();
         for (String releaseName : releaseNames) {
             if (releases.get(releaseName) != null) {
                 usedReleaseNames.add(releaseName);

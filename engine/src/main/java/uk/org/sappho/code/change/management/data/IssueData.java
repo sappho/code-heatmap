@@ -2,7 +2,7 @@ package uk.org.sappho.code.change.management.data;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class IssueData {
 
@@ -14,7 +14,7 @@ public class IssueData {
     private String assignee;
     private List<String> components;
     private List<String> releases;
-    private final List<String> subTaskKeys = new Vector<String>();
+    private final List<String> subTaskKeys = new ArrayList<String>();
 
     public IssueData() {
     }

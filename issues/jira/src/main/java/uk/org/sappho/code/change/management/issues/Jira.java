@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -32,7 +32,7 @@ public class Jira implements IssueManagement {
     private final Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
     private final Map<String, IssueData> parentIssues = new HashMap<String, IssueData>();
     private final Map<String, String> subTaskParents = new HashMap<String, String>();
-    private final List<String> allRawReleases = new Vector<String>();
+    private final List<String> allRawReleases = new ArrayList<String>();
     private static final Logger log = Logger.getLogger(Jira.class);
 
     @Inject
@@ -134,7 +134,7 @@ public class Jira implements IssueManagement {
                 }
             }
             if (remoteIssue != null) {
-                List<String> issueRawReleases = new Vector<String>();
+                List<String> issueRawReleases = new ArrayList<String>();
                 RemoteVersion[] fixVersions = remoteIssue.getFixVersions();
                 for (RemoteVersion remoteVersion : fixVersions) {
                     String remoteVersionName = remoteVersion.getName();
@@ -148,7 +148,7 @@ public class Jira implements IssueManagement {
                 String rawTypeId = remoteIssue.getType();
                 String rawTypeName = mappedRemoteIssueTypes.get(rawTypeId);
                 RemoteComponent[] remoteComponents = remoteIssue.getComponents();
-                List<String> components = new Vector<String>();
+                List<String> components = new ArrayList<String>();
                 for (RemoteComponent remoteComponent : remoteComponents) {
                     components.add(remoteComponent.getName());
                 }
