@@ -101,7 +101,7 @@ public class CodeChangeManagementApp extends AbstractModule {
                         + "\"");
                 releaseMappings.put(rawRelease, cookedRelease);
             } else {
-                warningList.add("Release mapping", "Raw release \"" + rawRelease + "\" will be ignored");
+                warningList.add("Release ignored", "Raw release \"" + rawRelease + "\" will be ignored");
             }
         }
         // run through all the retrieved issues settings mapped types and releases
@@ -129,9 +129,10 @@ public class CodeChangeManagementApp extends AbstractModule {
             }
             issueData.setReleases(cookedReleases);
             if (rawReleases.size() == 0) {
-                warningList.add("Issue releases", "Issue " + issueKey + " has no association to a release");
+                warningList.add("Issue with no releases", "Issue " + issueKey + " has no association to a release");
             } else if (rawReleases.size() != 1) {
-                warningList.add("Issue releases", "Issue " + issueKey + " is associated with more than one raw release"
+                warningList.add("Issue with multiple releases", "Issue " + issueKey
+                        + " is associated with more than one raw release"
                         + rawReleasesStr + " mapping to" + cookedReleasesStr);
             }
         }
