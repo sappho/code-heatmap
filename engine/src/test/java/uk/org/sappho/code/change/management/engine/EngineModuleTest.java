@@ -1,4 +1,4 @@
-package uk.org.sappho.code.change.management.app;
+package uk.org.sappho.code.change.management.engine;
 
 import static org.mockito.Mockito.when;
 
@@ -18,7 +18,7 @@ import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CodeChangeManagementAppTest {
+public class EngineModuleTest {
 
     @Mock
     private Configuration mockConfiguration;
@@ -33,14 +33,14 @@ public class CodeChangeManagementAppTest {
 
     @Test
     public void shouldWireExplicitly() {
-        Guice.createInjector(new CodeChangeManagementApp(mockConfiguration));
+        Guice.createInjector(new EngineModule(mockConfiguration));
     }
 
     @Test
     // TODO: better to use annotations to distinguish specialisations,
     // if we really need specialisations like this - probably not
     public void shouldWireRawDataPersistenceImplementations() {
-        Injector injector = Guice.createInjector(new CodeChangeManagementApp(mockConfiguration));
+        Injector injector = Guice.createInjector(new EngineModule(mockConfiguration));
         injector.getInstance(ReaderRawDataPersistence.class);
         injector.getInstance(FilenameRawDataPersistence.class);
         injector.getInstance(ConfigurationRawDataPersistence.class);
