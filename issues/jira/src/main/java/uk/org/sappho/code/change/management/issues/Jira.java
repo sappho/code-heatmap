@@ -1,10 +1,10 @@
 package uk.org.sappho.code.change.management.issues;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -153,10 +153,11 @@ public class Jira implements IssueManagement {
                     components.add(remoteComponent.getName());
                 }
                 String assignee = remoteIssue.getAssignee();
+                String project = remoteIssue.getProject();
                 Date createdOn = remoteIssue.getCreated().getTime();
                 Date updatedOn = remoteIssue.getUpdated().getTime();
                 issueData = new IssueData(issueKey, rawTypeName, remoteIssue.getSummary(), createdOn, updatedOn,
-                        assignee, components, issueRawReleases);
+                        assignee, project, components, issueRawReleases);
                 parentIssues.put(issueKey, issueData);
             }
         }

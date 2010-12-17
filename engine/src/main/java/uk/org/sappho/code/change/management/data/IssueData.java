@@ -1,8 +1,8 @@
 package uk.org.sappho.code.change.management.data;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
 
 public class IssueData {
 
@@ -12,6 +12,7 @@ public class IssueData {
     private Date createdDate;
     private Date lastUpdatedDate;
     private String assignee;
+    private String project;
     private List<String> components;
     private List<String> releases;
     private final List<String> subTaskKeys = new ArrayList<String>();
@@ -20,7 +21,7 @@ public class IssueData {
     }
 
     public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate, String assignee,
-            List<String> components, List<String> releases) {
+            String project, List<String> components, List<String> releases) {
 
         this.key = key;
         this.type = type;
@@ -28,6 +29,7 @@ public class IssueData {
         this.createdDate = createdDate;
         this.lastUpdatedDate = lastUpdatedDate;
         this.assignee = assignee;
+        this.project = project;
         this.components = components;
         this.releases = releases;
     }
@@ -65,6 +67,11 @@ public class IssueData {
     public String getAssignee() {
 
         return assignee;
+    }
+
+    public String getProject() {
+
+        return project;
     }
 
     public List<String> getComponents() {
