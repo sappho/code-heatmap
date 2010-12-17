@@ -28,7 +28,7 @@ public abstract class RawDataPersistence {
 
     public RawData load(Reader reader) throws IOException {
 
-        log.info("Loading data");
+        log.info("Loading data from " + description());
         RawData rawData = (RawData) xstream.fromXML(reader);
         reader.close();
         return rawData;
@@ -36,8 +36,10 @@ public abstract class RawDataPersistence {
 
     public void save(RawData rawData, Writer writer) throws IOException {
 
-        log.info("Writing data");
+        log.info("Saving data to " + description());
         xstream.toXML(rawData, writer);
         writer.close();
     }
+
+    abstract public String description();
 }

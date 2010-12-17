@@ -22,16 +22,20 @@ public class FilenameRawDataPersistence extends RawDataPersistence {
 
     public RawData load() throws IOException {
 
-        log.info("Loading data from " + filename);
         Reader reader = new FileReader(filename);
         return load(reader);
     }
 
     public void save(RawData rawData) throws IOException {
 
-        log.info("Saving data to " + filename);
         Writer writer = new FileWriter(filename);
         save(rawData, writer);
         writer.close();
+    }
+
+    @Override
+    public String description() {
+
+        return filename;
     }
 }
