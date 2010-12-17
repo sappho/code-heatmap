@@ -1,10 +1,10 @@
 package uk.org.sappho.code.change.management.app;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -32,7 +32,7 @@ import uk.org.sappho.warnings.WarningList;
 
 public class CodeChangeManagementApp extends AbstractModule {
 
-    private static final Logger LOG = Logger.getLogger(CodeChangeManagementApp.class);
+    private static final Logger log = Logger.getLogger(CodeChangeManagementApp.class);
 
     private WarningList warningList;
     private RawData rawData = new RawData();
@@ -46,7 +46,7 @@ public class CodeChangeManagementApp extends AbstractModule {
 
     @Override
     protected void configure() {
-        LOG.debug("Configuring plugins");
+        log.debug("Configuring plugins");
 
         try {
             warningList = new SimpleWarningList();
@@ -68,7 +68,7 @@ public class CodeChangeManagementApp extends AbstractModule {
 
     protected void refresh() throws ConfigurationException {
 
-        LOG.info("Refreshing issue management data");
+        log.info("Refreshing issue management data mapping to revisions");
         Mapper commitCommentToIssueKeyMapper = (Mapper) config
                 .getGroovyScriptObject("mapper.commit.comment.to.issue.key");
         IssueManagement issueManagement = injector.getInstance(IssueManagement.class);
@@ -146,7 +146,7 @@ public class CodeChangeManagementApp extends AbstractModule {
         ConfigurationRawDataPersistence rawDataPersistence = new ConfigurationRawDataPersistence(config);
         List<String> actions = config.getPropertyList("app.run.action");
         for (String action : actions) {
-            LOG.info("Running " + action);
+            log.info("Running " + action);
             if (action.equalsIgnoreCase("load")) {
                 rawData = rawDataPersistence.load();
             } else if (action.equalsIgnoreCase("save")) {
@@ -174,9 +174,9 @@ public class CodeChangeManagementApp extends AbstractModule {
                 config.load(configFilename);
             }
             new CodeChangeManagementApp(config).run();
-            LOG.info("Everything done");
+            log.info("Everything done");
         } catch (Throwable t) {
-            LOG.error("Application error", t);
+            log.error("Application error", t);
         }
     }
 }

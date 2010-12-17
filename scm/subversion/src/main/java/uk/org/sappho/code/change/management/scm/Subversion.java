@@ -1,10 +1,10 @@
 package uk.org.sappho.code.change.management.scm;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.tigris.subversion.javahl.ChangePath;
@@ -37,28 +37,30 @@ public class Subversion implements SCM {
 
     public void scan(RawData rawData) throws SCMException {
 
-        String errorMessage = "Unable to find Subversion session parameters";
+        String errorMessage = "Unable to get Subversion session parameters";
         try {
             String url = config.getProperty("svn.url");
             String basePath = config.getProperty("svn.path");
+            String targetURL = url + basePath;
+            long startRevision = Long.parseLong(config.getProperty(startRevPropProperty));
             long endRevision = Long.parseLong(config.getProperty("svn.end.rev", "-1"));
             if (endRevision < 0) {
                 try {
-                    Info2[] info = svnClient.info2(url + basePath, Revision.HEAD, Revision.HEAD, false);
+                    Info2[] info = svnClient.info2(targetURL, Revision.HEAD, Revision.HEAD, false);
                     endRevision = info[0].getLastChangedRev();
                 } catch (ClientException e) {
-                    throw new SCMException("Unable to determine head revision of " + url + basePath, e);
+                    throw new SCMException("Unable to determine head revision of " + targetURL, e);
                 }
             }
-            long startRevision = Long
-                    .parseLong(config.getProperty(startRevPropProperty, Long.toString(endRevision - 49)));
-            errorMessage = "Unable to read Subversion history for " + url + basePath + " from revision "
+            errorMessage = "Unable to read Subversion history for " + targetURL + " from revision "
                     + startRevision + " to revision " + endRevision;
             if (endRevision < startRevision) {
-                log.info("Unable to read Subversion history for " + url + basePath + " from revision " + startRevision
+                log.info("Unable to read Subversion history for " + targetURL + " from revision " + startRevision
                         + " to revision " + endRevision
                         + " - if incrememntal then this probably means there are no new revisions");
             } else {
+                RevisionDataPostProcessor revisionDataPostProcessor = (RevisionDataPostProcessor) config
+                        .getGroovyScriptObject("svn.revision.post.processor");
                 Map<String, Integer> nodeKindCache = new HashMap<String, Integer>();
                 long nodeCount = 0;
                 long fileCount = 0;
@@ -66,9 +68,9 @@ public class Subversion implements SCM {
                 long badPathCount = 0;
                 long noFilesCount = 0;
                 long nodeKindCacheHits = 0;
-                log.info("Reading Subversion history for " + url + basePath + " from revision " + startRevision
+                log.info("Reading Subversion history for " + targetURL + " from revision " + startRevision
                         + " to revision " + endRevision);
-                LogMessage[] logMessages = svnClient.logMessages(url + basePath, Revision.getInstance(startRevision),
+                LogMessage[] logMessages = svnClient.logMessages(targetURL, Revision.getInstance(startRevision),
                         Revision.getInstance(endRevision), false, true);
                 log.info("Starting to process " + logMessages.length + " revisions");
                 long revisionCount = 0;
@@ -117,8 +119,10 @@ public class Subversion implements SCM {
                     if (changedFiles.size() == 0) {
                         noFilesCount++;
                     }
-                    rawData.putRevisionData(new RevisionData(revisionKey, date, commitComment, committer, changedFiles,
-                            badPaths));
+                    RevisionData revisionData = new RevisionData(revisionKey, date, commitComment, committer,
+                            changedFiles, badPaths);
+                    revisionDataPostProcessor.process(revisionData);
+                    rawData.putRevisionData(revisionData);
                 }
                 log.info("Processed " + revisionCount + " revisions");
                 log.info("Stats: " + nodeCount + " nodes, " + fileCount + " files, " + deleteCount + " deletes, "

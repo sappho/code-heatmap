@@ -10,6 +10,7 @@ public class RevisionData {
     private Date date;
     private String commitComment;
     private String committer;
+    private boolean isMerge = false;
     private List<String> changedFiles;
     private List<String> badPaths;
 
@@ -58,10 +59,22 @@ public class RevisionData {
     }
 
     public void setIssueKey(String issueKey) {
+
         this.issueKey = issueKey;
     }
 
     public String getIssueKey() {
+
         return issueKey;
+    }
+
+    public void setMerge(boolean isMerge) {
+
+        this.isMerge = isMerge;
+    }
+
+    public boolean isMerge() {
+
+        return isMerge;
     }
 }
