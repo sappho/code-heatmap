@@ -20,15 +20,15 @@ import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 
 @Singleton
-public class Releases implements RawDataProcessing {
+public class SimpleHeatMapRawDataProcessing implements RawDataProcessing {
 
     private List<String> releaseNames;
-    private final Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
+    private final Map<String, HeatMaps> heatMapsPerRelease = new HashMap<String, HeatMaps>();
     private final Report report;
     private final HeatMapSelector heatMapSelector;
 
     @Inject
-    public Releases(Configuration config, Report report) throws ConfigurationException {
+    public SimpleHeatMapRawDataProcessing(Configuration config, Report report) throws ConfigurationException {
 
         heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
         this.report = report;
@@ -48,10 +48,10 @@ public class Releases implements RawDataProcessing {
                         if (!releaseNames.contains(issueRelease)) {
                             releaseNames.add(issueRelease);
                         }
-                        HeatMaps heatMaps = releases.get(issueRelease);
+                        HeatMaps heatMaps = heatMapsPerRelease.get(issueRelease);
                         if (heatMaps == null) {
                             heatMaps = new HeatMaps();
-                            releases.put(issueRelease, heatMaps);
+                            heatMapsPerRelease.put(issueRelease, heatMaps);
                         }
                         heatMaps.add(revisionData, issueData, heatMapSelector);
                     }
@@ -70,6 +70,6 @@ public class Releases implements RawDataProcessing {
 
     public final HeatMaps getHeatMaps(String releaseName) {
 
-        return releases.get(releaseName);
+        return heatMapsPerRelease.get(releaseName);
     }
 }

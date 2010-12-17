@@ -16,7 +16,7 @@ import com.google.inject.Inject;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 
-import uk.org.sappho.code.heatmap.engine.simple.Releases;
+import uk.org.sappho.code.heatmap.engine.simple.SimpleHeatMapRawDataProcessing;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.warnings.WarningList;
 
@@ -32,7 +32,7 @@ public class FormattedReport implements Report {
         this.config = config;
     }
 
-    public void writeReport(Releases releases, WarningList warnings) throws ReportException {
+    public void writeReport(SimpleHeatMapRawDataProcessing releases, WarningList warnings) throws ReportException {
 
         Writer writer = null;
         try {
