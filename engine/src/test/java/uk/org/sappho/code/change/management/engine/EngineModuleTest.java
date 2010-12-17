@@ -26,7 +26,6 @@ public class EngineModuleTest {
     @Before
     public void setupFakeWiringConfiguration() throws ConfigurationException {
         returnFakePluginFor("scm.plugin", "uk.org.sappho.code.change.management.scm");
-        returnFakePluginFor("report.plugin", "uk.org.sappho.code.heatmap.report");
         returnFakePluginFor("issues.plugin", "uk.org.sappho.code.change.management.issues");
         returnFakePluginFor("engine.plugin", "uk.org.sappho.code.heatmap.engine");
     }

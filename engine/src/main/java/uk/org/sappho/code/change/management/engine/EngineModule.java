@@ -16,7 +16,6 @@ import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.scm.SCM;
-import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.string.mapping.Mapper;
@@ -39,6 +38,11 @@ public class EngineModule extends AbstractModule {
     public void init() {
 
         injector = Guice.createInjector(this);
+    }
+
+    protected Injector getInjector() {
+
+        return injector;
     }
 
     public SCM getSCMPlugin() {
@@ -66,8 +70,6 @@ public class EngineModule extends AbstractModule {
             bind(Configuration.class).toInstance(config);
             bind(SCM.class)
                     .to(config.<SCM> getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
-            bind(Report.class)
-                    .to(config.<Report> getPlugin("report.plugin", "uk.org.sappho.code.heatmap.report"));
             bind(IssueManagement.class)
                     .to(config.<IssueManagement> getPlugin("issues.plugin",
                             "uk.org.sappho.code.change.management.issues"));
