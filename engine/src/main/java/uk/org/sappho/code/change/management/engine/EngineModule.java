@@ -24,20 +24,20 @@ import uk.org.sappho.warnings.WarningList;
 
 public class EngineModule extends AbstractModule {
 
-    private final Configuration config;
+    private Configuration config;
     private WarningList warningList;
     private Injector injector;
     private static final Logger log = Logger.getLogger(EngineModule.class);
 
-    public EngineModule(Configuration config) {
+    public void init(Configuration config) {
 
-        super();
         this.config = config;
+        injector = Guice.createInjector(this);
     }
 
-    public void init() {
+    protected Configuration getConfiguration() {
 
-        injector = Guice.createInjector(this);
+        return config;
     }
 
     protected Injector getInjector() {
@@ -55,15 +55,14 @@ public class EngineModule extends AbstractModule {
         return injector.getInstance(IssueManagement.class);
     }
 
-    public Engine getRawDataProcessingPlugin() {
+    public RawDataProcessing getRawDataProcessingPlugin() {
 
-        return injector.getInstance(Engine.class);
+        return injector.getInstance(RawDataProcessing.class);
     }
 
     @Override
     protected void configure() {
 
-        log.debug("Configuring plugins");
         try {
             warningList = new SimpleWarningList();
             bind(WarningList.class).toInstance(warningList);
@@ -73,8 +72,8 @@ public class EngineModule extends AbstractModule {
             bind(IssueManagement.class)
                     .to(config.<IssueManagement> getPlugin("issues.plugin",
                             "uk.org.sappho.code.change.management.issues"));
-            bind(Engine.class).to(
-                    config.<Engine> getPlugin("engine.plugin", "uk.org.sappho.code.heatmap.engine"));
+            bind(RawDataProcessing.class).to(
+                    config.<RawDataProcessing> getPlugin("engine.plugin", "uk.org.sappho.code.heatmap.engine"));
         } catch (ConfigurationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

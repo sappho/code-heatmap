@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import uk.org.sappho.code.change.management.data.persistence.ConfigurationRawDataPersistence;
@@ -32,14 +31,16 @@ public class EngineModuleTest {
 
     @Test
     public void shouldWireExplicitly() {
-        Guice.createInjector(new EngineModule(mockConfiguration));
+        new EngineModule().init(mockConfiguration);
     }
 
     @Test
     // TODO: better to use annotations to distinguish specialisations,
     // if we really need specialisations like this - probably not
     public void shouldWireRawDataPersistenceImplementations() {
-        Injector injector = Guice.createInjector(new EngineModule(mockConfiguration));
+        EngineModule engineModule = new EngineModule();
+        engineModule.init(mockConfiguration);
+        Injector injector = engineModule.getInjector();
         injector.getInstance(ReaderRawDataPersistence.class);
         injector.getInstance(FilenameRawDataPersistence.class);
         injector.getInstance(ConfigurationRawDataPersistence.class);

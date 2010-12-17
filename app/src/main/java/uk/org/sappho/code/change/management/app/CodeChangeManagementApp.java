@@ -1,17 +1,14 @@
 package uk.org.sappho.code.change.management.app;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.persistence.ConfigurationRawDataPersistence;
-import uk.org.sappho.code.change.management.engine.Engine;
-import uk.org.sappho.code.change.management.engine.EngineException;
 import uk.org.sappho.code.change.management.engine.EngineModule;
+import uk.org.sappho.code.change.management.engine.RawDataProcessing;
 import uk.org.sappho.code.change.management.scm.SCM;
-import uk.org.sappho.code.change.management.scm.SCMException;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.configuration.SimpleConfiguration;
@@ -20,10 +17,11 @@ public class CodeChangeManagementApp {
 
     private static final Logger log = Logger.getLogger(CodeChangeManagementApp.class);
 
-    protected void run(Configuration config) throws ConfigurationException, IOException, SCMException, EngineException {
+    protected void run(Configuration config) throws Exception {
 
-        EngineModule engineModule = new EngineModule(config);
-        engineModule.init();
+        EngineModule engineModule = config.<EngineModule> getPlugin("engine.module",
+                "uk.org.sappho.code.change.management.engine").newInstance();
+        engineModule.init(config);
         RawData rawData = new RawData();
         ConfigurationRawDataPersistence rawDataPersistence = new ConfigurationRawDataPersistence(config);
         List<String> actions = config.getPropertyList("app.run.action");
@@ -40,7 +38,7 @@ public class CodeChangeManagementApp {
             } else if (action.equalsIgnoreCase("refresh")) {
                 engineModule.refreshRawData(rawData);
             } else if (action.equalsIgnoreCase("process")) {
-                Engine rawDataProcessingEngine = engineModule.getRawDataProcessingPlugin();
+                RawDataProcessing rawDataProcessingEngine = engineModule.getRawDataProcessingPlugin();
                 rawDataProcessingEngine.run(rawData);
             } else {
                 throw new ConfigurationException("Action " + action + " is unrecognised");

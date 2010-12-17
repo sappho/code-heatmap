@@ -11,8 +11,8 @@ import com.google.inject.Singleton;
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
-import uk.org.sappho.code.change.management.engine.Engine;
-import uk.org.sappho.code.change.management.engine.EngineException;
+import uk.org.sappho.code.change.management.engine.RawDataProcessing;
+import uk.org.sappho.code.change.management.engine.RawDataProcessingException;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 import uk.org.sappho.code.heatmap.report.Report;
 import uk.org.sappho.code.heatmap.report.ReportException;
@@ -20,7 +20,7 @@ import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 
 @Singleton
-public class Releases implements Engine {
+public class Releases implements RawDataProcessing {
 
     private final List<String> releaseNames;
     private final Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
@@ -35,7 +35,7 @@ public class Releases implements Engine {
         this.report = report;
     }
 
-    public void run(RawData rawData) throws EngineException {
+    public void run(RawData rawData) throws RawDataProcessingException {
 
         try {
             for (String revisionKey : rawData.getRevisionKeys()) {
@@ -54,7 +54,7 @@ public class Releases implements Engine {
             }
             report.writeReport(this);
         } catch (ReportException e) {
-            throw new EngineException("HeatMap engine error", e);
+            throw new RawDataProcessingException("HeatMap engine error", e);
         }
     }
 
