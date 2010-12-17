@@ -1,9 +1,9 @@
 package uk.org.sappho.code.heatmap.engine.simple;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -22,7 +22,7 @@ import uk.org.sappho.configuration.ConfigurationException;
 @Singleton
 public class Releases implements RawDataProcessing {
 
-    private final List<String> releaseNames;
+    private List<String> releaseNames;
     private final Map<String, HeatMaps> releases = new HashMap<String, HeatMaps>();
     private final Report report;
     private final HeatMapSelector heatMapSelector;
@@ -31,25 +31,30 @@ public class Releases implements RawDataProcessing {
     public Releases(Configuration config, Report report) throws ConfigurationException {
 
         heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
-        releaseNames = config.getPropertyList("releases");
         this.report = report;
     }
 
     public void run(RawData rawData) throws RawDataProcessingException {
 
         try {
+            releaseNames = new ArrayList<String>();
             for (String revisionKey : rawData.getRevisionKeys()) {
                 RevisionData revisionData = rawData.getRevisionData(revisionKey);
                 String issueKey = revisionData.getIssueKey();
                 IssueData issueData = rawData.getIssueData(issueKey);
-                List<String> issueReleases = issueData.getReleases();
-                for (String issueRelease : issueReleases) {
-                    HeatMaps heatMaps = releases.get(issueRelease);
-                    if (heatMaps == null) {
-                        heatMaps = new HeatMaps();
-                        releases.put(issueRelease, heatMaps);
+                if (issueData != null) {
+                    List<String> issueReleases = issueData.getReleases();
+                    for (String issueRelease : issueReleases) {
+                        if (!releaseNames.contains(issueRelease)) {
+                            releaseNames.add(issueRelease);
+                        }
+                        HeatMaps heatMaps = releases.get(issueRelease);
+                        if (heatMaps == null) {
+                            heatMaps = new HeatMaps();
+                            releases.put(issueRelease, heatMaps);
+                        }
+                        heatMaps.add(revisionData, issueData, heatMapSelector);
                     }
-                    heatMaps.add(revisionData, issueData, heatMapSelector);
                 }
             }
             report.writeReport(this);
@@ -60,13 +65,7 @@ public class Releases implements RawDataProcessing {
 
     public final List<String> getUsedReleaseNames() {
 
-        List<String> usedReleaseNames = new ArrayList<String>();
-        for (String releaseName : releaseNames) {
-            if (releases.get(releaseName) != null) {
-                usedReleaseNames.add(releaseName);
-            }
-        }
-        return usedReleaseNames;
+        return releaseNames;
     }
 
     public final HeatMaps getHeatMaps(String releaseName) {

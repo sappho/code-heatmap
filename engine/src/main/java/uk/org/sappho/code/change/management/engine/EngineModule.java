@@ -73,7 +73,8 @@ public class EngineModule extends AbstractModule {
                     .to(config.<IssueManagement> getPlugin("issues.plugin",
                             "uk.org.sappho.code.change.management.issues"));
             bind(RawDataProcessing.class).to(
-                    config.<RawDataProcessing> getPlugin("engine.plugin", "uk.org.sappho.code.heatmap.engine"));
+                    config.<RawDataProcessing> getPlugin("raw.data.processing.plugin",
+                            "uk.org.sappho.code.heatmap.engine"));
         } catch (ConfigurationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
