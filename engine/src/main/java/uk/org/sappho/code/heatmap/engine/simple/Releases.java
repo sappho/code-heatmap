@@ -57,7 +57,7 @@ public class Releases implements RawDataProcessing {
                     }
                 }
             }
-            report.writeReport(this);
+            report.writeReport(this, rawData.getWarnings());
         } catch (ReportException e) {
             throw new RawDataProcessingException("HeatMap engine error", e);
         }

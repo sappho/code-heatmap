@@ -27,9 +27,8 @@ This report was generated on ${date}.
 </#list>
 </#list>
 
-<#list warnings.getTypes() as warningType>
-<#list warnings.getWarnings(warningType) as warning>
-<#assign warningText = warning.toString()>
-${warningText}
+<#list warnings.getCategories() as category>
+<#list warnings.getWarnings(category) as warning>
+${warning}
 </#list>
 </#list>
