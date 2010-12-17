@@ -54,7 +54,7 @@ public class FormattedReport implements Report {
             freemarkerConfig.setClassForTemplateLoading(FormattedReport.class, "/report/templates");
             freemarkerConfig.setObjectWrapper(new DefaultObjectWrapper());
             Template template = freemarkerConfig.getTemplate(templateFilename);
-            log.info("Writing formatted report " + outputFilename);
+            log.info("Writing formatted report " + outputFilename + " with template " + templateFilename);
             writer = new FileWriter(new File(outputFilename));
             template.process(data, writer);
             writer.close();
