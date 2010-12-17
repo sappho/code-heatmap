@@ -30,7 +30,6 @@ public class FilenameRawDataPersistence extends RawDataPersistence {
 
         Writer writer = new FileWriter(filename);
         save(rawData, writer);
-        writer.close();
     }
 
     @Override
