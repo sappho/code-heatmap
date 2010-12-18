@@ -43,10 +43,11 @@ public abstract class RawDataPersistence {
             throws IOException {
 
         boolean compress = zipFilename != null && zipFilename.length() > 0;
-        log.info("Saving data to " + getDescription() + (compress ? " in compressed zip file " + zipFilename : ""));
+        log.info("Saving data to " + getDescription() + (compress ? " in compressed file " + zipFilename : ""));
         if (compress) {
             ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(outputStream));
             ZipEntry zipEntry = new ZipEntry(zipFilename);
+            zipEntry.setMethod(ZipEntry.DEFLATED);
             zipOutputStream.putNextEntry(zipEntry);
             outputStream = zipOutputStream;
         }
