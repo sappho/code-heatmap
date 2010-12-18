@@ -15,12 +15,10 @@ public class ReaderRawDataPersistenceTest {
 
     @Test
     public void shouldReadInputStream() throws IOException, IssueManagementException {
+
         Reader testData = new InputStreamReader(getClass().getResourceAsStream("raw-data-11.01.xml"));
         ReaderRawDataPersistence persistence = new ReaderRawDataPersistence();
-
         RawData rawData = persistence.load(testData);
-
         assertNotNull(rawData);
     }
-
 }
