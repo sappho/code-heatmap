@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -29,6 +30,42 @@ public class ConfigurationRawDataPersistenceTest {
     @Mock
     private Configuration mockConfiguration;
 
+    private final RawData rawData = new RawData();
+
+    @Before
+    public void setupRawData() {
+
+        String revisionKey = "42";
+        String project = "LIFE";
+        String issueKey = project + "-" + revisionKey;
+        String issueSummary = "Add meaning to life.";
+        Date revisionDate = new GregorianCalendar().getTime();
+        String commitComment = issueKey + ": " + issueSummary;
+        String committer = "sappho";
+        String changedFile = "/sappho/fragments/Hymn to Aphrodite.txt";
+        List<String> changedFiles = new ArrayList<String>();
+        changedFiles.add(changedFile);
+        List<String> badPaths = new ArrayList<String>();
+        RevisionData revisionData = new RevisionData(revisionKey, revisionDate, commitComment, committer, changedFiles,
+                badPaths);
+        String issueType = "change";
+        String component = "artistry";
+        List<String> components = new ArrayList<String>();
+        components.add(component);
+        String release = "Fragments 0.1";
+        List<String> releases = new ArrayList<String>();
+        releases.add(release);
+        IssueData issueData = new IssueData(issueKey, issueType, issueSummary, revisionDate, revisionDate, committer,
+                project, components, releases);
+        String warningCategory = "Loss";
+        String warning = "Papyrus decays with time";
+        WarningList warningList = new SimpleWarningList();
+        warningList.add(warningCategory, warning);
+        rawData.putRevisionData(revisionData);
+        rawData.putIssueData(issueData);
+        rawData.putWarnings(warningList);
+    }
+
     @Test
     public void shouldWriteToZipFileAndThenReadBackSameData() throws ConfigurationException, IOException {
 
@@ -38,37 +75,6 @@ public class ConfigurationRawDataPersistenceTest {
 
         String filename = mockConfiguration.getProperty("raw.data.store.filename");
         when(filename).thenReturn(targetFilename);
-
-        String revisionKey = "42";
-        String project = "LIFE";
-        String issueKey = project + "-42";
-        String issueSummary = "Add meaning to life.";
-        Date revisionDate = new GregorianCalendar().getTime();
-        String commitComment = issueKey + ": " + issueSummary;
-        String committer = "sappho";
-        String changedFile = "/sappho/sappho.txt";
-        List<String> changedFiles = new ArrayList<String>();
-        changedFiles.add(changedFile);
-        List<String> badPaths = new ArrayList<String>();
-        RevisionData revisionData = new RevisionData(revisionKey, revisionDate, commitComment, committer, changedFiles,
-                badPaths);
-        String issueType = "change";
-        String component = "Philosophy";
-        List<String> components = new ArrayList<String>();
-        components.add(component);
-        String release = "Life 1.0";
-        List<String> releases = new ArrayList<String>();
-        releases.add(release);
-        IssueData issueData = new IssueData(issueKey, issueType, issueSummary, revisionDate, revisionDate, committer,
-                project, components, releases);
-        String warningCategory = "Mishaps";
-        String warning = "Poison taken in Athens";
-        WarningList warningList = new SimpleWarningList();
-        warningList.add(warningCategory, warning);
-        RawData rawData = new RawData();
-        rawData.putRevisionData(revisionData);
-        rawData.putIssueData(issueData);
-        rawData.putWarnings(warningList);
 
         ConfigurationRawDataPersistence configurationRawDataPersistence = new ConfigurationRawDataPersistence(
                 mockConfiguration);
