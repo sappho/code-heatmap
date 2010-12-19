@@ -70,7 +70,6 @@ public class ConfigurationRawDataPersistenceTest {
     public void shouldWriteToZipFileAndThenReadBackSameData() throws ConfigurationException, IOException {
 
         String targetFilename = "target/ConfigurationRawDataPersistenceTest-raw-data.zip";
-
         new File(targetFilename).delete();
 
         String filename = mockConfiguration.getProperty("raw.data.store.filename");

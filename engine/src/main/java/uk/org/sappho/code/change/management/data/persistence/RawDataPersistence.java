@@ -24,14 +24,14 @@ public abstract class RawDataPersistence {
 
     private final XStream xstream = new XStream();
 
-    public RawDataPersistence() {
+    protected RawDataPersistence() {
 
         for (Class<?> clazz : new Class[] { RawData.class, IssueData.class, RevisionData.class, SimpleWarningList.class }) {
             xstream.alias(clazz.getSimpleName(), clazz);
         }
     }
 
-    public RawData load(Reader reader) throws IOException {
+    protected RawData load(Reader reader) throws IOException {
 
         log.info("Loading data from " + getDescription());
         RawData rawData = (RawData) xstream.fromXML(reader);
@@ -39,7 +39,7 @@ public abstract class RawDataPersistence {
         return rawData;
     }
 
-    public void save(RawData rawData, OutputStream outputStream, String zipFilename)
+    protected void save(RawData rawData, OutputStream outputStream, String zipFilename)
             throws IOException {
 
         boolean compress = zipFilename != null && zipFilename.length() > 0;

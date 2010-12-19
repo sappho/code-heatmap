@@ -16,6 +16,7 @@ public class FilenameRawDataPersistence extends RawDataPersistence {
 
     public FilenameRawDataPersistence(String filename) {
 
+        super();
         this.filename = filename;
         zipFilename = null;
         if (filename.endsWith(".zip")) {
