@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.google.inject.Inject;
+
 import uk.org.sappho.code.change.management.data.RawData;
 
 public class FilenameRawDataPersistence extends RawDataPersistence {
@@ -12,6 +14,7 @@ public class FilenameRawDataPersistence extends RawDataPersistence {
     private final String filename;
     private String zipFilename;
 
+    @Inject
     public FilenameRawDataPersistence(String filename) {
 
         super();

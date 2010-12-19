@@ -26,7 +26,7 @@ public class EngineModuleTest {
     public void setupFakeWiringConfiguration() throws ConfigurationException {
         returnFakePluginFor("scm.plugin", "uk.org.sappho.code.change.management.scm");
         returnFakePluginFor("issues.plugin", "uk.org.sappho.code.change.management.issues");
-        returnFakePluginFor("engine.plugin", "uk.org.sappho.code.heatmap.engine");
+        returnFakePluginFor("raw.data.processing.plugin", "uk.org.sappho.code.heatmap.engine");
     }
 
     @Test
@@ -37,7 +37,9 @@ public class EngineModuleTest {
     @Test
     // TODO: better to use annotations to distinguish specialisations,
     // if we really need specialisations like this - probably not
-    public void shouldWireRawDataPersistenceImplementations() {
+    public void shouldWireRawDataPersistenceImplementations() throws ConfigurationException {
+        String filename = mockConfiguration.getProperty("raw.data.store.filename");
+        when(filename).thenReturn("test.xml");
         EngineModule engineModule = new EngineModule();
         engineModule.init(mockConfiguration);
         Injector injector = engineModule.getInjector();
