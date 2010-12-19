@@ -100,4 +100,11 @@ public class IssueData {
 
         return subTaskKeys;
     }
+
+    public String getMainRelease() {
+        if (releases == null || releases.size() == 0)
+            return null;
+        else
+            return releases.get(0);
+    }
 }

@@ -101,6 +101,7 @@
 		<module>scm</module>
 		<module>report</module>
 		<module>issues</module>
+		<module>ui</module>
 	</modules>
 
 </project>

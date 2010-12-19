@@ -3,3 +3,9 @@
 .settings
 target
 bin
+classes/
+ui/war/codeheatmap/
+ui/war/WEB-INF/data/
+ui/war/WEB-INF/lib/
+
+

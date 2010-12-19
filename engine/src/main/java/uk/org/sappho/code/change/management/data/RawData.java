@@ -87,4 +87,8 @@ public class RawData {
 
         return warningList;
     }
+
+    public Map<String, IssueData> getIssueDataMap() {
+        return issueDataMap;
+    }
 }
