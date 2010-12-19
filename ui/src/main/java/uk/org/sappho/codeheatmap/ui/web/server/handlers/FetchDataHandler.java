@@ -5,19 +5,16 @@ import static ch.lambdaj.Lambda.group;
 import static ch.lambdaj.Lambda.on;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 import net.customware.gwt.dispatch.server.ActionHandler;
 import net.customware.gwt.dispatch.server.ExecutionContext;
@@ -25,15 +22,16 @@ import net.customware.gwt.dispatch.shared.DispatchException;
 
 import org.apache.log4j.Logger;
 
+import ch.lambdaj.group.Group;
+
+import com.google.inject.Inject;
+
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.persistence.ReaderRawDataPersistence;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchDataResult;
-import ch.lambdaj.group.Group;
-
-import com.google.inject.Inject;
 
 public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResult> {
 
@@ -57,8 +55,8 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
         File dataFile = new File("WEB-INF/data/raw-data-all-frame-2010-12-14.zip");
         try {
             if (dataFile.exists()) {
-                Reader reader = getDataFileReader(dataFile);
-                RawData rawData = rawDataPersistence.load(reader);
+                InputStream inputStream = getDataFileInputStream(dataFile);
+                RawData rawData = rawDataPersistence.load(inputStream);
                 List<DataItem> data = massageData(rawData);
                 return new FetchDataResult(data);
             } else {
@@ -93,16 +91,9 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
         return data;
     }
 
-    private Reader getDataFileReader(File dataFile) throws IOException, ZipException {
+    private InputStream getDataFileInputStream(File dataFile) throws IOException, ZipException {
         LOG.info("Fetching data from: " + dataFile.getCanonicalFile());
-        ZipFile zipFile = new ZipFile(dataFile);
-        LOG.info("Found " + zipFile.size() + " entries in zip file");
-        LOG.info("First file: " + zipFile.entries().nextElement().getName());
-        String entryName = zipFile.entries().nextElement().getName();
-        ZipEntry entry = zipFile.getEntry(entryName);
-        InputStream inputStream = zipFile.getInputStream(entry);
-        Reader reader = new InputStreamReader(inputStream);
-        return reader;
+        return new FileInputStream(dataFile);
     }
 
     @Override
