@@ -1,7 +1,7 @@
 package uk.org.sappho.code.change.management.data.persistence;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 
 import uk.org.sappho.code.change.management.data.RawData;
 
@@ -12,10 +12,9 @@ public class ReaderRawDataPersistence extends RawDataPersistence {
         super();
     }
 
-    @Override
-    public RawData load(Reader reader) throws IOException {
+    public RawData load(InputStream inputStream) throws IOException {
 
-        return super.load(reader);
+        return load(inputStream, null);
     }
 
     @Override

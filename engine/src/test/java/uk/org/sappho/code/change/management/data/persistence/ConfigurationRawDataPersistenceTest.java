@@ -1,9 +1,11 @@
 package uk.org.sappho.code.change.management.data.persistence;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,7 +32,7 @@ public class ConfigurationRawDataPersistenceTest {
     @Mock
     private Configuration mockConfiguration;
 
-    private final RawData rawData = new RawData();
+    private RawData rawData;
 
     @Before
     public void setupRawData() {
@@ -61,6 +63,7 @@ public class ConfigurationRawDataPersistenceTest {
         String warning = "Papyrus decays with time";
         WarningList warningList = new SimpleWarningList();
         warningList.add(warningCategory, warning);
+        rawData = new RawData();
         rawData.putRevisionData(revisionData);
         rawData.putIssueData(issueData);
         rawData.putWarnings(warningList);
@@ -69,16 +72,36 @@ public class ConfigurationRawDataPersistenceTest {
     @Test
     public void shouldWriteToZipFileAndThenReadBackSameData() throws ConfigurationException, IOException {
 
-        String targetFilename = "target/ConfigurationRawDataPersistenceTest-raw-data.zip";
-        new File(targetFilename).delete();
+        writeToFileAndThenReadBackSameData("zip");
+    }
 
+    @Test
+    public void shouldWriteToFileAndThenReadBackSameData() throws ConfigurationException, IOException {
+
+        writeToFileAndThenReadBackSameData("xml");
+    }
+
+    @Test(expected = FileNotFoundException.class)
+    public void shouldErrorWhenAskedToReadMissingFile() throws ConfigurationException, IOException {
+
+        getPersistence("target/xxx.xxx").load();
+    }
+
+    private void writeToFileAndThenReadBackSameData(String extension) throws ConfigurationException, IOException {
+
+        String targetFilename = "target/ConfigurationRawDataPersistenceTest-raw-data." + extension;
+        ConfigurationRawDataPersistence configurationRawDataPersistence = getPersistence(targetFilename);
+        configurationRawDataPersistence.save(rawData);
+        assertTrue(new File(targetFilename).exists());
+        RawData loadedRawData = configurationRawDataPersistence.load();
+        assertNotNull(loadedRawData);
+    }
+
+    private ConfigurationRawDataPersistence getPersistence(String targetFilename) throws ConfigurationException {
+
+        new File(targetFilename).delete();
         String filename = mockConfiguration.getProperty("raw.data.store.filename");
         when(filename).thenReturn(targetFilename);
-
-        ConfigurationRawDataPersistence configurationRawDataPersistence = new ConfigurationRawDataPersistence(
-                mockConfiguration);
-        configurationRawDataPersistence.save(rawData);
-
-        assertTrue(new File(targetFilename).exists());
+        return new ConfigurationRawDataPersistence(mockConfiguration);
     }
 }

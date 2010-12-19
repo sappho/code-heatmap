@@ -1,11 +1,9 @@
 package uk.org.sappho.code.change.management.data.persistence;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Reader;
 
 import uk.org.sappho.code.change.management.data.RawData;
 
@@ -26,14 +24,12 @@ public class FilenameRawDataPersistence extends RawDataPersistence {
 
     public RawData load() throws IOException {
 
-        Reader reader = new FileReader(filename);
-        return load(reader);
+        return load(new FileInputStream(filename), zipFilename);
     }
 
     public void save(RawData rawData) throws IOException {
 
-        OutputStream outputStream = new FileOutputStream(filename);
-        save(rawData, outputStream, zipFilename);
+        save(rawData, new FileOutputStream(filename), zipFilename);
     }
 
     @Override

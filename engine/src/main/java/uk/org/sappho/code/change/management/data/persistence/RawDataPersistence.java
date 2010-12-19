@@ -1,12 +1,17 @@
 package uk.org.sappho.code.change.management.data.persistence;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.log4j.Logger;
@@ -31,9 +36,58 @@ public abstract class RawDataPersistence {
         }
     }
 
-    protected RawData load(Reader reader) throws IOException {
+    protected RawData load(InputStream inputStream, String zipFilename) throws IOException {
 
         log.info("Loading data from " + getDescription());
+        RawData rawData = null;
+        inputStream = new BufferedInputStream(inputStream);
+        inputStream.mark(4096);
+        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+        ZipEntry zipEntry = null;
+        try {
+            zipEntry = zipInputStream.getNextEntry();
+        } catch (Throwable t) {
+        }
+        if (zipEntry == null) {
+            inputStream.reset();
+            rawData = load(new InputStreamReader(inputStream));
+        } else {
+            boolean foundFile = false;
+            boolean knownFilename = zipFilename != null && zipFilename.length() > 0;
+            while (zipEntry != null) {
+                if (knownFilename) {
+                    if (zipEntry.getName().equals(zipFilename)) {
+                        rawData = loadFromZip(zipInputStream, zipFilename);
+                        foundFile = true;
+                        break;
+                    }
+                } else {
+                    zipFilename = zipEntry.getName();
+                    try {
+                        rawData = loadFromZip(zipInputStream, zipFilename);
+                        foundFile = true;
+                        break;
+                    } catch (Throwable t) {
+                        log.info("Data in " + zipFilename + " is unreadable", t);
+                    }
+                }
+                zipEntry = zipInputStream.getNextEntry();
+            }
+            if (!foundFile) {
+                throw new ZipException("Unable to find a data file in ZIP file in " + getDescription());
+            }
+        }
+        return rawData;
+    }
+
+    private RawData loadFromZip(InputStream zipInputStream, String zipFilename) throws IOException {
+
+        log.info("Loading data from " + zipFilename + " within ZIP file");
+        return load(new InputStreamReader(zipInputStream));
+    }
+
+    private RawData load(Reader reader) throws IOException {
+
         RawData rawData = (RawData) xstream.fromXML(reader);
         reader.close();
         return rawData;
@@ -43,9 +97,10 @@ public abstract class RawDataPersistence {
             throws IOException {
 
         boolean compress = zipFilename != null && zipFilename.length() > 0;
-        log.info("Saving data to " + getDescription() + (compress ? " in compressed file " + zipFilename : ""));
+        log.info("Saving data in " + (compress ? "compressed file " + zipFilename + " in " : "") + getDescription());
+        outputStream = new BufferedOutputStream(outputStream);
         if (compress) {
-            ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(outputStream));
+            ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
             ZipEntry zipEntry = new ZipEntry(zipFilename);
             zipEntry.setMethod(ZipEntry.DEFLATED);
             zipOutputStream.putNextEntry(zipEntry);
