@@ -1,17 +1,10 @@
 package uk.org.sappho.code.change.management.data;
 
-import static ch.lambdaj.Lambda.by;
-import static ch.lambdaj.Lambda.closure;
-import static ch.lambdaj.Lambda.group;
-import static ch.lambdaj.Lambda.on;
-import static ch.lambdaj.Lambda.var;
+import static ch.lambdaj.Lambda.forEach;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import ch.lambdaj.function.closure.Closure;
-import ch.lambdaj.group.Group;
 
 import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.warnings.SimpleWarningList;
@@ -27,10 +20,6 @@ public class RawData implements Comparable<RawData>, Validatable {
     public void reWire(Mapper commitCommentToIssueKeyMapper) {
 
         issueKeyToIssueKeyMap = new HashMap<String, String>();
-        Group<String> x = group(issueDataMap.keySet(), by(on(String.class)));
-        if (x != null) {
-            x = null;
-        }
         for (String issueKey : issueDataMap.keySet()) {
             IssueData issueData = issueDataMap.get(issueKey);
             issueKeyToIssueKeyMap.put(issueKey, issueKey);
@@ -38,14 +27,7 @@ public class RawData implements Comparable<RawData>, Validatable {
                 issueKeyToIssueKeyMap.put(subTaskKey, issueKey);
             }
         }
-        Closure setIssueKey = closure();
-        {
-            RevisionData revisionData = var(RevisionData.class);
-            String commitComment = revisionData.getCommitComment();
-            String issueKey = commitCommentToIssueKeyMapper.map(commitComment);
-            revisionData.setIssueKey(issueKey);
-        }
-        setIssueKey.each(revisionDataMap.values());
+        forEach(revisionDataMap.values()).setIssueKey(commitCommentToIssueKeyMapper);
     }
 
     public void clearRevisionData() {

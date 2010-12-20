@@ -3,6 +3,8 @@ package uk.org.sappho.code.change.management.data;
 import java.util.Date;
 import java.util.List;
 
+import uk.org.sappho.string.mapping.Mapper;
+
 public class RevisionData implements Comparable<RevisionData>, Validatable {
 
     private String revisionKey;
@@ -58,9 +60,9 @@ public class RevisionData implements Comparable<RevisionData>, Validatable {
         return badPaths;
     }
 
-    public void setIssueKey(String issueKey) {
+    public void setIssueKey(Mapper commitCommentToIssueKeyMapper) {
 
-        this.issueKey = issueKey;
+        issueKey = commitCommentToIssueKeyMapper.map(commitComment);
     }
 
     public String getIssueKey() {
