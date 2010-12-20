@@ -20,6 +20,7 @@ public class RawData {
     @NotNull
     private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
     @NotNull
+    @AssertValid
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
     @NotNull
     @AssertValid

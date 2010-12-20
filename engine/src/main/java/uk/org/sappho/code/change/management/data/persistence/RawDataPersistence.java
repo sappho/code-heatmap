@@ -85,7 +85,8 @@ public abstract class RawDataPersistence {
         List<ConstraintViolation> violations = validator.validate(rawData);
         if (violations.size() > 0) {
             for (ConstraintViolation violation : violations)
-                log.info("Validation error: " + violation.getMessage() + " " + violation.getInvalidValue());
+                log.info("Validation error: " + violation.getMessage() + " " + violation.getInvalidValue() + " "
+                        + violation.getCheckName());
             throw new IOException("Invalid data loaded from " + getDescription());
         }
         return rawData;
