@@ -9,19 +9,23 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import net.sf.oval.ConstraintViolation;
+import net.sf.oval.Validator;
+
 import org.apache.log4j.Logger;
+
+import com.thoughtworks.xstream.XStream;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.warnings.SimpleWarningList;
-
-import com.thoughtworks.xstream.XStream;
 
 public abstract class RawDataPersistence {
 
@@ -76,6 +80,13 @@ public abstract class RawDataPersistence {
             if (!foundFile) {
                 throw new ZipException("Unable to find a data file in ZIP file in " + getDescription());
             }
+        }
+        Validator validator = new Validator();
+        List<ConstraintViolation> violations = validator.validate(rawData);
+        if (violations.size() > 0) {
+            for (ConstraintViolation violation : violations)
+                log.info("Validation error: " + violation.getMessage() + " " + violation.getInvalidValue());
+            throw new IOException("Invalid data loaded from " + getDescription());
         }
         return rawData;
     }

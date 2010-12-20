@@ -3,17 +3,30 @@ package uk.org.sappho.code.change.management.data;
 import java.util.Date;
 import java.util.List;
 
+import net.sf.oval.constraint.NotEmpty;
+import net.sf.oval.constraint.NotNull;
+
 import uk.org.sappho.string.mapping.Mapper;
 
-public class RevisionData implements Comparable<RevisionData>, Validatable {
+public class RevisionData {
 
+    @NotNull
+    @NotEmpty
     private String revisionKey;
-    private String issueKey = null;
+    @NotNull
+    @NotEmpty
+    private String issueKey;
+    @NotNull
     private Date date;
+    @NotNull
     private String commitComment;
+    @NotNull
+    @NotEmpty
     private String committer;
     private boolean isMerge = false;
+    @NotNull
     private List<String> changedFiles;
+    @NotNull
     private List<String> badPaths;
 
     public RevisionData() {
@@ -78,15 +91,5 @@ public class RevisionData implements Comparable<RevisionData>, Validatable {
     public boolean isMerge() {
 
         return isMerge;
-    }
-
-    public int compareTo(RevisionData o) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    public void checkValidity() throws ValidationException {
-        // TODO Auto-generated method stub
-
     }
 }

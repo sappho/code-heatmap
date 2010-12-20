@@ -6,15 +6,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.oval.constraint.AssertValid;
+import net.sf.oval.constraint.NotNull;
+
 import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.warnings.SimpleWarningList;
 import uk.org.sappho.warnings.WarningList;
 
-public class RawData implements Comparable<RawData>, Validatable {
+public class RawData {
 
+    @NotNull
     private Map<String, RevisionData> revisionDataMap = new HashMap<String, RevisionData>();
+    @NotNull
     private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
+    @NotNull
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
+    @NotNull
+    @AssertValid
     private final WarningList warningList = new SimpleWarningList();
 
     public void reWire(Mapper commitCommentToIssueKeyMapper) {
@@ -87,15 +95,5 @@ public class RawData implements Comparable<RawData>, Validatable {
 
     public Map<String, IssueData> getIssueDataMap() {
         return issueDataMap;
-    }
-
-    public int compareTo(RawData o) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    public void checkValidity() throws ValidationException {
-        // TODO Auto-generated method stub
-
     }
 }
