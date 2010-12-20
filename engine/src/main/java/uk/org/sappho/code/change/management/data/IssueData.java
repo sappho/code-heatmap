@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class IssueData {
+public class IssueData implements Comparable<IssueData>, Validatable {
 
     private String key;
     private String type;
@@ -106,5 +106,15 @@ public class IssueData {
             return null;
         else
             return releases.get(0);
+    }
+
+    public int compareTo(IssueData o) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public void checkValidity() throws ValidationException {
+        // TODO Auto-generated method stub
+
     }
 }

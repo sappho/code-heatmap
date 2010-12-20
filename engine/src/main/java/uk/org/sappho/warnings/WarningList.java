@@ -3,7 +3,9 @@ package uk.org.sappho.warnings;
 import java.util.List;
 import java.util.Set;
 
-public interface WarningList {
+import uk.org.sappho.code.change.management.data.Validatable;
+
+public interface WarningList extends Comparable<WarningList>, Validatable {
 
     public void add(String category, String warning);
 

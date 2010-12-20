@@ -3,7 +3,7 @@ package uk.org.sappho.code.change.management.data;
 import java.util.Date;
 import java.util.List;
 
-public class RevisionData {
+public class RevisionData implements Comparable<RevisionData>, Validatable {
 
     private String revisionKey;
     private String issueKey = null;
@@ -76,5 +76,15 @@ public class RevisionData {
     public boolean isMerge() {
 
         return isMerge;
+    }
+
+    public int compareTo(RevisionData o) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public void checkValidity() throws ValidationException {
+        // TODO Auto-generated method stub
+
     }
 }
