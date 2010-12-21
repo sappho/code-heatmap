@@ -40,7 +40,7 @@ public abstract class RawDataPersistence {
         }
     }
 
-    protected RawData load(InputStream inputStream, String zipFilename) throws IOException {
+    protected RawData load(InputStream inputStream) throws IOException {
 
         log.info("Loading data from " + getDescription());
         RawData rawData = null;
@@ -57,23 +57,14 @@ public abstract class RawDataPersistence {
             rawData = load(new InputStreamReader(inputStream));
         } else {
             boolean foundFile = false;
-            boolean knownFilename = zipFilename != null && zipFilename.length() > 0;
             while (zipEntry != null) {
-                if (knownFilename) {
-                    if (zipEntry.getName().equals(zipFilename)) {
-                        rawData = loadFromZip(zipInputStream, zipFilename);
-                        foundFile = true;
-                        break;
-                    }
-                } else {
-                    zipFilename = zipEntry.getName();
-                    try {
-                        rawData = loadFromZip(zipInputStream, zipFilename);
-                        foundFile = true;
-                        break;
-                    } catch (Throwable t) {
-                        log.info("Data in " + zipFilename + " is unreadable", t);
-                    }
+                String zipFilename = zipEntry.getName();
+                try {
+                    rawData = loadFromZip(zipInputStream, zipFilename);
+                    foundFile = true;
+                    break;
+                } catch (Throwable t) {
+                    log.info("Data in " + zipFilename + " is unreadable", t);
                 }
                 zipEntry = zipInputStream.getNextEntry();
             }
