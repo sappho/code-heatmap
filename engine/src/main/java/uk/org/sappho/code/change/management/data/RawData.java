@@ -3,11 +3,15 @@ package uk.org.sappho.code.change.management.data;
 import static ch.lambdaj.Lambda.forEach;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.oval.constraint.AssertValid;
+import net.sf.oval.ConstraintViolation;
+import net.sf.oval.Validator;
 import net.sf.oval.constraint.NotNull;
+
+import org.apache.log4j.Logger;
 
 import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.warnings.SimpleWarningList;
@@ -20,11 +24,11 @@ public class RawData {
     @NotNull
     private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
     @NotNull
-    @AssertValid
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
     @NotNull
-    @AssertValid
     private final WarningList warningList = new SimpleWarningList();
+
+    private static final Logger log = Logger.getLogger(RawData.class);
 
     public void reWire(Mapper commitCommentToIssueKeyMapper) {
 
@@ -96,5 +100,18 @@ public class RawData {
 
     public Map<String, IssueData> getIssueDataMap() {
         return issueDataMap;
+    }
+
+    public boolean isValid() {
+
+        Validator validator = new Validator();
+        List<ConstraintViolation> violations = validator.validate(this);
+        boolean valid = violations.size() == 0;
+        if (!valid) {
+            for (ConstraintViolation violation : violations)
+                log.info("Validation error: " + violation.getMessage() + " " + violation.getInvalidValue() + " "
+                        + violation.getCheckName());
+        }
+        return valid;
     }
 }

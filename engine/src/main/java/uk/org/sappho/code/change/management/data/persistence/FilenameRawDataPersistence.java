@@ -12,17 +12,12 @@ import uk.org.sappho.code.change.management.data.RawData;
 public class FilenameRawDataPersistence extends RawDataPersistence {
 
     private final String filename;
-    private String zipFilename;
 
     @Inject
     public FilenameRawDataPersistence(String filename) {
 
         super();
         this.filename = filename;
-        zipFilename = null;
-        if (filename.endsWith(".zip")) {
-            zipFilename = new File(filename.replaceFirst(".zip$", ".xml")).getName();
-        }
     }
 
     public RawData load() throws IOException {
@@ -32,6 +27,9 @@ public class FilenameRawDataPersistence extends RawDataPersistence {
 
     public void save(RawData rawData) throws IOException {
 
+        String zipFilename = null;
+        if (filename.endsWith(".zip"))
+            zipFilename = new File(filename.replaceFirst(".zip$", ".xml")).getName();
         save(rawData, new FileOutputStream(filename), zipFilename);
     }
 
