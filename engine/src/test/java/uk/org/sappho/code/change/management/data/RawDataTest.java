@@ -28,12 +28,14 @@ public class RawDataTest {
     @Test
     public void shouldValidate() {
 
+        reWireFakeRawData(rawData);
         assertTrue(rawData.isValid());
     }
 
     @Test
     public void shouldFailToValidateDueToInvalidWarning() {
 
+        reWireFakeRawData(rawData);
         rawData.getWarnings().add(null, null);
         boolean valid = rawData.isValid();
         assertFalse(valid);
@@ -71,12 +73,16 @@ public class RawDataTest {
         rawData.putRevisionData(revisionData);
         rawData.putIssueData(issueData);
         rawData.putWarnings(warningList);
+        return rawData;
+    }
+
+    public static void reWireFakeRawData(RawData rawData) {
+
         Mapper issueKeyMapper = new Mapper() {
             public String map(String commitComment) {
                 return commitComment.substring(0, 7);
             }
         };
         rawData.reWire(issueKeyMapper);
-        return rawData;
     }
 }
