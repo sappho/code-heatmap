@@ -18,8 +18,10 @@ import uk.org.sappho.warnings.WarningList;
 public class RawData {
 
     @NotNull
+    @AssertValid
     private Map<String, RevisionData> revisionDataMap = new HashMap<String, RevisionData>();
     @NotNull
+    @AssertValid
     private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
     @IssueKeyMapConstraint
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();

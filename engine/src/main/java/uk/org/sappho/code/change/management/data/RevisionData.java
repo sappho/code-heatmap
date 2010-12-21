@@ -17,6 +17,7 @@ public class RevisionData {
     @NotEmpty
     private String issueKey;
     @NotNull
+    @NotEmpty
     private Date date;
     @NotNull
     private String commitComment;
@@ -25,6 +26,7 @@ public class RevisionData {
     private String committer;
     private boolean isMerge = false;
     @NotNull
+    @NotEmpty
     private List<String> changedFiles;
     @NotNull
     private List<String> badPaths;
