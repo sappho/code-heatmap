@@ -3,16 +3,14 @@ package uk.org.sappho.code.change.management.data;
 import static ch.lambdaj.Lambda.forEach;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.oval.ConstraintViolation;
 import net.sf.oval.Validator;
+import net.sf.oval.constraint.AssertValid;
 import net.sf.oval.constraint.NotNull;
 
-import org.apache.log4j.Logger;
-
+import uk.org.sappho.code.change.management.data.validation.IssueKeyMapConstraint;
 import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.warnings.SimpleWarningList;
 import uk.org.sappho.warnings.WarningList;
@@ -23,12 +21,11 @@ public class RawData {
     private Map<String, RevisionData> revisionDataMap = new HashMap<String, RevisionData>();
     @NotNull
     private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
-    @NotNull
+    @IssueKeyMapConstraint
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
     @NotNull
-    private final WarningList warningList = new SimpleWarningList();
-
-    private static final Logger log = Logger.getLogger(RawData.class);
+    @AssertValid
+    private WarningList warningList = new SimpleWarningList();
 
     public void reWire(Mapper commitCommentToIssueKeyMapper) {
 
@@ -95,6 +92,8 @@ public class RawData {
 
     public WarningList getWarnings() {
 
+        if (warningList == null)
+            warningList = new SimpleWarningList();
         return warningList;
     }
 
@@ -105,12 +104,12 @@ public class RawData {
     public boolean isValid() {
 
         Validator validator = new Validator();
-        List<ConstraintViolation> violations = validator.validate(this);
-        boolean valid = violations.size() == 0;
+        boolean valid = validator.validate(this).size() == 0;
         if (!valid) {
-            for (ConstraintViolation violation : violations)
-                log.info("Validation error: " + violation.getMessage() + " " + violation.getInvalidValue() + " "
-                        + violation.getCheckName());
+            if (warningList == null)
+                warningList = new SimpleWarningList();
+            warningList.add("Invalid raw data",
+                    "Elements of raw data are missing or invalid - see other warnings if there are any");
         }
         return valid;
     }

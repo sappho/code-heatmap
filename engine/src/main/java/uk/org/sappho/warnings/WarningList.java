@@ -12,4 +12,6 @@ public interface WarningList {
     public Set<String> getCategories();
 
     public List<String> getWarnings(String category);
+
+    public boolean isValid();
 }
