@@ -33,12 +33,18 @@ public class RawDataTest {
     }
 
     @Test
+    public void shouldFailToValidateDueToMissingIssueKey() {
+
+        // the issueKey on the RevisionData will be missing because we haven't done a re-wire so this should always fail to be valid
+        assertFalse(rawData.isValid());
+    }
+
+    @Test
     public void shouldFailToValidateDueToInvalidWarning() {
 
         reWireFakeRawData(rawData);
         rawData.getWarnings().add(null, null);
-        boolean valid = rawData.isValid();
-        assertFalse(valid);
+        assertFalse(rawData.isValid());
     }
 
     public static RawData getFakeRawData() {
