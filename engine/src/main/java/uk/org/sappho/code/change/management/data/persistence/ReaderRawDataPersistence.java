@@ -15,9 +15,10 @@ public class ReaderRawDataPersistence extends RawDataPersistence {
         super();
     }
 
+    @Override
     public RawData load(InputStream inputStream) throws IOException {
 
-        return load(inputStream, null);
+        return load(inputStream);
     }
 
     @Override

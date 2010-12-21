@@ -27,7 +27,7 @@ public class FilenameRawDataPersistence extends RawDataPersistence {
 
     public RawData load() throws IOException {
 
-        return load(new FileInputStream(filename), zipFilename);
+        return load(new FileInputStream(filename));
     }
 
     public void save(RawData rawData) throws IOException {
