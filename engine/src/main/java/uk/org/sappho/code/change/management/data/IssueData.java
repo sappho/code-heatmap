@@ -4,17 +4,34 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class IssueData implements Comparable<IssueData>, Validatable {
+import net.sf.oval.constraint.NotEmpty;
+import net.sf.oval.constraint.NotNull;
 
+public class IssueData {
+
+    @NotNull
+    @NotEmpty
     private String key;
+    @NotNull
+    @NotEmpty
     private String type;
+    @NotNull
     private String summary;
+    @NotNull
     private Date createdDate;
+    @NotNull
     private Date lastUpdatedDate;
+    @NotNull
+    @NotEmpty
     private String assignee;
+    @NotNull
+    @NotEmpty
     private String project;
+    @NotNull
     private List<String> components;
+    @NotNull
     private List<String> releases;
+    @NotNull
     private final List<String> subTaskKeys = new ArrayList<String>();
 
     public IssueData() {
@@ -91,9 +108,8 @@ public class IssueData implements Comparable<IssueData>, Validatable {
 
     public void putSubTaskKey(String issueKey) {
 
-        if (!subTaskKeys.contains(issueKey)) {
+        if (!subTaskKeys.contains(issueKey))
             subTaskKeys.add(issueKey);
-        }
     }
 
     public List<String> getSubTaskKeys() {
@@ -106,15 +122,5 @@ public class IssueData implements Comparable<IssueData>, Validatable {
             return null;
         else
             return releases.get(0);
-    }
-
-    public int compareTo(IssueData o) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    public void checkValidity() throws ValidationException {
-        // TODO Auto-generated method stub
-
     }
 }

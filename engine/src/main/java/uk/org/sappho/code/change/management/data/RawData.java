@@ -1,36 +1,34 @@
 package uk.org.sappho.code.change.management.data;
 
-import static ch.lambdaj.Lambda.by;
-import static ch.lambdaj.Lambda.closure;
-import static ch.lambdaj.Lambda.group;
-import static ch.lambdaj.Lambda.on;
-import static ch.lambdaj.Lambda.var;
+import static ch.lambdaj.Lambda.forEach;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import ch.lambdaj.function.closure.Closure;
-import ch.lambdaj.group.Group;
+import net.sf.oval.constraint.AssertValid;
+import net.sf.oval.constraint.NotNull;
 
 import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.warnings.SimpleWarningList;
 import uk.org.sappho.warnings.WarningList;
 
-public class RawData implements Comparable<RawData>, Validatable {
+public class RawData {
 
+    @NotNull
     private Map<String, RevisionData> revisionDataMap = new HashMap<String, RevisionData>();
+    @NotNull
     private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
+    @NotNull
+    @AssertValid
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
+    @NotNull
+    @AssertValid
     private final WarningList warningList = new SimpleWarningList();
 
     public void reWire(Mapper commitCommentToIssueKeyMapper) {
 
         issueKeyToIssueKeyMap = new HashMap<String, String>();
-        Group<String> x = group(issueDataMap.keySet(), by(on(String.class)));
-        if (x != null) {
-            x = null;
-        }
         for (String issueKey : issueDataMap.keySet()) {
             IssueData issueData = issueDataMap.get(issueKey);
             issueKeyToIssueKeyMap.put(issueKey, issueKey);
@@ -38,14 +36,7 @@ public class RawData implements Comparable<RawData>, Validatable {
                 issueKeyToIssueKeyMap.put(subTaskKey, issueKey);
             }
         }
-        Closure setIssueKey = closure();
-        {
-            RevisionData revisionData = var(RevisionData.class);
-            String commitComment = revisionData.getCommitComment();
-            String issueKey = commitCommentToIssueKeyMapper.map(commitComment);
-            revisionData.setIssueKey(issueKey);
-        }
-        setIssueKey.each(revisionDataMap.values());
+        forEach(revisionDataMap.values()).setIssueKey(commitCommentToIssueKeyMapper);
     }
 
     public void clearRevisionData() {
@@ -105,15 +96,5 @@ public class RawData implements Comparable<RawData>, Validatable {
 
     public Map<String, IssueData> getIssueDataMap() {
         return issueDataMap;
-    }
-
-    public int compareTo(RawData o) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    public void checkValidity() throws ValidationException {
-        // TODO Auto-generated method stub
-
     }
 }
