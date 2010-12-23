@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.org.sappho.string.mapping.Mapper;
@@ -17,17 +16,10 @@ import uk.org.sappho.warnings.WarningList;
 
 public class RawDataTest {
 
-    private RawData rawData;
-
-    @Before
-    public void setupRawData() {
-
-        rawData = getFakeRawData();
-    }
-
     @Test
     public void shouldValidate() {
 
+        RawData rawData = getFakeRawData(true);
         reWireFakeRawData(rawData);
         assertTrue(rawData.isValid());
     }
@@ -35,19 +27,19 @@ public class RawDataTest {
     @Test
     public void shouldFailToValidateDueToMissingIssueKey() {
 
+        RawData rawData = getFakeRawData(true);
         // the issueKey on the RevisionData will be missing because we haven't done a re-wire so this should always fail to be valid
         assertFalse(rawData.isValid());
     }
 
     @Test
-    public void shouldFailToValidateDueToInvalidWarning() {
+    public void shouldFailToValidateDueToMixedDataErrors() {
 
-        reWireFakeRawData(rawData);
-        rawData.getWarnings().add(null, null);
+        RawData rawData = getFakeRawData(false);
         assertFalse(rawData.isValid());
     }
 
-    public static RawData getFakeRawData() {
+    public static RawData getFakeRawData(boolean valid) {
 
         String revisionKey = "42";
         String project = "LIFE";
@@ -58,10 +50,11 @@ public class RawDataTest {
         String committer = "sappho";
         String changedFile = "/sappho/fragments/Hymn to Aphrodite.txt";
         List<String> changedFiles = new ArrayList<String>();
-        changedFiles.add(changedFile);
+        if (valid)
+            changedFiles.add(changedFile);
         List<String> badPaths = new ArrayList<String>();
-        RevisionData revisionData = new RevisionData(revisionKey, revisionDate, commitComment, committer, changedFiles,
-                badPaths);
+        RevisionData revisionData = valid ? new RevisionData(revisionKey, revisionDate, commitComment, committer,
+                changedFiles, badPaths) : new RevisionData("", null, "", null, changedFiles, null);
         String issueType = "change";
         String component = "artistry";
         List<String> components = new ArrayList<String>();

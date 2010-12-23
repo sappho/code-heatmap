@@ -16,10 +16,13 @@ public class IssueData {
     @NotEmpty
     private String type;
     @NotNull
+    @NotEmpty
     private String summary;
     @NotNull
+    @NotEmpty
     private Date createdDate;
     @NotNull
+    @NotEmpty
     private Date lastUpdatedDate;
     @NotNull
     @NotEmpty

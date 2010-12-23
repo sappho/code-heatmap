@@ -20,13 +20,15 @@ public class RevisionData {
     @NotEmpty
     private Date date;
     @NotNull
+    @NotEmpty
     private String commitComment;
     @NotNull
     @NotEmpty
     private String committer;
-    private boolean isMerge = false;
     @NotNull
     @NotEmpty
+    private Boolean isMerge = false;
+    @NotNull
     private List<String> changedFiles;
     @NotNull
     private List<String> badPaths;
