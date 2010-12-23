@@ -7,7 +7,10 @@ public class Warning {
 
     @NotNull
     @NotEmpty
-    private final String warning;
+    private String warning;
+
+    public Warning() {
+    }
 
     public Warning(String warning) {
 
@@ -16,5 +19,11 @@ public class Warning {
 
     public String getWarning() {
         return warning;
+    }
+
+    @Override
+    public String toString() {
+
+        return warning != null ? warning.split("\n")[0] : "null";
     }
 }

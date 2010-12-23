@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.oval.ConstraintViolation;
-import net.sf.oval.Validator;
 import net.sf.oval.constraint.AssertValid;
 import net.sf.oval.constraint.NotNull;
 
 import uk.org.sappho.code.change.management.data.validation.IssueKeyMapKeysConstraint;
 import uk.org.sappho.string.mapping.Mapper;
+import uk.org.sappho.validation.Validator;
 import uk.org.sappho.warnings.SimpleWarningList;
 import uk.org.sappho.warnings.Warning;
 import uk.org.sappho.warnings.WarningList;
@@ -111,24 +111,8 @@ public class RawData {
         Validator validator = new Validator();
         List<ConstraintViolation> violations = validator.validate(this);
         boolean valid = violations.size() == 0;
-        if (!valid) {
-            ConstraintViolation[] array = new ConstraintViolation[violations.size()];
-            String description = describeViolations("", violations.toArray(array));
-            warningList.add("Invalid raw data", "Elements of raw data are invalid: " + description);
-        }
+        if (!valid)
+            warningList.add("Invalid raw data", "Elements of raw data are invalid: " + validator.getReport(violations));
         return valid;
-    }
-
-    private String describeViolations(String indent, ConstraintViolation[] violations) {
-
-        String report = "";
-        for (ConstraintViolation violation : violations) {
-            report += "\n" + indent + "Reason: \"" + violation.getMessage() + "\" on value: "
-                    + violation.getInvalidValue();
-            ConstraintViolation[] causes = violation.getCauses();
-            if (causes != null)
-                report += describeViolations(indent + " ", causes);
-        }
-        return report;
     }
 }

@@ -60,6 +60,7 @@ public class ConfigurationRawDataPersistenceTest {
         assertTrue(new File(targetFilename).exists());
         RawData loadedRawData = configurationRawDataPersistence.load();
         assertNotNull(loadedRawData);
+        assertTrue(loadedRawData.isValid());
     }
 
     private ConfigurationRawDataPersistence getPersistence(String targetFilename) throws ConfigurationException {
