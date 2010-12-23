@@ -19,6 +19,7 @@ public class IssueKeyMappingCheck extends AbstractAnnotationCheck<IssueKeyMappin
 
     private static final long serialVersionUID = 2875771845270320136L;
 
+    @SuppressWarnings("unchecked")
     public boolean isSatisfied(Object validatedObject, Object valueToValidate, OValContext context, Validator validator)
             throws OValException {
 
