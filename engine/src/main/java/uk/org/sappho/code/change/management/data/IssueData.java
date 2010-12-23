@@ -11,7 +11,7 @@ public class IssueData {
 
     @NotNull
     @NotEmpty
-    private String key;
+    private String issueKey;
     @NotNull
     @NotEmpty
     private String type;
@@ -43,7 +43,7 @@ public class IssueData {
     public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate, String assignee,
             String project, List<String> components, List<String> releases) {
 
-        this.key = key;
+        this.issueKey = key;
         this.type = type;
         this.summary = summary;
         this.createdDate = createdDate;
@@ -54,9 +54,9 @@ public class IssueData {
         this.releases = releases;
     }
 
-    public String getKey() {
+    public String getIssueKey() {
 
-        return key;
+        return issueKey;
     }
 
     public void setType(String type) {
@@ -130,6 +130,6 @@ public class IssueData {
     @Override
     public String toString() {
 
-        return "issue " + key + " last updated on " + lastUpdatedDate;
+        return "issue " + issueKey + " last updated on " + lastUpdatedDate;
     }
 }

@@ -73,7 +73,7 @@ public class RawData {
 
     public void putIssueData(IssueData issueData) {
 
-        issueDataMap.put(issueData.getKey(), issueData);
+        issueDataMap.put(issueData.getIssueKey(), issueData);
     }
 
     public Set<String> getIssueKeys() {
