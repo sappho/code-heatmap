@@ -2,6 +2,7 @@ package uk.org.sappho.code.change.management.data;
 
 import static ch.lambdaj.Lambda.forEach;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,7 @@ import net.sf.oval.ConstraintViolation;
 import net.sf.oval.constraint.AssertValid;
 import net.sf.oval.constraint.NotNull;
 
-import uk.org.sappho.code.change.management.data.validation.IssueKeyMapKeysConstraint;
+import uk.org.sappho.code.change.management.data.validation.IssueKeyMappingConstraint;
 import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.validation.Validator;
 import uk.org.sappho.warnings.SimpleWarningList;
@@ -26,7 +27,7 @@ public class RawData {
     @NotNull
     @AssertValid
     private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
-    @IssueKeyMapKeysConstraint
+    @IssueKeyMappingConstraint
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
     @NotNull
     @AssertValid
@@ -52,7 +53,7 @@ public class RawData {
 
     public void putRevisionData(RevisionData revisionData) {
 
-        revisionDataMap.put(revisionData.getKey(), revisionData);
+        revisionDataMap.put(revisionData.getRevisionKey(), revisionData);
     }
 
     public Set<String> getRevisionKeys() {
@@ -63,6 +64,17 @@ public class RawData {
     public RevisionData getRevisionData(String revisionKey) {
 
         return revisionDataMap.get(revisionKey);
+    }
+
+    public List<RevisionData> getRevisionsReferencingIssue(String issueKey) {
+
+        List<RevisionData> revisions = new ArrayList<RevisionData>();
+        for (RevisionData revisionData : revisionDataMap.values()) {
+            String revisionIssueKey = revisionData.getIssueKey();
+            if (revisionIssueKey != null && revisionIssueKey.equals(issueKey))
+                revisions.add(revisionData);
+        }
+        return revisions;
     }
 
     public void clearIssueData() {
@@ -103,7 +115,13 @@ public class RawData {
     }
 
     public Map<String, IssueData> getIssueDataMap() {
+
         return issueDataMap;
+    }
+
+    public Map<String, RevisionData> getRevisionDataMap() {
+
+        return revisionDataMap;
     }
 
     public boolean isValid() {

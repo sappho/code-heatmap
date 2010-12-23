@@ -47,7 +47,7 @@ public class RevisionData {
         this.badPaths = badPaths;
     }
 
-    public final String getKey() {
+    public final String getRevisionKey() {
 
         return revisionKey;
     }
