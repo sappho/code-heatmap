@@ -10,5 +10,7 @@ import net.sf.oval.configuration.annotation.Constraint;
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.FIELD })
 @Constraint(checkWith = IssueKeyMapCheck.class)
-public @interface IssueKeyMapConstraint {
+public @interface IssueKeyMapKeysConstraint {
+
+    String message() default "Warnings list is missing or contains a blank category";
 }

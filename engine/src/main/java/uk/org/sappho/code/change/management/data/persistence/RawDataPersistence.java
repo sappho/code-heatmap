@@ -68,6 +68,7 @@ public abstract class RawDataPersistence {
                 throw new ZipException("Unable to find a data file in ZIP file in " + getDescription());
             }
         }
+        log.info("Validating data");
         if (!rawData.isValid())
             throw new IOException("Invalid data read from " + getDescription());
         return rawData;

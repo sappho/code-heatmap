@@ -123,4 +123,10 @@ public class IssueData {
         else
             return releases.get(0);
     }
+
+    @Override
+    public String toString() {
+
+        return "issue " + key + " last updated on " + lastUpdatedDate;
+    }
 }

@@ -94,4 +94,10 @@ public class RevisionData {
 
         return isMerge;
     }
+
+    @Override
+    public String toString() {
+
+        return "revision " + revisionKey + " committed on " + date;
+    }
 }

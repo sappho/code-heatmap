@@ -3,16 +3,19 @@ package uk.org.sappho.code.change.management.data;
 import static ch.lambdaj.Lambda.forEach;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.oval.ConstraintViolation;
 import net.sf.oval.Validator;
 import net.sf.oval.constraint.AssertValid;
 import net.sf.oval.constraint.NotNull;
 
-import uk.org.sappho.code.change.management.data.validation.IssueKeyMapConstraint;
+import uk.org.sappho.code.change.management.data.validation.IssueKeyMapKeysConstraint;
 import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.warnings.SimpleWarningList;
+import uk.org.sappho.warnings.Warning;
 import uk.org.sappho.warnings.WarningList;
 
 public class RawData {
@@ -23,7 +26,7 @@ public class RawData {
     @NotNull
     @AssertValid
     private Map<String, IssueData> issueDataMap = new HashMap<String, IssueData>();
-    @IssueKeyMapConstraint
+    @IssueKeyMapKeysConstraint
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
     @NotNull
     @AssertValid
@@ -86,8 +89,8 @@ public class RawData {
     public void putWarnings(WarningList warningList) {
 
         for (String category : warningList.getCategories()) {
-            for (String warning : warningList.getWarnings(category)) {
-                this.warningList.add(category, warning, false);
+            for (Warning warning : warningList.getWarnings(category)) {
+                this.warningList.add(category, warning.getWarning(), false);
             }
         }
     }
@@ -106,13 +109,26 @@ public class RawData {
     public boolean isValid() {
 
         Validator validator = new Validator();
-        boolean valid = validator.validate(this).size() == 0;
+        List<ConstraintViolation> violations = validator.validate(this);
+        boolean valid = violations.size() == 0;
         if (!valid) {
-            if (warningList == null)
-                warningList = new SimpleWarningList();
-            warningList.add("Invalid raw data",
-                    "Elements of raw data are missing or invalid - see other warnings if there are any");
+            ConstraintViolation[] array = new ConstraintViolation[violations.size()];
+            String description = describeViolations("", violations.toArray(array));
+            warningList.add("Invalid raw data", "Elements of raw data are invalid: " + description);
         }
         return valid;
+    }
+
+    private String describeViolations(String indent, ConstraintViolation[] violations) {
+
+        String report = "";
+        for (ConstraintViolation violation : violations) {
+            report += "\n" + indent + "Reason: \"" + violation.getMessage() + "\" on value: "
+                    + violation.getInvalidValue();
+            ConstraintViolation[] causes = violation.getCauses();
+            if (causes != null)
+                report += describeViolations(indent + " ", causes);
+        }
+        return report;
     }
 }

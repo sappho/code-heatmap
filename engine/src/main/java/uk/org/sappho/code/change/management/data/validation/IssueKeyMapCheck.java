@@ -10,7 +10,7 @@ import net.sf.oval.exception.OValException;
 
 import uk.org.sappho.code.change.management.data.RawData;
 
-public class IssueKeyMapCheck extends AbstractAnnotationCheck<IssueKeyMapConstraint> {
+public class IssueKeyMapCheck extends AbstractAnnotationCheck<IssueKeyMapKeysConstraint> {
 
     private static final long serialVersionUID = 2875771845270320136L;
     private static final String validityError = "Invalid issue mapping";
