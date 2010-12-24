@@ -1,5 +1,6 @@
 package uk.org.sappho.code.change.management.engine;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,8 +16,10 @@ import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.data.WarningList;
+import uk.org.sappho.code.change.management.data.persistence.ConfigurationRawDataPersistence;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.scm.SCM;
+import uk.org.sappho.code.change.management.scm.SCMException;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.string.mapping.Mapper;
@@ -25,6 +28,7 @@ public class EngineModule extends AbstractModule {
 
     private Configuration config;
     private Injector injector;
+    private RawData rawData = new RawData();
     private static final Logger log = Logger.getLogger(EngineModule.class);
 
     public void init(Configuration config) {
@@ -43,17 +47,17 @@ public class EngineModule extends AbstractModule {
         return injector;
     }
 
-    public SCM getSCMPlugin() {
+    protected SCM getSCMPlugin() {
 
         return injector.getInstance(SCM.class);
     }
 
-    public IssueManagement getIssueManagementPlugin() {
+    protected IssueManagement getIssueManagementPlugin() {
 
         return injector.getInstance(IssueManagement.class);
     }
 
-    public RawDataProcessing getRawDataProcessingPlugin() {
+    protected RawDataProcessing getRawDataProcessingPlugin() {
 
         return injector.getInstance(RawDataProcessing.class);
     }
@@ -76,7 +80,28 @@ public class EngineModule extends AbstractModule {
         }
     }
 
-    public void refreshRawData(RawData rawData) throws ConfigurationException {
+    public void loadRawData() throws IOException, ConfigurationException {
+
+        rawData = new ConfigurationRawDataPersistence(config).load();
+    }
+
+    public void saveRawData() throws IOException, ConfigurationException {
+
+        new ConfigurationRawDataPersistence(config).save(rawData);
+    }
+
+    public void scanSCM() throws SCMException, ConfigurationException {
+
+        getSCMPlugin().scan(rawData);
+        refreshRawData();
+    }
+
+    public void processRawData() throws RawDataProcessingException {
+
+        getRawDataProcessingPlugin().run(rawData);
+    }
+
+    public void refreshRawData() throws ConfigurationException {
 
         log.info("Refreshing issue management data mapping to revisions");
         IssueManagement issueManagement = getIssueManagementPlugin();
@@ -147,6 +172,5 @@ public class EngineModule extends AbstractModule {
                         + rawReleasesStr + " mapping to" + cookedReleasesStr);
             }
         }
-        rawData.getWarnings().add(warningList);
     }
 }
