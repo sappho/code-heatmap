@@ -11,8 +11,6 @@ import java.util.List;
 import org.junit.Test;
 
 import uk.org.sappho.string.mapping.Mapper;
-import uk.org.sappho.warnings.SimpleWarningList;
-import uk.org.sappho.warnings.WarningList;
 
 public class RawDataTest {
 
@@ -66,12 +64,12 @@ public class RawDataTest {
                 project, components, releases);
         String warningCategory = "Loss";
         String warning = "Papyrus decays with time";
-        WarningList warningList = new SimpleWarningList();
+        WarningList warningList = new WarningList();
         warningList.add(warningCategory, warning);
         RawData rawData = new RawData();
         rawData.putRevisionData(revisionData);
         rawData.putIssueData(issueData);
-        rawData.putWarnings(warningList);
+        rawData.getWarnings().add(warningList);
         return rawData;
     }
 

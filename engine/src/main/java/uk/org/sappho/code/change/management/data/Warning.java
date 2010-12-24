@@ -1,4 +1,4 @@
-package uk.org.sappho.warnings;
+package uk.org.sappho.code.change.management.data;
 
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;

@@ -1,4 +1,4 @@
-package uk.org.sappho.warnings;
+package uk.org.sappho.code.change.management.data;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -7,18 +7,20 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SimpleWarningListTest {
+import uk.org.sappho.code.change.management.data.WarningList;
 
-    private SimpleWarningList simpleWarningList;
+public class WarningListTest {
 
-    private static final Logger log = Logger.getLogger(SimpleWarningListTest.class);
+    private WarningList simpleWarningList;
+
+    private static final Logger log = Logger.getLogger(WarningListTest.class);
 
     @Before
     public void setup() {
 
         log.debug("===================================================================");
         log.debug("Setting up blank warnings list");
-        simpleWarningList = new SimpleWarningList();
+        simpleWarningList = new WarningList();
     }
 
     @Test

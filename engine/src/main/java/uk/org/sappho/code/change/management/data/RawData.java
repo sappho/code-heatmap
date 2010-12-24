@@ -15,9 +15,6 @@ import net.sf.oval.constraint.NotNull;
 import uk.org.sappho.code.change.management.data.validation.IssueKeyMappingConstraint;
 import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.validation.Validator;
-import uk.org.sappho.warnings.SimpleWarningList;
-import uk.org.sappho.warnings.Warning;
-import uk.org.sappho.warnings.WarningList;
 
 public class RawData {
 
@@ -31,7 +28,7 @@ public class RawData {
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
     @NotNull
     @AssertValid
-    private WarningList warningList = new SimpleWarningList();
+    private WarningList warningList = new WarningList();
 
     public void reWire(Mapper commitCommentToIssueKeyMapper) {
 
@@ -98,19 +95,10 @@ public class RawData {
         return issueDataMap.get(issueKeyToIssueKeyMap.get(issueKey));
     }
 
-    public void putWarnings(WarningList warningList) {
-
-        for (String category : warningList.getCategories()) {
-            for (Warning warning : warningList.getWarnings(category)) {
-                this.warningList.add(category, warning.getWarning(), false);
-            }
-        }
-    }
-
     public WarningList getWarnings() {
 
         if (warningList == null)
-            warningList = new SimpleWarningList();
+            warningList = new WarningList();
         return warningList;
     }
 

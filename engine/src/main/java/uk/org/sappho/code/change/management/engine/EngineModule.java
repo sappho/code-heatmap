@@ -14,18 +14,16 @@ import com.google.inject.Injector;
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
+import uk.org.sappho.code.change.management.data.WarningList;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.scm.SCM;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.string.mapping.Mapper;
-import uk.org.sappho.warnings.SimpleWarningList;
-import uk.org.sappho.warnings.WarningList;
 
 public class EngineModule extends AbstractModule {
 
     private Configuration config;
-    private WarningList warningList;
     private Injector injector;
     private static final Logger log = Logger.getLogger(EngineModule.class);
 
@@ -64,8 +62,6 @@ public class EngineModule extends AbstractModule {
     protected void configure() {
 
         try {
-            warningList = new SimpleWarningList();
-            bind(WarningList.class).toInstance(warningList);
             bind(Configuration.class).toInstance(config);
             bind(SCM.class)
                     .to(config.<SCM> getPlugin("scm.plugin", "uk.org.sappho.code.change.management.scm"));
@@ -90,6 +86,7 @@ public class EngineModule extends AbstractModule {
         Mapper issueTypeMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.type");
         // clear out issue data from a previous scan or refresh
         rawData.clearIssueData();
+        WarningList warningList = rawData.getWarnings();
         // run through all the stored revisions to pick up fresh linked issue data
         for (String revisionKey : rawData.getRevisionKeys()) {
             RevisionData revisionData = rawData.getRevisionData(revisionKey);
@@ -150,6 +147,6 @@ public class EngineModule extends AbstractModule {
                         + rawReleasesStr + " mapping to" + cookedReleasesStr);
             }
         }
-        rawData.putWarnings(warningList);
+        rawData.getWarnings().add(warningList);
     }
 }

@@ -15,16 +15,16 @@ import com.atlassian.jira.rpc.soap.client.RemoteVersion;
 import com.google.inject.Inject;
 
 import uk.org.sappho.code.change.management.data.IssueData;
+import uk.org.sappho.code.change.management.data.WarningList;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.GetParentService;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
-import uk.org.sappho.warnings.SimpleWarningList;
 
 public class Jira implements IssueManagement {
 
     private final Configuration config;
-    private final SimpleWarningList warnings;
+    private final WarningList warnings;
     private String jiraURL = null;
     private JiraSoapService jiraSoapService = null;
     private GetParentService getParentService = null;
@@ -36,7 +36,7 @@ public class Jira implements IssueManagement {
     private static final Logger log = Logger.getLogger(Jira.class);
 
     @Inject
-    public Jira(Configuration config, SimpleWarningList warnings) throws ConfigurationException,
+    public Jira(Configuration config, WarningList warnings) throws ConfigurationException,
             IssueManagementException {
 
         log.info("Using Jira issue management plugin");

@@ -1,4 +1,4 @@
-package uk.org.sappho.warnings;
+package uk.org.sappho.code.change.management.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,13 +14,13 @@ import org.apache.log4j.Logger;
 import uk.org.sappho.validation.MapKeysPopulatedConstraint;
 import uk.org.sappho.validation.Validator;
 
-public class SimpleWarningList implements WarningList {
+public class WarningList {
 
     @MapKeysPopulatedConstraint
     @AssertValid
     private Map<String, List<Warning>> warningLists = new HashMap<String, List<Warning>>();
 
-    private static final Logger log = Logger.getLogger(SimpleWarningList.class);
+    private static final Logger log = Logger.getLogger(WarningList.class);
 
     public void add(String category, String warning) {
 
@@ -40,6 +40,15 @@ public class SimpleWarningList implements WarningList {
                 log.info(category + ": " + warning);
             }
             list.add(new Warning(warning));
+        }
+    }
+
+    public void add(WarningList warningList) {
+
+        for (String category : warningList.getCategories()) {
+            for (Warning warning : warningList.getWarnings(category)) {
+                add(category, warning.getWarning(), false);
+            }
         }
     }
 
