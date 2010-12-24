@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.oval.ConstraintViolation;
 import net.sf.oval.constraint.AssertValid;
 
 import org.apache.log4j.Logger;
 
 import uk.org.sappho.validation.MapKeysPopulatedConstraint;
-import uk.org.sappho.validation.Validator;
 
 public class WarningList {
 
@@ -68,15 +66,5 @@ public class WarningList {
 
         if (warningLists == null)
             warningLists = new HashMap<String, List<Warning>>();
-    }
-
-    public boolean isValid() {
-
-        Validator validator = new Validator();
-        List<ConstraintViolation> violations = validator.validate(this);
-        boolean valid = violations.size() == 0;
-        if (!valid)
-            add("Invalid warnings", "Warnings are invalid as follows: " + validator.getReport(violations));
-        return valid;
     }
 }

@@ -19,6 +19,17 @@ public class RawDataTest {
 
         RawData rawData = getFakeRawData(true);
         reWireFakeRawData(rawData);
+        WarningList warningList = rawData.getWarnings();
+        warningList.add("Test 1", "Example warning");
+        warningList.add("Test 1", "Another example warning");
+        assertTrue(rawData.isValid());
+        assertTrue(warningList.getCategories().size() == 1);
+        assertTrue(warningList.getWarnings("Test 1").size() == 2);
+        warningList.add("Test 2", "Another example warning in a new category");
+        assertTrue(rawData.isValid());
+        assertTrue(warningList.getCategories().size() == 2);
+        assertTrue(warningList.getWarnings("Test 1").size() == 2);
+        assertTrue(warningList.getWarnings("Test 2").size() == 1);
         assertTrue(rawData.isValid());
     }
 
@@ -34,6 +45,63 @@ public class RawDataTest {
     public void shouldFailToValidateDueToMixedDataErrors() {
 
         RawData rawData = getFakeRawData(false);
+        assertFalse(rawData.isValid());
+    }
+
+    @Test
+    public void shouldFailValidationDueToNullWarningCategory() {
+
+        RawData rawData = getFakeRawData(true);
+        reWireFakeRawData(rawData);
+        assertTrue(rawData.isValid());
+        rawData.getWarnings().add(null, "Example warning");
+        assertFalse(rawData.isValid());
+    }
+
+    @Test
+    public void shouldFailValidationDueToEmptyWarning() {
+
+        RawData rawData = getFakeRawData(true);
+        reWireFakeRawData(rawData);
+        assertTrue(rawData.isValid());
+        rawData.getWarnings().add("Empty test", "");
+        assertFalse(rawData.isValid());
+    }
+
+    @Test
+    public void shouldFailValidationDueToEmptyCategoryAndWarning() {
+
+        RawData rawData = getFakeRawData(true);
+        reWireFakeRawData(rawData);
+        assertTrue(rawData.isValid());
+        rawData.getWarnings().add("", "");
+        assertFalse(rawData.isValid());
+    }
+
+    @Test
+    public void shouldFailValidationDueToNullCategoryAndWarning() {
+
+        RawData rawData = getFakeRawData(true);
+        reWireFakeRawData(rawData);
+        assertTrue(rawData.isValid());
+        rawData.getWarnings().add(null, null);
+        assertFalse(rawData.isValid());
+    }
+
+    @Test
+    public void shouldFailValidationDueToMixedWarningFaults() {
+
+        RawData rawData = getFakeRawData(true);
+        reWireFakeRawData(rawData);
+        assertTrue(rawData.isValid());
+        WarningList warningList = rawData.getWarnings();
+        warningList.add("Test 1", "Example warning");
+        warningList.add(null, null);
+        warningList.add("Test 1", "Another example warning");
+        warningList.add(null, "Example warning");
+        warningList.add("", "Warning with blank category");
+        warningList.add("Test 2", "Another example warning in a new category");
+        warningList.add("Empty test", "");
         assertFalse(rawData.isValid());
     }
 
@@ -62,14 +130,9 @@ public class RawDataTest {
         releases.add(release);
         IssueData issueData = new IssueData(issueKey, issueType, issueSummary, revisionDate, revisionDate, committer,
                 project, components, releases);
-        String warningCategory = "Loss";
-        String warning = "Papyrus decays with time";
-        WarningList warningList = new WarningList();
-        warningList.add(warningCategory, warning);
         RawData rawData = new RawData();
         rawData.putRevisionData(revisionData);
         rawData.putIssueData(issueData);
-        rawData.getWarnings().add(warningList);
         return rawData;
     }
 
