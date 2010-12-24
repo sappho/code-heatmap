@@ -8,11 +8,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.inject.Injector;
-
+import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.persistence.ConfigurationRawDataPersistence;
-import uk.org.sappho.code.change.management.data.persistence.FilenameRawDataPersistence;
-import uk.org.sappho.code.change.management.data.persistence.ReaderRawDataPersistence;
+import uk.org.sappho.code.change.management.scm.SCMException;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 
@@ -22,35 +20,37 @@ public class EngineModuleTest {
     @Mock
     private Configuration mockConfiguration;
 
+    private EngineModule module;
+
     @Before
     public void setupFakeWiringConfiguration() throws ConfigurationException {
-        returnFakePluginFor("scm.plugin", "uk.org.sappho.code.change.management.scm");
-        returnFakePluginFor("issues.plugin", "uk.org.sappho.code.change.management.issues");
-        returnFakePluginFor("raw.data.processing.plugin", "uk.org.sappho.code.heatmap.engine");
+
+        Class<FakeSCMPlugin> getSCMPluginClass = mockConfiguration.getPlugin("scm.plugin",
+                "uk.org.sappho.code.change.management.scm");
+        when(getSCMPluginClass).thenReturn(FakeSCMPlugin.class);
+        Class<FakeIssueManagementPlugin> getIssueManagementPluginClass = mockConfiguration.getPlugin("issues.plugin",
+                "uk.org.sappho.code.change.management.issues");
+        when(getIssueManagementPluginClass).thenReturn(FakeIssueManagementPlugin.class);
+        Class<FakeRawDataProcessingPlugin> getRawDataProcessingPluginClass = mockConfiguration.getPlugin(
+                "raw.data.processing.plugin", "uk.org.sappho.code.heatmap.engine");
+        when(getRawDataProcessingPluginClass).thenReturn(FakeRawDataProcessingPlugin.class);
+        module = new EngineModule();
+        module.init(mockConfiguration);
     }
 
     @Test
-    public void shouldWireExplicitly() {
-        new EngineModule().init(mockConfiguration);
+    public void shouldWireInPlugins() throws SCMException, RawDataProcessingException {
+
+        module.getSCMPlugin().scan(new RawData());
+        module.getIssueManagementPlugin().getIssueData("");
+        module.getRawDataProcessingPlugin().run(new RawData());
     }
 
     @Test
-    // TODO: better to use annotations to distinguish specialisations,
-    // if we really need specialisations like this - probably not
     public void shouldWireRawDataPersistenceImplementations() throws ConfigurationException {
+
         String filename = mockConfiguration.getProperty("raw.data.store.filename");
         when(filename).thenReturn("test.xml");
-        EngineModule engineModule = new EngineModule();
-        engineModule.init(mockConfiguration);
-        Injector injector = engineModule.getInjector();
-        injector.getInstance(ReaderRawDataPersistence.class);
-        injector.getInstance(FilenameRawDataPersistence.class);
-        injector.getInstance(ConfigurationRawDataPersistence.class);
-    }
-
-    private void returnFakePluginFor(String name, String defaultPackage) throws ConfigurationException {
-        Class<FakePlugin> getSCMPluginClass = mockConfiguration.getPlugin(name,
-                defaultPackage);
-        when(getSCMPluginClass).thenReturn(FakePlugin.class);
+        module.getInjector().getInstance(ConfigurationRawDataPersistence.class);
     }
 }
