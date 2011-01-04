@@ -18,7 +18,7 @@ This report was generated on ${date}.
 <#assign changeCount = heatMapItem.getChangeCount()>
 <#assign issuesList = "">
 <#list heatMapItem.getIssues() as issue>
-<#assign issuesList = issuesList + issue.getKey() + " ">
+<#assign issuesList = issuesList + issue.getIssueKey() + " ">
 </#list>
 <#assign formula = heatMapItem.getWeightFormula()>
 ,,,${name},${weight},${issueCount},${changeCount},${issuesList},${formula}

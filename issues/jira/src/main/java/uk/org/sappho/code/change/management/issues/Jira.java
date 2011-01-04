@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.sappho.jira.rpc.soap.client.SapphoJiraRpcSoapServiceWrapper;
 
 import com.atlassian.jira.rpc.soap.client.RemoteComponent;
 import com.atlassian.jira.rpc.soap.client.RemoteIssue;
@@ -18,7 +19,6 @@ import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.WarningList;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
-import uk.org.sappho.jira4j.soap.GetParentService;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
 
 public class Jira implements IssueManagement {
@@ -27,7 +27,7 @@ public class Jira implements IssueManagement {
     private final WarningList warnings;
     private String jiraURL = null;
     private JiraSoapService jiraSoapService = null;
-    private GetParentService getParentService = null;
+    private SapphoJiraRpcSoapServiceWrapper sapphoJiraRpcSoapServiceWrapper = null;
     private final Map<String, String> mappedRemoteIssueTypes = new HashMap<String, String>();
     private final Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
     private final Map<String, IssueData> parentIssues = new HashMap<String, IssueData>();
@@ -61,11 +61,11 @@ public class Jira implements IssueManagement {
             throw new IssueManagementException("Unable to log in to Jira at " + jiraURL + " as user " + username, t);
         }
         try {
-            getParentService = new GetParentService(jiraURL, username, password);
-            log.info("Using optional GetParent SOAP web service");
+            sapphoJiraRpcSoapServiceWrapper = new SapphoJiraRpcSoapServiceWrapper(jiraURL, username, password);
+            log.info("Using optional Sappho SOAP web service");
         } catch (Throwable t) {
             log.info("GetParent SOAP web service is not installed or authentication failed");
-            getParentService = null;
+            sapphoJiraRpcSoapServiceWrapper = null;
             preFetchIssues();
         }
     }
@@ -105,9 +105,9 @@ public class Jira implements IssueManagement {
         if (parentIssues.get(issueKey) == null) {
             String parentKey = subTaskParents.get(issueKey);
             if (parentKey == null) {
-                if (getParentService != null) {
+                if (sapphoJiraRpcSoapServiceWrapper != null) {
                     try {
-                        parentKey = getParentService.getParent(issueKey);
+                        parentKey = sapphoJiraRpcSoapServiceWrapper.getParent(issueKey);
                         if (parentKey != null) {
                             subTaskParents.put(issueKey, parentKey);
                         }
