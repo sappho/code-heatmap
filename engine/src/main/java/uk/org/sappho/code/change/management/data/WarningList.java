@@ -16,7 +16,7 @@ public class WarningList {
 
     @MapKeysPopulatedConstraint
     @AssertValid
-    private Map<String, List<Warning>> warningLists = new HashMap<String, List<Warning>>();
+    private Map<String, List<String>> warningLists = new HashMap<String, List<String>>();
 
     private static final Logger log = Logger.getLogger(WarningList.class);
 
@@ -28,24 +28,24 @@ public class WarningList {
     public void add(String category, String warning, boolean logIt) {
 
         check();
-        List<Warning> list = warningLists.get(category);
+        List<String> list = warningLists.get(category);
         if (list == null) {
-            list = new ArrayList<Warning>();
+            list = new ArrayList<String>();
             warningLists.put(category, list);
         }
         if (!list.contains(warning)) {
             if (logIt) {
                 log.info(category + ": " + warning);
             }
-            list.add(new Warning(warning));
+            list.add(warning);
         }
     }
 
     public void add(WarningList warningList) {
 
         for (String category : warningList.getCategories()) {
-            for (Warning warning : warningList.getWarnings(category)) {
-                add(category, warning.getWarning(), false);
+            for (String warning : warningList.getWarnings(category)) {
+                add(category, warning, false);
             }
         }
     }
@@ -56,7 +56,7 @@ public class WarningList {
         return warningLists.keySet();
     }
 
-    public List<Warning> getWarnings(String category) {
+    public List<String> getWarnings(String category) {
 
         check();
         return warningLists.get(category);
@@ -65,6 +65,6 @@ public class WarningList {
     private void check() {
 
         if (warningLists == null)
-            warningLists = new HashMap<String, List<Warning>>();
+            warningLists = new HashMap<String, List<String>>();
     }
 }
