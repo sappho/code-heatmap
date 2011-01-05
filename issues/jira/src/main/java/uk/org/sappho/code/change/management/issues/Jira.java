@@ -32,6 +32,7 @@ public class Jira implements IssueManagement {
     private final Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
     private final Map<String, IssueData> parentIssues = new HashMap<String, IssueData>();
     private final Map<String, String> subTaskParents = new HashMap<String, String>();
+    private final Map<String, String> movedIssueMappings = new HashMap<String, String>();
     private final List<String> allRawReleases = new ArrayList<String>();
     private static final Logger log = Logger.getLogger(Jira.class);
 
@@ -99,9 +100,31 @@ public class Jira implements IssueManagement {
         }
     }
 
+    private String getRealIssueKey(String issueKey) {
+
+        String newIssueKey = movedIssueMappings.get(issueKey);
+        if (newIssueKey == null) {
+            if (sapphoJiraRpcSoapServiceWrapper != null) {
+                try {
+                    newIssueKey = sapphoJiraRpcSoapServiceWrapper.getMovedIssueKey(issueKey);
+                    if (newIssueKey != null)
+                        warnings.add("Moved issue", "Issue " + issueKey + " has moved to " + newIssueKey);
+                } catch (Exception e) {
+                    // if this doesn't work it'll be caught further downstream so can be ignored here
+                }
+            }
+            if (newIssueKey == null) {
+                newIssueKey = issueKey;
+            }
+            movedIssueMappings.put(issueKey, newIssueKey);
+        }
+        return newIssueKey;
+    }
+
     public IssueData getIssueData(String issueKey) {
 
         String subTaskKey = null;
+        issueKey = getRealIssueKey(issueKey);
         if (parentIssues.get(issueKey) == null) {
             String parentKey = subTaskParents.get(issueKey);
             if (parentKey == null) {

@@ -111,6 +111,7 @@ public class EngineModule extends AbstractModule {
         Mapper issueTypeMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.type");
         // clear out issue data from a previous scan or refresh
         rawData.clearIssueData();
+        // fresh warnings to be added to any already issued
         WarningList warningList = rawData.getWarnings();
         // run through all the stored revisions to pick up fresh linked issue data
         for (String revisionKey : rawData.getRevisionKeys()) {
@@ -141,7 +142,7 @@ public class EngineModule extends AbstractModule {
                 warningList.add("Release ignored", "Raw release \"" + rawRelease + "\" will be ignored");
             }
         }
-        // run through all the retrieved issues settings mapped types and releases
+        // run through all the retrieved issues setting mapped types and releases
         for (String issueKey : rawData.getIssueKeys()) {
             IssueData issueData = rawData.getIssueData(issueKey);
             String rawType = issueData.getType();
