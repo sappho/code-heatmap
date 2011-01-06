@@ -23,7 +23,6 @@ import uk.org.sappho.jira4j.soap.JiraSoapService;
 
 public class Jira implements IssueManagement {
 
-    private final Configuration config;
     private final WarningList warnings;
     private String jiraURL = null;
     private JiraSoapService jiraSoapService = null;
@@ -41,13 +40,7 @@ public class Jira implements IssueManagement {
             IssueManagementException {
 
         log.info("Using Jira issue management plugin");
-        this.config = config;
         this.warnings = warnings;
-        connect();
-    }
-
-    private void connect() throws IssueManagementException {
-
         jiraURL = config.getProperty("jira.url", "http://example.com");
         String username = config.getProperty("jira.username", "nobody");
         String password = config.getProperty("jira.password", "nopassword");
@@ -58,45 +51,10 @@ public class Jira implements IssueManagement {
             for (RemoteIssueType remoteIssueType : remoteIssueTypes) {
                 mappedRemoteIssueTypes.put(remoteIssueType.getId(), remoteIssueType.getName());
             }
-        } catch (Throwable t) {
-            throw new IssueManagementException("Unable to log in to Jira at " + jiraURL + " as user " + username, t);
-        }
-        try {
             sapphoJiraRpcSoapServiceWrapper = new SapphoJiraRpcSoapServiceWrapper(jiraURL, username, password);
-            log.info("Using optional Sappho SOAP web service");
         } catch (Throwable t) {
-            log.info("GetParent SOAP web service is not installed or authentication failed");
-            sapphoJiraRpcSoapServiceWrapper = null;
-            preFetchIssues();
-        }
-    }
-
-    private void preFetchIssues() throws IssueManagementException {
-
-        try {
-            String jql = config.getProperty("jira.jql.issues.allowed");
-            int jqlMax = Integer.parseInt(config.getProperty("jira.jql.issues.allowed.max", "1000"));
-            log.info("Running JQL query (max. " + jqlMax + " issues): " + jql);
-            RemoteIssue[] remoteIssues = jiraSoapService.getService().getIssuesFromJqlSearch(
-                    jiraSoapService.getToken(), jql, jqlMax);
-            log.info("Processing " + remoteIssues.length + " issues returned by JQL query");
-            for (RemoteIssue remoteIssue : remoteIssues) {
-                String issueKey = remoteIssue.getKey();
-                mappedRemoteIssues.put(issueKey, remoteIssue);
-                RemoteIssue[] remoteSubTasks = jiraSoapService.getService().getIssuesFromJqlSearch(
-                        jiraSoapService.getToken(), "parent = " + issueKey, 500);
-                for (RemoteIssue remoteSubTask : remoteSubTasks) {
-                    String subTaskKey = remoteSubTask.getKey();
-                    if (mappedRemoteIssues.get(subTaskKey) == null) {
-                        mappedRemoteIssues.put(subTaskKey, remoteSubTask);
-                    }
-                    subTaskParents.put(subTaskKey, issueKey);
-                }
-            }
-            log.info("Processed " + mappedRemoteIssues.size()
-                    + " issues - added subtasks might have inflated this figure");
-        } catch (Throwable t) {
-            throw new IssueManagementException("Unable to pre-fetch issues", t);
+            throw new IssueManagementException("Unable to connect to " + jiraURL + " as user " + username
+                    + " - is Sappho SOAP service installed?", t);
         }
     }
 
