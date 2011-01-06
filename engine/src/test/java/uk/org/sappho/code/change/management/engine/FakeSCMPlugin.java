@@ -8,7 +8,6 @@ import uk.org.sappho.code.change.management.scm.SCMException;
 
 public class FakeSCMPlugin implements SCM {
 
-    @Inject
     public FakeSCMPlugin() {
     }
 

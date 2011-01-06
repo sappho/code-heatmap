@@ -6,8 +6,6 @@ import java.util.List;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
-import uk.org.sappho.string.mapping.Mapper;
-
 public class RevisionData {
 
     @NotNull
@@ -77,9 +75,9 @@ public class RevisionData {
         return badPaths;
     }
 
-    public void setIssueKey(Mapper commitCommentToIssueKeyMapper) {
+    public void setIssueKey(String issueKey) {
 
-        issueKey = commitCommentToIssueKeyMapper.map(commitComment);
+        this.issueKey = issueKey;
     }
 
     public String getIssueKey() {

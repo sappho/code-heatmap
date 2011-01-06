@@ -1,7 +1,5 @@
 package uk.org.sappho.code.change.management.data;
 
-import static ch.lambdaj.Lambda.forEach;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +11,6 @@ import net.sf.oval.constraint.AssertValid;
 import net.sf.oval.constraint.NotNull;
 
 import uk.org.sappho.code.change.management.data.validation.IssueKeyMappingConstraint;
-import uk.org.sappho.string.mapping.Mapper;
 import uk.org.sappho.validation.Validator;
 
 public class RawData {
@@ -30,7 +27,7 @@ public class RawData {
     @AssertValid
     private WarningList warningList = new WarningList();
 
-    public void reWire(Mapper commitCommentToIssueKeyMapper) {
+    public void reWire() {
 
         issueKeyToIssueKeyMap = new HashMap<String, String>();
         for (String issueKey : issueDataMap.keySet()) {
@@ -40,7 +37,6 @@ public class RawData {
                 issueKeyToIssueKeyMap.put(subTaskKey, issueKey);
             }
         }
-        forEach(revisionDataMap.values()).setIssueKey(commitCommentToIssueKeyMapper);
     }
 
     public void clearRevisionData() {
@@ -80,9 +76,11 @@ public class RawData {
         issueKeyToIssueKeyMap = new HashMap<String, String>();
     }
 
-    public void putIssueData(IssueData issueData) {
+    public void putIssueData(String issueKey, IssueData issueData) {
 
-        issueDataMap.put(issueData.getIssueKey(), issueData);
+        String retrievedIssueKey = issueData.getIssueKey();
+        issueDataMap.put(retrievedIssueKey, issueData);
+        issueKeyToIssueKeyMap.put(issueKey, retrievedIssueKey);
     }
 
     public Set<String> getIssueKeys() {

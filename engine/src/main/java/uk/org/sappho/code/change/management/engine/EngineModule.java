@@ -18,6 +18,7 @@ import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.data.WarningList;
 import uk.org.sappho.code.change.management.data.persistence.ConfigurationRawDataPersistence;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
+import uk.org.sappho.code.change.management.issues.IssueManagementException;
 import uk.org.sappho.code.change.management.scm.SCM;
 import uk.org.sappho.code.change.management.scm.SCMException;
 import uk.org.sappho.configuration.Configuration;
@@ -90,7 +91,7 @@ public class EngineModule extends AbstractModule {
         new ConfigurationRawDataPersistence(config).save(rawData);
     }
 
-    public void scanSCM() throws SCMException, ConfigurationException {
+    public void scanSCM() throws SCMException, ConfigurationException, IssueManagementException {
 
         getSCMPlugin().scan(rawData);
         refreshRawData();
@@ -101,45 +102,55 @@ public class EngineModule extends AbstractModule {
         getRawDataProcessingPlugin().run(rawData);
     }
 
-    public void refreshRawData() throws ConfigurationException {
+    public void refreshRawData() throws ConfigurationException, IssueManagementException {
 
-        log.info("Refreshing issue management data mapping to revisions");
+        log.info("Refreshing issues connected with SCM revisions");
+
+        // fresh warnings to be added to any already issued
+        WarningList warnings = rawData.getWarnings();
+
+        // get all the plugins and scripts needed
         IssueManagement issueManagement = getIssueManagementPlugin();
+        issueManagement.init(warnings);
         Mapper commitCommentToIssueKeyMapper = (Mapper) config
                 .getGroovyScriptObject("mapper.commit.comment.to.issue.key");
         Mapper releaseMapper = (Mapper) config.getGroovyScriptObject("mapper.raw.release.to.release");
         Mapper issueTypeMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.type");
-        // clear out issue data from a previous scan or refresh
+
+        // clear out all the issue data from any previous refresh that might have already been done
         rawData.clearIssueData();
-        // fresh warnings to be added to any already issued
-        WarningList warningList = rawData.getWarnings();
+
         // run through all the stored revisions to pick up fresh linked issue data
         for (String revisionKey : rawData.getRevisionKeys()) {
             RevisionData revisionData = rawData.getRevisionData(revisionKey);
             String commitComment = revisionData.getCommitComment().split("\n")[0];
             String issueKey = commitCommentToIssueKeyMapper.map(commitComment);
+            revisionData.setIssueKey(issueKey);
             if (issueKey != null) {
-                IssueData issueData = issueManagement.getIssueData(issueKey);
-                if (issueData != null) {
-                    rawData.putIssueData(issueData);
+                if (rawData.getIssueData(issueKey) == null) {
+                    IssueData issueData = issueManagement.getIssueData(issueKey);
+                    if (issueData != null)
+                        rawData.putIssueData(issueKey, issueData);
+                    else
+                        warnings.add("No issue data", "Unable to get issue data for revision " + revisionKey
+                                + " issue " + issueKey);
                 }
             } else {
-                warningList.add("Issue not found", "Unable to find an issue to match revision " + revisionKey + " \""
+                warnings.add("Issue key not found", "Unable to find an issue key for revision " + revisionKey + " \""
                         + commitComment + "\"");
             }
         }
-        // re-wire the newly acquired issue data into the revisions
-        rawData.reWire(commitCommentToIssueKeyMapper);
+
         // set up a map of raw release names to meaningful cooked ones
         Map<String, String> releaseMappings = new HashMap<String, String>();
         for (String rawRelease : issueManagement.getRawReleases()) {
             String cookedRelease = releaseMapper.map(rawRelease);
             if (cookedRelease != null) {
-                warningList.add("Release mapping", "Raw release \"" + rawRelease + "\" mapped to \"" + cookedRelease
+                warnings.add("Release mapping", "Raw release \"" + rawRelease + "\" mapped to \"" + cookedRelease
                         + "\"");
                 releaseMappings.put(rawRelease, cookedRelease);
             } else {
-                warningList.add("Release ignored", "Raw release \"" + rawRelease + "\" will be ignored");
+                warnings.add("Release ignored", "Raw release \"" + rawRelease + "\" will be ignored");
             }
         }
         // run through all the retrieved issues setting mapped types and releases
@@ -147,8 +158,7 @@ public class EngineModule extends AbstractModule {
             IssueData issueData = rawData.getIssueData(issueKey);
             String rawType = issueData.getType();
             String cookedType = issueTypeMapper.map(rawType);
-            warningList
-                    .add("Issue type mapping", "Raw issue type \"" + rawType + "\" mapped to \"" + cookedType + "\"");
+            warnings.add("Issue type mapping", "Raw issue type \"" + rawType + "\" mapped to \"" + cookedType + "\"");
             issueData.setType(cookedType);
             List<String> rawReleases = issueData.getReleases();
             List<String> cookedReleases = new ArrayList<String>();
@@ -166,9 +176,9 @@ public class EngineModule extends AbstractModule {
             }
             issueData.setReleases(cookedReleases);
             if (rawReleases.size() == 0) {
-                warningList.add("Issue with no releases", "Issue " + issueKey + " has no association to a release");
+                warnings.add("Issue with no releases", "Issue " + issueKey + " has no association to a release");
             } else if (rawReleases.size() != 1) {
-                warningList.add("Issue with multiple releases", "Issue " + issueKey
+                warnings.add("Issue with multiple releases", "Issue " + issueKey
                         + " is associated with more than one raw release"
                         + rawReleasesStr + " mapping to" + cookedReleasesStr);
             }

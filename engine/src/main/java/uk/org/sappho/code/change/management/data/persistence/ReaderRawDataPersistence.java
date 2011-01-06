@@ -9,7 +9,6 @@ import uk.org.sappho.code.change.management.data.RawData;
 
 public class ReaderRawDataPersistence extends RawDataPersistence {
 
-    @Inject
     public ReaderRawDataPersistence() {
 
         super();

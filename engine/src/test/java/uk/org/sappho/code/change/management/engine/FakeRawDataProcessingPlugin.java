@@ -6,7 +6,6 @@ import uk.org.sappho.code.change.management.data.RawData;
 
 public class FakeRawDataProcessingPlugin implements RawDataProcessing {
 
-    @Inject
     public FakeRawDataProcessingPlugin() {
     }
 

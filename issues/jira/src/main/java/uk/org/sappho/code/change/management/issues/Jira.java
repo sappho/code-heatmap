@@ -18,28 +18,31 @@ import com.google.inject.Inject;
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.WarningList;
 import uk.org.sappho.configuration.Configuration;
-import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
 
 public class Jira implements IssueManagement {
 
-    private final WarningList warnings;
+    private final Configuration config;
+    private WarningList warnings = null;
     private String jiraURL = null;
     private JiraSoapService jiraSoapService = null;
     private SapphoJiraRpcSoapServiceWrapper sapphoJiraRpcSoapServiceWrapper = null;
     private final Map<String, String> mappedRemoteIssueTypes = new HashMap<String, String>();
-    private final Map<String, RemoteIssue> mappedRemoteIssues = new HashMap<String, RemoteIssue>();
-    private final Map<String, IssueData> parentIssues = new HashMap<String, IssueData>();
-    private final Map<String, String> subTaskParents = new HashMap<String, String>();
+    private final Map<String, IssueData> issueMappings = new HashMap<String, IssueData>();
     private final Map<String, String> movedIssueMappings = new HashMap<String, String>();
+    private final Map<String, String> parentIssueMappings = new HashMap<String, String>();
     private final List<String> allRawReleases = new ArrayList<String>();
     private static final Logger log = Logger.getLogger(Jira.class);
 
     @Inject
-    public Jira(Configuration config, WarningList warnings) throws ConfigurationException,
-            IssueManagementException {
+    public Jira(Configuration config) {
 
         log.info("Using Jira issue management plugin");
+        this.config = config;
+    }
+
+    public void init(WarningList warnings) throws IssueManagementException {
+
         this.warnings = warnings;
         jiraURL = config.getProperty("jira.url", "http://example.com");
         String username = config.getProperty("jira.username", "nobody");
@@ -62,57 +65,48 @@ public class Jira implements IssueManagement {
 
         String newIssueKey = movedIssueMappings.get(issueKey);
         if (newIssueKey == null) {
-            if (sapphoJiraRpcSoapServiceWrapper != null) {
-                try {
-                    newIssueKey = sapphoJiraRpcSoapServiceWrapper.getMovedIssueKey(issueKey);
-                    if (newIssueKey != null)
-                        warnings.add("Moved issue", "Issue " + issueKey + " has moved to " + newIssueKey);
-                } catch (Exception e) {
-                    // if this doesn't work it'll be caught further downstream so can be ignored here
-                }
+            try {
+                newIssueKey = sapphoJiraRpcSoapServiceWrapper.getMovedIssueKey(issueKey);
+                if (newIssueKey != null)
+                    warnings.add("Moved issue", "Issue " + issueKey + " has moved to " + newIssueKey);
+            } catch (Exception e) {
+                // if this doesn't work it'll be caught further downstream so can be ignored here
             }
-            if (newIssueKey == null) {
+            if (newIssueKey == null)
                 newIssueKey = issueKey;
-            }
             movedIssueMappings.put(issueKey, newIssueKey);
+        }
+        return newIssueKey;
+    }
+
+    private String getParentIssueKey(String issueKey) {
+
+        String newIssueKey = parentIssueMappings.get(issueKey);
+        if (newIssueKey == null) {
+            try {
+                newIssueKey = sapphoJiraRpcSoapServiceWrapper.getParent(issueKey);
+                if (newIssueKey != null)
+                    warnings.add("Subtask", "Issue " + issueKey + " is a subtask of " + newIssueKey);
+            } catch (Exception e) {
+                // if this doesn't work it'll be caught further downstream so can be ignored here
+            }
+            if (newIssueKey == null)
+                newIssueKey = issueKey;
+            parentIssueMappings.put(issueKey, newIssueKey);
         }
         return newIssueKey;
     }
 
     public IssueData getIssueData(String issueKey) {
 
-        String subTaskKey = null;
         issueKey = getRealIssueKey(issueKey);
-        if (parentIssues.get(issueKey) == null) {
-            String parentKey = subTaskParents.get(issueKey);
-            if (parentKey == null) {
-                if (sapphoJiraRpcSoapServiceWrapper != null) {
-                    try {
-                        parentKey = sapphoJiraRpcSoapServiceWrapper.getParent(issueKey);
-                        if (parentKey != null) {
-                            subTaskParents.put(issueKey, parentKey);
-                        }
-                    } catch (Exception e) {
-                        warnings.add("Parent issue", "Unable to get parent issue of issue " + issueKey);
-                    }
-                }
-            }
-            if (parentKey != null) {
-                subTaskKey = issueKey;
-                issueKey = parentKey;
-            }
-        }
-        IssueData issueData = parentIssues.get(issueKey);
+        issueKey = getParentIssueKey(issueKey);
+        IssueData issueData = issueMappings.get(issueKey);
         if (issueData == null) {
-            RemoteIssue remoteIssue = mappedRemoteIssues.get(issueKey);
-            if (remoteIssue == null) {
-                try {
-                    remoteIssue = jiraSoapService.getService().getIssue(jiraSoapService.getToken(), issueKey);
-                    if (remoteIssue != null) {
-                        mappedRemoteIssues.put(issueKey, remoteIssue);
-                    }
-                } catch (Exception e) {
-                }
+            RemoteIssue remoteIssue = null;
+            try {
+                remoteIssue = jiraSoapService.getService().getIssue(jiraSoapService.getToken(), issueKey);
+            } catch (Exception e) {
             }
             if (remoteIssue != null) {
                 List<String> issueRawReleases = new ArrayList<String>();
@@ -139,11 +133,8 @@ public class Jira implements IssueManagement {
                 Date updatedOn = remoteIssue.getUpdated().getTime();
                 issueData = new IssueData(issueKey, rawTypeName, remoteIssue.getSummary(), createdOn, updatedOn,
                         assignee, project, components, issueRawReleases);
-                parentIssues.put(issueKey, issueData);
+                issueMappings.put(issueKey, issueData);
             }
-        }
-        if (issueData != null && subTaskKey != null) {
-            issueData.putSubTaskKey(subTaskKey);
         }
         return issueData;
     }

@@ -10,8 +10,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import uk.org.sappho.string.mapping.Mapper;
-
 public class RawDataTest {
 
     @Test
@@ -132,17 +130,12 @@ public class RawDataTest {
                 project, components, releases);
         RawData rawData = new RawData();
         rawData.putRevisionData(revisionData);
-        rawData.putIssueData(issueData);
+        rawData.putIssueData(issueKey, issueData);
         return rawData;
     }
 
     public static void reWireFakeRawData(RawData rawData) {
 
-        Mapper issueKeyMapper = new Mapper() {
-            public String map(String commitComment) {
-                return commitComment.substring(0, 7);
-            }
-        };
-        rawData.reWire(issueKeyMapper);
+        rawData.reWire();
     }
 }
