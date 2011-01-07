@@ -83,14 +83,19 @@ public class RawData {
         issueKeyToIssueKeyMap.put(issueKey, retrievedIssueKey);
     }
 
-    public Set<String> getIssueKeys() {
+    public IssueData getIssueData(String issueKey) {
+
+        return issueDataMap.get(issueKeyToIssueKeyMap.get(issueKey));
+    }
+
+    public Set<String> getUnmappedIssueKeys() {
 
         return issueDataMap.keySet();
     }
 
-    public IssueData getIssueData(String issueKey) {
+    public IssueData getUnmappedIssueData(String issueKey) {
 
-        return issueDataMap.get(issueKeyToIssueKeyMap.get(issueKey));
+        return issueDataMap.get(issueKey);
     }
 
     public WarningList getWarnings() {

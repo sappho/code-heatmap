@@ -154,8 +154,8 @@ public class EngineModule extends AbstractModule {
             }
         }
         // run through all the retrieved issues setting mapped types and releases
-        for (String issueKey : rawData.getIssueKeys()) {
-            IssueData issueData = rawData.getIssueData(issueKey);
+        for (String issueKey : rawData.getUnmappedIssueKeys()) {
+            IssueData issueData = rawData.getUnmappedIssueData(issueKey);
             String rawType = issueData.getType();
             String cookedType = issueTypeMapper.map(rawType);
             warnings.add("Issue type mapping", "Raw issue type \"" + rawType + "\" mapped to \"" + cookedType + "\"");
