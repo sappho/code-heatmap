@@ -31,7 +31,6 @@ public class ConfigurationRawDataPersistenceTest {
     public void setupRawData() {
 
         rawData = RawDataTest.getFakeRawData(true);
-        RawDataTest.reWireFakeRawData(rawData);
     }
 
     @Test

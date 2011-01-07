@@ -1,6 +1,5 @@
 package uk.org.sappho.code.change.management.data;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -34,8 +33,6 @@ public class IssueData {
     private List<String> components;
     @NotNull
     private List<String> releases;
-    @NotNull
-    private final List<String> subTaskKeys = new ArrayList<String>();
 
     public IssueData() {
     }
@@ -107,17 +104,6 @@ public class IssueData {
     public List<String> getReleases() {
 
         return releases;
-    }
-
-    public void putSubTaskKey(String issueKey) {
-
-        if (!subTaskKeys.contains(issueKey))
-            subTaskKeys.add(issueKey);
-    }
-
-    public List<String> getSubTaskKeys() {
-
-        return subTaskKeys;
     }
 
     public String getMainRelease() {

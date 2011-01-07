@@ -16,7 +16,6 @@ public class RawDataTest {
     public void shouldValidate() {
 
         RawData rawData = getFakeRawData(true);
-        reWireFakeRawData(rawData);
         WarningList warningList = rawData.getWarnings();
         warningList.add("Test 1", "Example warning");
         warningList.add("Test 1", "Another example warning");
@@ -50,7 +49,6 @@ public class RawDataTest {
     public void shouldFailValidationDueToNullWarningCategory() {
 
         RawData rawData = getFakeRawData(true);
-        reWireFakeRawData(rawData);
         assertTrue(rawData.isValid());
         rawData.getWarnings().add(null, "Example warning");
         assertFalse(rawData.isValid());
@@ -60,7 +58,6 @@ public class RawDataTest {
     public void shouldFailValidationDueToEmptyWarning() {
 
         RawData rawData = getFakeRawData(true);
-        reWireFakeRawData(rawData);
         assertTrue(rawData.isValid());
         rawData.getWarnings().add("Empty test", "");
         assertFalse(rawData.isValid());
@@ -70,7 +67,6 @@ public class RawDataTest {
     public void shouldFailValidationDueToEmptyCategoryAndWarning() {
 
         RawData rawData = getFakeRawData(true);
-        reWireFakeRawData(rawData);
         assertTrue(rawData.isValid());
         rawData.getWarnings().add("", "");
         assertFalse(rawData.isValid());
@@ -80,7 +76,6 @@ public class RawDataTest {
     public void shouldFailValidationDueToNullCategoryAndWarning() {
 
         RawData rawData = getFakeRawData(true);
-        reWireFakeRawData(rawData);
         assertTrue(rawData.isValid());
         rawData.getWarnings().add(null, null);
         assertFalse(rawData.isValid());
@@ -90,7 +85,6 @@ public class RawDataTest {
     public void shouldFailValidationDueToMixedWarningFaults() {
 
         RawData rawData = getFakeRawData(true);
-        reWireFakeRawData(rawData);
         assertTrue(rawData.isValid());
         WarningList warningList = rawData.getWarnings();
         warningList.add("Test 1", "Example warning");
@@ -132,10 +126,5 @@ public class RawDataTest {
         rawData.putRevisionData(revisionData);
         rawData.putIssueData(issueKey, issueData);
         return rawData;
-    }
-
-    public static void reWireFakeRawData(RawData rawData) {
-
-        rawData.reWire();
     }
 }

@@ -27,18 +27,6 @@ public class RawData {
     @AssertValid
     private WarningList warningList = new WarningList();
 
-    public void reWire() {
-
-        issueKeyToIssueKeyMap = new HashMap<String, String>();
-        for (String issueKey : issueDataMap.keySet()) {
-            IssueData issueData = issueDataMap.get(issueKey);
-            issueKeyToIssueKeyMap.put(issueKey, issueKey);
-            for (String subTaskKey : issueData.getSubTaskKeys()) {
-                issueKeyToIssueKeyMap.put(subTaskKey, issueKey);
-            }
-        }
-    }
-
     public void clearRevisionData() {
 
         revisionDataMap = new HashMap<String, RevisionData>();
