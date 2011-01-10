@@ -119,6 +119,7 @@ public class EngineModule extends AbstractModule {
         Mapper priorityMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.priority");
         Mapper resolutionMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.resolution");
         Mapper statusMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.status");
+        Mapper personMapper = (Mapper) config.getGroovyScriptObject("mapper.person.id");
 
         // clear out all the issue data from any previous refresh that might have already been done
         rawData.clearIssueData();
@@ -159,6 +160,10 @@ public class EngineModule extends AbstractModule {
         // run through all the retrieved issues setting mapped types and releases
         for (String issueKey : rawData.getUnmappedIssueKeys()) {
             IssueData issueData = rawData.getUnmappedIssueData(issueKey);
+            String rawAssignee = issueData.getAssignee();
+            String mappedAssignee = personMapper.map(rawAssignee);
+            warnings.add("Issue assignee mapping", "Raw assignee \"" + rawAssignee + "\" mapped to \"" + mappedAssignee
+                    + "\"");
             String rawType = issueData.getType();
             String mappedType = typeMapper.map(rawType);
             warnings.add("Issue type mapping", "Raw type \"" + rawType + "\" mapped to \"" + mappedType + "\"");
@@ -174,7 +179,7 @@ public class EngineModule extends AbstractModule {
             String mappedStatus = statusMapper.map(rawStatus);
             warnings.add("Issue status mapping", "Raw status \"" + rawStatus + "\" mapped to \"" + mappedStatus
                     + "\"");
-            issueData.setNewData(mappedType, mappedPriority, mappedResolution, mappedStatus);
+            issueData.setNewData(mappedAssignee, mappedType, mappedPriority, mappedResolution, mappedStatus);
             List<String> rawReleases = issueData.getReleases();
             List<String> cookedReleases = new ArrayList<String>();
             String rawReleasesStr = "";

@@ -64,8 +64,9 @@ public class IssueData {
         this.releases = releases;
     }
 
-    public void setNewData(String type, String priority, String resolution, String status) {
+    public void setNewData(String assignee, String type, String priority, String resolution, String status) {
 
+        this.assignee = assignee;
         this.type = type;
         this.priority = priority;
         this.resolution = resolution;
