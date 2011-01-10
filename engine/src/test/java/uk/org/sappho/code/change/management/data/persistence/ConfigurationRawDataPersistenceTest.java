@@ -30,7 +30,7 @@ public class ConfigurationRawDataPersistenceTest {
     @Before
     public void setupRawData() {
 
-        rawData = RawDataTest.getFakeRawData(true);
+        rawData = RawDataTest.getFakeRawData();
     }
 
     @Test

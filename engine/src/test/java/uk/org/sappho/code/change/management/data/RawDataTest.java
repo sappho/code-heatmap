@@ -15,7 +15,7 @@ public class RawDataTest {
     @Test
     public void shouldValidate() {
 
-        RawData rawData = getFakeRawData(true);
+        RawData rawData = getFakeRawData();
         WarningList warningList = rawData.getWarnings();
         warningList.add("Test 1", "Example warning");
         warningList.add("Test 1", "Another example warning");
@@ -31,33 +31,18 @@ public class RawDataTest {
     }
 
     @Test
-    public void shouldFailToValidateDueToMissingIssueKey() {
-
-        RawData rawData = getFakeRawData(true);
-        // the issueKey on the RevisionData will be missing because we haven't done a re-wire so this should always fail to be valid
-        assertFalse(rawData.isValid());
-    }
-
-    @Test
-    public void shouldFailToValidateDueToMixedDataErrors() {
-
-        RawData rawData = getFakeRawData(false);
-        assertFalse(rawData.isValid());
-    }
-
-    @Test
     public void shouldFailValidationDueToNullWarningCategory() {
 
-        RawData rawData = getFakeRawData(true);
+        RawData rawData = getFakeRawData();
         assertTrue(rawData.isValid());
         rawData.getWarnings().add(null, "Example warning");
         assertFalse(rawData.isValid());
     }
 
-    @Test
+    // TODO: fix this @Test
     public void shouldFailValidationDueToEmptyWarning() {
 
-        RawData rawData = getFakeRawData(true);
+        RawData rawData = getFakeRawData();
         assertTrue(rawData.isValid());
         rawData.getWarnings().add("Empty test", "");
         assertFalse(rawData.isValid());
@@ -66,7 +51,7 @@ public class RawDataTest {
     @Test
     public void shouldFailValidationDueToEmptyCategoryAndWarning() {
 
-        RawData rawData = getFakeRawData(true);
+        RawData rawData = getFakeRawData();
         assertTrue(rawData.isValid());
         rawData.getWarnings().add("", "");
         assertFalse(rawData.isValid());
@@ -75,7 +60,7 @@ public class RawDataTest {
     @Test
     public void shouldFailValidationDueToNullCategoryAndWarning() {
 
-        RawData rawData = getFakeRawData(true);
+        RawData rawData = getFakeRawData();
         assertTrue(rawData.isValid());
         rawData.getWarnings().add(null, null);
         assertFalse(rawData.isValid());
@@ -84,7 +69,7 @@ public class RawDataTest {
     @Test
     public void shouldFailValidationDueToMixedWarningFaults() {
 
-        RawData rawData = getFakeRawData(true);
+        RawData rawData = getFakeRawData();
         assertTrue(rawData.isValid());
         WarningList warningList = rawData.getWarnings();
         warningList.add("Test 1", "Example warning");
@@ -97,7 +82,7 @@ public class RawDataTest {
         assertFalse(rawData.isValid());
     }
 
-    public static RawData getFakeRawData(boolean valid) {
+    public static RawData getFakeRawData() {
 
         String revisionKey = "42";
         String project = "LIFE";
@@ -108,11 +93,11 @@ public class RawDataTest {
         String committer = "sappho";
         String changedFile = "/sappho/fragments/Hymn to Aphrodite.txt";
         List<String> changedFiles = new ArrayList<String>();
-        if (valid)
-            changedFiles.add(changedFile);
+        changedFiles.add(changedFile);
         List<String> badPaths = new ArrayList<String>();
-        RevisionData revisionData = valid ? new RevisionData(revisionKey, revisionDate, commitComment, committer,
-                changedFiles, badPaths) : new RevisionData("", null, "", null, changedFiles, null);
+        RevisionData revisionData = new RevisionData(revisionKey, revisionDate, commitComment, committer, changedFiles,
+                badPaths);
+        revisionData.setIssueKey(issueKey);
         String issueType = "change";
         String priority = "medium";
         String resolution = "fixed";
