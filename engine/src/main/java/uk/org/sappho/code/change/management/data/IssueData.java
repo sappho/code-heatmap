@@ -31,7 +31,13 @@ public class IssueData {
     private String project;
     @NotNull
     @NotEmpty
+    private String priority;
+    @NotNull
+    @NotEmpty
     private String resolution;
+    @NotNull
+    @NotEmpty
+    private String status;
     @NotNull
     private List<String> components;
     @NotNull
@@ -41,7 +47,8 @@ public class IssueData {
     }
 
     public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate, String assignee,
-            String project, String resolution, List<String> components, List<String> releases) {
+            String project, String priority, String resolution, String status, List<String> components,
+            List<String> releases) {
 
         this.issueKey = key;
         this.type = type;
@@ -50,24 +57,29 @@ public class IssueData {
         this.lastUpdatedDate = lastUpdatedDate;
         this.assignee = assignee;
         this.project = project;
+        this.priority = priority;
         this.resolution = resolution;
+        this.status = status;
         this.components = components;
+        this.releases = releases;
+    }
+
+    public void setNewData(String type, String priority, String resolution, String status) {
+
+        this.type = type;
+        this.priority = priority;
+        this.resolution = resolution;
+        this.status = status;
+    }
+
+    public void setReleases(List<String> releases) {
+
         this.releases = releases;
     }
 
     public String getIssueKey() {
 
         return issueKey;
-    }
-
-    public void setType(String type) {
-
-        this.type = type;
-    }
-
-    public void setResolution(String resolution) {
-
-        this.resolution = resolution;
     }
 
     public String getType() {
@@ -100,19 +112,24 @@ public class IssueData {
         return project;
     }
 
+    public String getPriority() {
+
+        return priority;
+    }
+
     public String getResolution() {
 
         return resolution;
     }
 
+    public String getStatus() {
+
+        return status;
+    }
+
     public List<String> getComponents() {
 
         return components;
-    }
-
-    public void setReleases(List<String> releases) {
-
-        this.releases = releases;
     }
 
     public List<String> getReleases() {

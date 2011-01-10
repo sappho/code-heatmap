@@ -9,10 +9,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.sappho.jira.rpc.soap.client.SapphoJiraRpcSoapServiceWrapper;
 
+import com.atlassian.jira.rpc.soap.client.AbstractRemoteConstant;
 import com.atlassian.jira.rpc.soap.client.RemoteComponent;
 import com.atlassian.jira.rpc.soap.client.RemoteIssue;
-import com.atlassian.jira.rpc.soap.client.RemoteIssueType;
-import com.atlassian.jira.rpc.soap.client.RemoteResolution;
 import com.atlassian.jira.rpc.soap.client.RemoteVersion;
 import com.google.inject.Inject;
 
@@ -24,13 +23,19 @@ import uk.org.sappho.jira4j.soap.JiraSoapService;
 
 public class Jira implements IssueManagement {
 
+    private static enum Field {
+        type,
+        priority,
+        status,
+        resolution
+    };
+
     private final Configuration config;
     private WarningList warnings = null;
     private String jiraURL = null;
     private JiraSoapService jiraSoapService = null;
     private SapphoJiraRpcSoapServiceWrapper sapphoJiraRpcSoapServiceWrapper = null;
-    private final Map<String, String> mappedRemoteIssueTypes = new HashMap<String, String>();
-    private final Map<String, String> mappedRemoteResolutions = new HashMap<String, String>();
+    private final Map<Field, Map<String, String>> idNameMappings = new HashMap<Field, Map<String, String>>();
     private final Map<String, IssueData> issueMappings = new HashMap<String, IssueData>();
     private final Map<String, String> movedIssueMappings = new HashMap<String, String>();
     private final Map<String, String> parentIssueMappings = new HashMap<String, String>();
@@ -54,17 +59,26 @@ public class Jira implements IssueManagement {
         try {
             jiraSoapService = new JiraSoapService(jiraURL, username, password);
             sapphoJiraRpcSoapServiceWrapper = new SapphoJiraRpcSoapServiceWrapper(jiraURL, username, password);
-            RemoteIssueType[] remoteIssueTypes = jiraSoapService.getService().getIssueTypes(jiraSoapService.getToken());
-            for (RemoteIssueType remoteIssueType : remoteIssueTypes)
-                mappedRemoteIssueTypes.put(remoteIssueType.getId(), remoteIssueType.getName());
-            RemoteResolution[] remoteResolutions = jiraSoapService.getService().getResolutions(
-                    jiraSoapService.getToken());
-            for (RemoteResolution remoteResolution : remoteResolutions)
-                mappedRemoteResolutions.put(remoteResolution.getId(), remoteResolution.getName());
+            initIdNameMappings(Field.type, jiraSoapService.getService()
+                    .getIssueTypes(jiraSoapService.getToken()));
+            initIdNameMappings(Field.priority, jiraSoapService.getService()
+                    .getPriorities(jiraSoapService.getToken()));
+            initIdNameMappings(Field.status, jiraSoapService.getService()
+                    .getStatuses(jiraSoapService.getToken()));
+            initIdNameMappings(Field.resolution, jiraSoapService.getService()
+                    .getResolutions(jiraSoapService.getToken()));
         } catch (Throwable t) {
             throw new IssueManagementException("Unable to connect to " + jiraURL + " as user " + username
                     + " - is Sappho SOAP service installed?", t);
         }
+    }
+
+    private void initIdNameMappings(Field field, AbstractRemoteConstant[] constants) {
+
+        Map<String, String> mappings = new HashMap<String, String>();
+        idNameMappings.put(field, mappings);
+        for (AbstractRemoteConstant constant : constants)
+            mappings.put(constant.getId(), constant.getName());
     }
 
     private String getRealIssueKey(String issueKey) {
@@ -126,8 +140,7 @@ public class Jira implements IssueManagement {
                         allRawReleases.add(remoteVersionName);
                     }
                 }
-                String typeId = remoteIssue.getType();
-                String type = mappedRemoteIssueTypes.get(typeId);
+                String type = idNameMappings.get(Field.type).get(remoteIssue.getType());
                 RemoteComponent[] remoteComponents = remoteIssue.getComponents();
                 List<String> components = new ArrayList<String>();
                 for (RemoteComponent remoteComponent : remoteComponents) {
@@ -135,12 +148,13 @@ public class Jira implements IssueManagement {
                 }
                 String assignee = remoteIssue.getAssignee();
                 String project = remoteIssue.getProject();
-                String resolutionId = remoteIssue.getResolution();
-                String resolution = mappedRemoteResolutions.get(resolutionId);
+                String priority = idNameMappings.get(Field.priority).get(remoteIssue.getPriority());
+                String resolution = idNameMappings.get(Field.resolution).get(remoteIssue.getResolution());
+                String status = idNameMappings.get(Field.status).get(remoteIssue.getStatus());
                 Date createdOn = remoteIssue.getCreated().getTime();
                 Date updatedOn = remoteIssue.getUpdated().getTime();
                 issueData = new IssueData(issueKey, type, remoteIssue.getSummary(), createdOn, updatedOn,
-                        assignee, project, resolution, components, issueRawReleases);
+                        assignee, project, priority, resolution, status, components, issueRawReleases);
                 issueMappings.put(issueKey, issueData);
             }
         }

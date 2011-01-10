@@ -115,8 +115,10 @@ public class EngineModule extends AbstractModule {
         Mapper commitCommentToIssueKeyMapper = (Mapper) config
                 .getGroovyScriptObject("mapper.commit.comment.to.issue.key");
         Mapper releaseMapper = (Mapper) config.getGroovyScriptObject("mapper.raw.release.to.release");
-        Mapper issueTypeMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.type");
-        Mapper resolutionMapper = (Mapper) config.getGroovyScriptObject("mapper.resolution");
+        Mapper typeMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.type");
+        Mapper priorityMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.priority");
+        Mapper resolutionMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.resolution");
+        Mapper statusMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.status");
 
         // clear out all the issue data from any previous refresh that might have already been done
         rawData.clearIssueData();
@@ -158,14 +160,21 @@ public class EngineModule extends AbstractModule {
         for (String issueKey : rawData.getUnmappedIssueKeys()) {
             IssueData issueData = rawData.getUnmappedIssueData(issueKey);
             String rawType = issueData.getType();
-            String cookedType = issueTypeMapper.map(rawType);
-            warnings.add("Issue type mapping", "Raw issue type \"" + rawType + "\" mapped to \"" + cookedType + "\"");
-            issueData.setType(cookedType);
+            String mappedType = typeMapper.map(rawType);
+            warnings.add("Issue type mapping", "Raw type \"" + rawType + "\" mapped to \"" + mappedType + "\"");
+            String rawPriority = issueData.getPriority();
+            String mappedPriority = priorityMapper.map(rawPriority);
+            warnings.add("Issue priority mapping", "Raw priority \"" + rawPriority + "\" mapped to \"" + mappedPriority
+                    + "\"");
             String rawResolution = issueData.getResolution();
-            String cookedResolution = resolutionMapper.map(rawResolution);
-            warnings.add("Resolution mapping", "Raw resolution \"" + rawResolution + "\" mapped to \""
-                    + cookedResolution + "\"");
-            issueData.setResolution(cookedResolution);
+            String mappedResolution = resolutionMapper.map(rawResolution);
+            warnings.add("Issue resolution mapping", "Raw resolution \"" + rawResolution + "\" mapped to \""
+                    + mappedResolution + "\"");
+            String rawStatus = issueData.getStatus();
+            String mappedStatus = statusMapper.map(rawStatus);
+            warnings.add("Issue status mapping", "Raw status \"" + rawStatus + "\" mapped to \"" + mappedStatus
+                    + "\"");
+            issueData.setNewData(mappedType, mappedPriority, mappedResolution, mappedStatus);
             List<String> rawReleases = issueData.getReleases();
             List<String> cookedReleases = new ArrayList<String>();
             String rawReleasesStr = "";
