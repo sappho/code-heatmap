@@ -116,6 +116,7 @@ public class EngineModule extends AbstractModule {
                 .getGroovyScriptObject("mapper.commit.comment.to.issue.key");
         Mapper releaseMapper = (Mapper) config.getGroovyScriptObject("mapper.raw.release.to.release");
         Mapper issueTypeMapper = (Mapper) config.getGroovyScriptObject("mapper.issue.type");
+        Mapper resolutionMapper = (Mapper) config.getGroovyScriptObject("mapper.resolution");
 
         // clear out all the issue data from any previous refresh that might have already been done
         rawData.clearIssueData();
@@ -160,6 +161,11 @@ public class EngineModule extends AbstractModule {
             String cookedType = issueTypeMapper.map(rawType);
             warnings.add("Issue type mapping", "Raw issue type \"" + rawType + "\" mapped to \"" + cookedType + "\"");
             issueData.setType(cookedType);
+            String rawResolution = issueData.getResolution();
+            String cookedResolution = resolutionMapper.map(rawResolution);
+            warnings.add("Resolution mapping", "Raw resolution \"" + rawResolution + "\" mapped to \""
+                    + cookedResolution + "\"");
+            issueData.setResolution(cookedResolution);
             List<String> rawReleases = issueData.getReleases();
             List<String> cookedReleases = new ArrayList<String>();
             String rawReleasesStr = "";

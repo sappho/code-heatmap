@@ -114,6 +114,7 @@ public class RawDataTest {
         RevisionData revisionData = valid ? new RevisionData(revisionKey, revisionDate, commitComment, committer,
                 changedFiles, badPaths) : new RevisionData("", null, "", null, changedFiles, null);
         String issueType = "change";
+        String resolution = "fixed";
         String component = "artistry";
         List<String> components = new ArrayList<String>();
         components.add(component);
@@ -121,7 +122,7 @@ public class RawDataTest {
         List<String> releases = new ArrayList<String>();
         releases.add(release);
         IssueData issueData = new IssueData(issueKey, issueType, issueSummary, revisionDate, revisionDate, committer,
-                project, components, releases);
+                project, resolution, components, releases);
         RawData rawData = new RawData();
         rawData.putRevisionData(revisionData);
         rawData.putIssueData(issueKey, issueData);

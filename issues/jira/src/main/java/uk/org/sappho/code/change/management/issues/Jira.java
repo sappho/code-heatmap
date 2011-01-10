@@ -12,12 +12,14 @@ import org.sappho.jira.rpc.soap.client.SapphoJiraRpcSoapServiceWrapper;
 import com.atlassian.jira.rpc.soap.client.RemoteComponent;
 import com.atlassian.jira.rpc.soap.client.RemoteIssue;
 import com.atlassian.jira.rpc.soap.client.RemoteIssueType;
+import com.atlassian.jira.rpc.soap.client.RemoteResolution;
 import com.atlassian.jira.rpc.soap.client.RemoteVersion;
 import com.google.inject.Inject;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.WarningList;
 import uk.org.sappho.configuration.Configuration;
+import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
 
 public class Jira implements IssueManagement {
@@ -28,6 +30,7 @@ public class Jira implements IssueManagement {
     private JiraSoapService jiraSoapService = null;
     private SapphoJiraRpcSoapServiceWrapper sapphoJiraRpcSoapServiceWrapper = null;
     private final Map<String, String> mappedRemoteIssueTypes = new HashMap<String, String>();
+    private final Map<String, String> mappedRemoteResolutions = new HashMap<String, String>();
     private final Map<String, IssueData> issueMappings = new HashMap<String, IssueData>();
     private final Map<String, String> movedIssueMappings = new HashMap<String, String>();
     private final Map<String, String> parentIssueMappings = new HashMap<String, String>();
@@ -41,20 +44,23 @@ public class Jira implements IssueManagement {
         this.config = config;
     }
 
-    public void init(WarningList warnings) throws IssueManagementException {
+    public void init(WarningList warnings) throws IssueManagementException, ConfigurationException {
 
         this.warnings = warnings;
-        jiraURL = config.getProperty("jira.url", "http://example.com");
-        String username = config.getProperty("jira.username", "nobody");
-        String password = config.getProperty("jira.password", "nopassword");
+        jiraURL = config.getProperty("jira.url");
+        String username = config.getProperty("jira.username");
+        String password = config.getProperty("jira.password");
         log.info("Connecting to " + jiraURL + " as " + username);
         try {
             jiraSoapService = new JiraSoapService(jiraURL, username, password);
-            RemoteIssueType[] remoteIssueTypes = jiraSoapService.getService().getIssueTypes(jiraSoapService.getToken());
-            for (RemoteIssueType remoteIssueType : remoteIssueTypes) {
-                mappedRemoteIssueTypes.put(remoteIssueType.getId(), remoteIssueType.getName());
-            }
             sapphoJiraRpcSoapServiceWrapper = new SapphoJiraRpcSoapServiceWrapper(jiraURL, username, password);
+            RemoteIssueType[] remoteIssueTypes = jiraSoapService.getService().getIssueTypes(jiraSoapService.getToken());
+            for (RemoteIssueType remoteIssueType : remoteIssueTypes)
+                mappedRemoteIssueTypes.put(remoteIssueType.getId(), remoteIssueType.getName());
+            RemoteResolution[] remoteResolutions = jiraSoapService.getService().getResolutions(
+                    jiraSoapService.getToken());
+            for (RemoteResolution remoteResolution : remoteResolutions)
+                mappedRemoteResolutions.put(remoteResolution.getId(), remoteResolution.getName());
         } catch (Throwable t) {
             throw new IssueManagementException("Unable to connect to " + jiraURL + " as user " + username
                     + " - is Sappho SOAP service installed?", t);
@@ -120,8 +126,8 @@ public class Jira implements IssueManagement {
                         allRawReleases.add(remoteVersionName);
                     }
                 }
-                String rawTypeId = remoteIssue.getType();
-                String rawTypeName = mappedRemoteIssueTypes.get(rawTypeId);
+                String typeId = remoteIssue.getType();
+                String type = mappedRemoteIssueTypes.get(typeId);
                 RemoteComponent[] remoteComponents = remoteIssue.getComponents();
                 List<String> components = new ArrayList<String>();
                 for (RemoteComponent remoteComponent : remoteComponents) {
@@ -129,10 +135,12 @@ public class Jira implements IssueManagement {
                 }
                 String assignee = remoteIssue.getAssignee();
                 String project = remoteIssue.getProject();
+                String resolutionId = remoteIssue.getResolution();
+                String resolution = mappedRemoteResolutions.get(resolutionId);
                 Date createdOn = remoteIssue.getCreated().getTime();
                 Date updatedOn = remoteIssue.getUpdated().getTime();
-                issueData = new IssueData(issueKey, rawTypeName, remoteIssue.getSummary(), createdOn, updatedOn,
-                        assignee, project, components, issueRawReleases);
+                issueData = new IssueData(issueKey, type, remoteIssue.getSummary(), createdOn, updatedOn,
+                        assignee, project, resolution, components, issueRawReleases);
                 issueMappings.put(issueKey, issueData);
             }
         }

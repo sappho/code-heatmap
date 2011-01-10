@@ -30,6 +30,9 @@ public class IssueData {
     @NotEmpty
     private String project;
     @NotNull
+    @NotEmpty
+    private String resolution;
+    @NotNull
     private List<String> components;
     @NotNull
     private List<String> releases;
@@ -38,7 +41,7 @@ public class IssueData {
     }
 
     public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate, String assignee,
-            String project, List<String> components, List<String> releases) {
+            String project, String resolution, List<String> components, List<String> releases) {
 
         this.issueKey = key;
         this.type = type;
@@ -47,6 +50,7 @@ public class IssueData {
         this.lastUpdatedDate = lastUpdatedDate;
         this.assignee = assignee;
         this.project = project;
+        this.resolution = resolution;
         this.components = components;
         this.releases = releases;
     }
@@ -59,6 +63,11 @@ public class IssueData {
     public void setType(String type) {
 
         this.type = type;
+    }
+
+    public void setResolution(String resolution) {
+
+        this.resolution = resolution;
     }
 
     public String getType() {
@@ -89,6 +98,11 @@ public class IssueData {
     public String getProject() {
 
         return project;
+    }
+
+    public String getResolution() {
+
+        return resolution;
     }
 
     public List<String> getComponents() {
