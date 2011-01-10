@@ -141,6 +141,9 @@ public class Jira implements IssueManagement {
                     }
                 }
                 String type = idNameMappings.get(Field.type).get(remoteIssue.getType());
+                String summary = remoteIssue.getSummary();
+                if (summary == null)
+                    summary = "";
                 RemoteComponent[] remoteComponents = remoteIssue.getComponents();
                 List<String> components = new ArrayList<String>();
                 for (RemoteComponent remoteComponent : remoteComponents) {
@@ -153,7 +156,7 @@ public class Jira implements IssueManagement {
                 String status = idNameMappings.get(Field.status).get(remoteIssue.getStatus());
                 Date createdOn = remoteIssue.getCreated().getTime();
                 Date updatedOn = remoteIssue.getUpdated().getTime();
-                issueData = new IssueData(issueKey, type, remoteIssue.getSummary(), createdOn, updatedOn,
+                issueData = new IssueData(issueKey, type, summary, createdOn, updatedOn,
                         assignee, project, priority, resolution, status, components, issueRawReleases);
                 issueMappings.put(issueKey, issueData);
             }
