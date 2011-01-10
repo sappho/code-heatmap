@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.sappho.jira.rpc.soap.client.SapphoJiraRpcSoapServiceWrapper;
 
 import com.atlassian.jira.rpc.soap.client.AbstractRemoteConstant;
-import com.atlassian.jira.rpc.soap.client.RemoteComponent;
 import com.atlassian.jira.rpc.soap.client.RemoteIssue;
 import com.atlassian.jira.rpc.soap.client.RemoteVersion;
 import com.google.inject.Inject;
@@ -144,11 +143,6 @@ public class Jira implements IssueManagement {
                 String summary = remoteIssue.getSummary();
                 if (summary == null)
                     summary = "";
-                RemoteComponent[] remoteComponents = remoteIssue.getComponents();
-                List<String> components = new ArrayList<String>();
-                for (RemoteComponent remoteComponent : remoteComponents) {
-                    components.add(remoteComponent.getName());
-                }
                 String assignee = remoteIssue.getAssignee();
                 String project = remoteIssue.getProject();
                 String priority = idNameMappings.get(Field.priority).get(remoteIssue.getPriority());
@@ -157,7 +151,7 @@ public class Jira implements IssueManagement {
                 Date createdOn = remoteIssue.getCreated().getTime();
                 Date updatedOn = remoteIssue.getUpdated().getTime();
                 issueData = new IssueData(issueKey, type, summary, createdOn, updatedOn,
-                        assignee, project, priority, resolution, status, components, issueRawReleases);
+                        assignee, project, priority, resolution, status, issueRawReleases);
                 issueMappings.put(issueKey, issueData);
             }
         }

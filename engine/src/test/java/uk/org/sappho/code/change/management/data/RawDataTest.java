@@ -117,14 +117,11 @@ public class RawDataTest {
         String priority = "medium";
         String resolution = "fixed";
         String status = "closed";
-        String component = "artistry";
-        List<String> components = new ArrayList<String>();
-        components.add(component);
         String release = "Fragments 0.1";
         List<String> releases = new ArrayList<String>();
         releases.add(release);
         IssueData issueData = new IssueData(issueKey, issueType, issueSummary, revisionDate, revisionDate, committer,
-                project, priority, resolution, status, components, releases);
+                project, priority, resolution, status, releases);
         RawData rawData = new RawData();
         rawData.putRevisionData(revisionData);
         rawData.putIssueData(issueKey, issueData);

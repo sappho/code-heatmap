@@ -39,16 +39,13 @@ public class IssueData {
     @NotEmpty
     private String status;
     @NotNull
-    private List<String> components;
-    @NotNull
     private List<String> releases;
 
     public IssueData() {
     }
 
     public IssueData(String key, String type, String summary, Date createdDate, Date lastUpdatedDate, String assignee,
-            String project, String priority, String resolution, String status, List<String> components,
-            List<String> releases) {
+            String project, String priority, String resolution, String status, List<String> releases) {
 
         this.issueKey = key;
         this.type = type;
@@ -60,7 +57,6 @@ public class IssueData {
         this.priority = priority;
         this.resolution = resolution;
         this.status = status;
-        this.components = components;
         this.releases = releases;
     }
 
@@ -126,11 +122,6 @@ public class IssueData {
     public String getStatus() {
 
         return status;
-    }
-
-    public List<String> getComponents() {
-
-        return components;
     }
 
     public List<String> getReleases() {
