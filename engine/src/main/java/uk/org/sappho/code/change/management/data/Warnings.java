@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import uk.org.sappho.validation.WarningsConstraint;
+import uk.org.sappho.code.change.management.data.validation.WarningsConstraint;
 
 public class Warnings {
 
