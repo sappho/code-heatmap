@@ -15,7 +15,7 @@ import com.google.inject.Injector;
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
-import uk.org.sappho.code.change.management.data.WarningList;
+import uk.org.sappho.code.change.management.data.Warnings;
 import uk.org.sappho.code.change.management.data.persistence.ConfigurationRawDataPersistence;
 import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
@@ -107,7 +107,7 @@ public class EngineModule extends AbstractModule {
         log.info("Refreshing issues connected with SCM revisions");
 
         // fresh warnings to be added to any already issued
-        WarningList warnings = rawData.getWarnings();
+        Warnings warnings = rawData.getWarnings();
 
         // get all the plugins and scripts needed
         IssueManagement issueManagement = getIssueManagementPlugin();

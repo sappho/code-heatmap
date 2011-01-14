@@ -25,7 +25,7 @@ public class RawData {
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
     @NotNull
     @AssertValid
-    private WarningList warningList = new WarningList();
+    private Warnings warningList = new Warnings();
 
     public void clearRevisionData() {
 
@@ -86,10 +86,10 @@ public class RawData {
         return issueDataMap.get(issueKey);
     }
 
-    public WarningList getWarnings() {
+    public Warnings getWarnings() {
 
         if (warningList == null)
-            warningList = new WarningList();
+            warningList = new Warnings();
         return warningList;
     }
 

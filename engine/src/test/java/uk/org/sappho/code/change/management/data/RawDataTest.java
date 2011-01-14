@@ -16,7 +16,7 @@ public class RawDataTest {
     public void shouldValidate() {
 
         RawData rawData = getFakeRawData();
-        WarningList warningList = rawData.getWarnings();
+        Warnings warningList = rawData.getWarnings();
         warningList.add("Test 1", "Example warning");
         warningList.add("Test 1", "Another example warning");
         assertTrue(rawData.isValid());
@@ -71,7 +71,7 @@ public class RawDataTest {
 
         RawData rawData = getFakeRawData();
         assertTrue(rawData.isValid());
-        WarningList warningList = rawData.getWarnings();
+        Warnings warningList = rawData.getWarnings();
         warningList.add("Test 1", "Example warning");
         warningList.add(null, null);
         warningList.add("Test 1", "Another example warning");

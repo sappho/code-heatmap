@@ -15,7 +15,7 @@ import com.atlassian.jira.rpc.soap.client.RemoteVersion;
 import com.google.inject.Inject;
 
 import uk.org.sappho.code.change.management.data.IssueData;
-import uk.org.sappho.code.change.management.data.WarningList;
+import uk.org.sappho.code.change.management.data.Warnings;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.jira4j.soap.JiraSoapService;
@@ -30,7 +30,7 @@ public class Jira implements IssueManagement {
     };
 
     private final Configuration config;
-    private WarningList warnings = null;
+    private Warnings warnings = null;
     private String jiraURL = null;
     private JiraSoapService jiraSoapService = null;
     private SapphoJiraRpcSoapServiceWrapper sapphoJiraRpcSoapServiceWrapper = null;
@@ -48,7 +48,7 @@ public class Jira implements IssueManagement {
         this.config = config;
     }
 
-    public void init(WarningList warnings) throws IssueManagementException, ConfigurationException {
+    public void init(Warnings warnings) throws IssueManagementException, ConfigurationException {
 
         this.warnings = warnings;
         jiraURL = config.getProperty("jira.url");
