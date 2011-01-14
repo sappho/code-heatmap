@@ -25,7 +25,7 @@ public class RawData {
     private Map<String, String> issueKeyToIssueKeyMap = new HashMap<String, String>();
     @NotNull
     @AssertValid
-    private Warnings warningList = new Warnings();
+    private Warnings warnings = new Warnings();
 
     public void clearRevisionData() {
 
@@ -88,9 +88,9 @@ public class RawData {
 
     public Warnings getWarnings() {
 
-        if (warningList == null)
-            warningList = new Warnings();
-        return warningList;
+        if (warnings == null)
+            warnings = new Warnings();
+        return warnings;
     }
 
     public Map<String, IssueData> getIssueDataMap() {
@@ -109,7 +109,7 @@ public class RawData {
         List<ConstraintViolation> violations = validator.validate(this);
         boolean valid = violations.size() == 0;
         if (!valid)
-            warningList.add("Invalid raw data", "Elements of raw data are invalid: " + validator.getReport(violations));
+            warnings.add("Invalid raw data", "Elements of raw data are invalid: " + validator.getReport(violations));
         return valid;
     }
 }
