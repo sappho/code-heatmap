@@ -25,24 +25,24 @@ public class IssueKeyMappingCheck extends AbstractAnnotationCheck<IssueKeyMappin
 
         RawData rawData = null;
         Map<String, String> map = null;
-        Collection<String> keys = null;
-        Collection<String> values = null;
+        Collection<String> mappedFromList = null;
+        Collection<String> mappedToList = null;
         try {
             rawData = (RawData) validatedObject;
             if (rawData != null) {
                 map = (Map<String, String>) valueToValidate;
-                keys = map.keySet();
-                values = map.values();
+                mappedFromList = map.keySet();
+                mappedToList = map.values();
             }
         } catch (Throwable t) {
             // catches cast exceptions leaving keys as null
         }
         String error = "";
-        if (values == null) {
-            error = "is missing, invalid or does not cast to Map<String, String>, or RawData is not being validated or is also invalid";
+        if (mappedToList == null) {
+            error = "is missing, the wrong type, or not a RawData field";
         } else {
             List<String> unmappedToRevision = new ArrayList<String>();
-            for (String key : keys) {
+            for (String key : mappedFromList) {
                 List<RevisionData> revisionsReferencingIssue = new ArrayList<RevisionData>();
                 try {
                     revisionsReferencingIssue = rawData.getRevisionsReferencingIssue(key);
@@ -53,10 +53,10 @@ public class IssueKeyMappingCheck extends AbstractAnnotationCheck<IssueKeyMappin
                     unmappedToRevision.add(key);
             }
             List<String> unmappedToIssue = new ArrayList<String>();
-            for (String value : values) {
+            for (String value : mappedToList) {
                 IssueData issueData = null;
                 try {
-                    issueData = rawData.getIssueData(value);
+                    issueData = rawData.getUnmappedIssueData(value);
                 } catch (Throwable t) {
                     // if there's an error getting the issue assume there isn't an issue
                 }
