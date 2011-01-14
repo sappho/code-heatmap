@@ -6,16 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.oval.constraint.AssertValid;
-
 import org.apache.log4j.Logger;
 
-import uk.org.sappho.validation.MapKeysPopulatedConstraint;
+import uk.org.sappho.validation.WarningsConstraint;
 
 public class Warnings {
 
-    @MapKeysPopulatedConstraint
-    @AssertValid
+    @WarningsConstraint
     private Map<String, List<String>> warningLists = new HashMap<String, List<String>>();
 
     private static final Logger log = Logger.getLogger(Warnings.class);
