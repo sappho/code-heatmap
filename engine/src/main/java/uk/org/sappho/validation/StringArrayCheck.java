@@ -21,20 +21,18 @@ public class StringArrayCheck extends AbstractAnnotationCheck<StringArrayConstra
         try {
             array = (List<String>) valueToValidate;
         } catch (Throwable t) {
-            // catch null or wrong type
-        }
-        if (array == null)
             error = "is missing or invalid";
-        else
-            for (String item : array) {
-                boolean invalid = true;
-                try {
-                    invalid = item.length() == 0;
-                } catch (Throwable t) {
-                    // catch null or wrong type
+        }
+        if (array != null)
+            try {
+                for (String item : array) {
+                    if (item.length() == 0) {
+                        error = "contains at least one blank string";
+                        break;
+                    }
                 }
-                if (invalid)
-                    error = "contains null or blank string";
+            } catch (Throwable t) {
+                error = "contains null or invalid data";
             }
         if (error != null) {
             if (context instanceof FieldContext) {
