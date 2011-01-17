@@ -26,6 +26,8 @@ public class CodeChangeManagementApp {
             log.info("Running " + action);
             if (action.equalsIgnoreCase("load"))
                 engineModule.loadRawData();
+            else if (action.equalsIgnoreCase("validate"))
+                engineModule.validateRawData();
             else if (action.equalsIgnoreCase("save"))
                 engineModule.saveRawData();
             else if (action.equalsIgnoreCase("scan"))

@@ -86,6 +86,15 @@ public class EngineModule extends AbstractModule {
         rawData = new ConfigurationRawDataPersistence(config).load();
     }
 
+    public void validateRawData() throws Exception {
+
+        log.info("Validating data");
+        if (rawData.isValid())
+            log.info("Data is clean");
+        else
+            throw new Exception("Data is invalid");
+    }
+
     public void saveRawData() throws IOException, ConfigurationException {
 
         new ConfigurationRawDataPersistence(config).save(rawData);
