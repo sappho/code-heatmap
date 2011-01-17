@@ -83,7 +83,6 @@ public class Subversion implements SCM {
                     String commitComment = logMessage.getMessage();
                     String committer = logMessage.getAuthor();
                     List<String> changedFiles = new ArrayList<String>();
-                    List<String> badPaths = new ArrayList<String>();
                     for (ChangePath changePath : logMessage.getChangedPaths()) {
                         nodeCount++;
                         String path = changePath.getPath();
@@ -102,7 +101,8 @@ public class Subversion implements SCM {
                                         nodeKind = info[0].getKind();
                                         nodeKindCache.put(path, nodeKind);
                                     } else {
-                                        badPaths.add(path);
+                                        rawData.getWarnings().add("Bad path",
+                                                "Unable to get Subversion data for path " + path);
                                         badPathCount++;
                                     }
                                 }
@@ -120,7 +120,7 @@ public class Subversion implements SCM {
                         noFilesCount++;
                     }
                     RevisionData revisionData = new RevisionData(revisionKey, date, commitComment, committer,
-                            changedFiles, badPaths);
+                            changedFiles);
                     revisionDataPostProcessor.process(revisionData);
                     rawData.putRevisionData(revisionData);
                 }

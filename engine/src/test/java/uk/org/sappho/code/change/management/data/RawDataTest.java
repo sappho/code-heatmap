@@ -94,9 +94,7 @@ public class RawDataTest {
         String changedFile = "/sappho/fragments/Hymn to Aphrodite.txt";
         List<String> changedFiles = new ArrayList<String>();
         changedFiles.add(changedFile);
-        List<String> badPaths = new ArrayList<String>();
-        RevisionData revisionData = new RevisionData(revisionKey, revisionDate, commitComment, committer, changedFiles,
-                badPaths);
+        RevisionData revisionData = new RevisionData(revisionKey, revisionDate, commitComment, committer, changedFiles);
         revisionData.setIssueKey(issueKey);
         String issueType = "change";
         String priority = "medium";

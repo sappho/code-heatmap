@@ -28,21 +28,18 @@ public class RevisionData {
     private Boolean isMerge = false;
     @NotNull
     private List<String> changedFiles;
-    @NotNull
-    private List<String> badPaths;
 
     public RevisionData() {
     }
 
     public RevisionData(String revisionKey, Date date, String commitComment, String committer,
-            List<String> changedFiles, List<String> badPaths) {
+            List<String> changedFiles) {
 
         this.revisionKey = revisionKey;
         this.date = date;
         this.commitComment = commitComment;
         this.committer = committer;
         this.changedFiles = changedFiles;
-        this.badPaths = badPaths;
     }
 
     public final String getRevisionKey() {
@@ -68,11 +65,6 @@ public class RevisionData {
     public final List<String> getChangedFiles() {
 
         return changedFiles;
-    }
-
-    public final List<String> getBadPaths() {
-
-        return badPaths;
     }
 
     public void setIssueKey(String issueKey) {
