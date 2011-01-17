@@ -32,14 +32,14 @@ public class EngineModuleTest {
                 "uk.org.sappho.code.change.management.issues");
         when(getIssueManagementPluginClass).thenReturn(FakeIssueManagementPlugin.class);
         Class<FakeRawDataProcessingPlugin> getRawDataProcessingPluginClass = mockConfiguration.getPlugin(
-                "raw.data.processing.plugin", "uk.org.sappho.code.heatmap.engine");
+                "raw.data.processing.plugin", "uk.org.sappho.code.change.management.processor");
         when(getRawDataProcessingPluginClass).thenReturn(FakeRawDataProcessingPlugin.class);
         module = new EngineModule();
         module.init(mockConfiguration);
     }
 
     @Test
-    public void shouldWireInPlugins() throws SCMException, RawDataProcessingException {
+    public void shouldWireInPlugins() throws SCMException, RawDataProcessingException, ConfigurationException {
 
         module.getSCMPlugin().scan(new RawData());
         module.getIssueManagementPlugin().getIssueData("");

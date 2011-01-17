@@ -75,7 +75,7 @@ public class EngineModule extends AbstractModule {
                             "uk.org.sappho.code.change.management.issues"));
             bind(RawDataProcessing.class).to(
                     config.<RawDataProcessing> getPlugin("raw.data.processing.plugin",
-                            "uk.org.sappho.code.heatmap.engine"));
+                            "uk.org.sappho.code.change.management.processor"));
         } catch (ConfigurationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -106,7 +106,7 @@ public class EngineModule extends AbstractModule {
         refreshRawData();
     }
 
-    public void processRawData() throws RawDataProcessingException {
+    public void processRawData() throws RawDataProcessingException, ConfigurationException {
 
         getRawDataProcessingPlugin().run(rawData);
     }

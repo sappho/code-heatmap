@@ -18,8 +18,7 @@ public class CodeChangeManagementApp {
         Configuration config = new SimpleConfiguration();
         for (String configFilename : args)
             config.load(configFilename);
-        EngineModule engineModule = config.<EngineModule> getPlugin("engine.module",
-                "uk.org.sappho.code.change.management.engine").newInstance();
+        EngineModule engineModule = new EngineModule();
         engineModule.init(config);
         List<String> actions = config.getPropertyList("app.run.action");
         for (String action : actions) {

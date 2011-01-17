@@ -99,8 +99,8 @@
 		<module>engine</module>
 		<module>app</module>
 		<module>scm</module>
-		<module>report</module>
 		<module>issues</module>
+		<module>processor</module>
 		<module>ui</module>
 	</modules>
 

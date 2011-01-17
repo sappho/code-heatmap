@@ -23,7 +23,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>code-heatmap-formatted-report</artifactId>
+			<artifactId>code-heatmap-processor-release-note</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
