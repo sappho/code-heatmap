@@ -6,6 +6,8 @@ import java.util.List;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
+import uk.org.sappho.validation.StringArrayConstraint;
+
 public class IssueData {
 
     @NotNull
@@ -38,7 +40,7 @@ public class IssueData {
     @NotNull
     @NotEmpty
     private String status;
-    @NotNull
+    @StringArrayConstraint
     private List<String> releases;
 
     public IssueData() {

@@ -6,6 +6,8 @@ import java.util.List;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
+import uk.org.sappho.validation.StringArrayConstraint;
+
 public class RevisionData {
 
     @NotNull
@@ -26,7 +28,7 @@ public class RevisionData {
     @NotNull
     @NotEmpty
     private Boolean isMerge = false;
-    @NotNull
+    @StringArrayConstraint
     private List<String> changedFiles;
 
     public RevisionData() {
