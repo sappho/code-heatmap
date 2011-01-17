@@ -40,7 +40,8 @@ public class ReleaseNote implements RawDataProcessing {
 
     public void run(RawData rawData) throws RawDataProcessingException, ConfigurationException {
 
-        HeatMapSelector heatMapSelector = (HeatMapSelector) config.getGroovyScriptObject("mapper.heatmap.selector");
+        HeatMapSelector heatMapSelector = (HeatMapSelector) config
+                .getGroovyScriptObject("release.note.mapper.heatmap.selector");
         HeatMaps heatMaps = new HeatMaps();
         String release = null;
         for (String revisionKey : rawData.getRevisionKeys()) {
@@ -56,7 +57,7 @@ public class ReleaseNote implements RawDataProcessing {
             if (release == null)
                 release = issueRelease;
             else if (!release.equals(issueRelease))
-                throw new RawDataProcessingException("Release is different to previous releases for issue " + issueKey);
+                throw new RawDataProcessingException("Release is different to previous release for issue " + issueKey);
             heatMaps.add(revisionData, issueData, heatMapSelector);
         }
         Writer writer = null;
@@ -74,12 +75,11 @@ public class ReleaseNote implements RawDataProcessing {
             freemarkerConfig.setObjectWrapper(new DefaultObjectWrapper());
             freemarkerConfig.setDirectoryForTemplateLoading(new File(templateFile.getParent()));
             Template template = freemarkerConfig.getTemplate(templateFile.getName());
-            log.info("Writing release note " + outputFile.getCanonicalPath() + " with template "
-                    + templateFile.getCanonicalPath());
+            log.info("Writing release note " + outputFile.getPath() + " with template " + templateFile.getPath());
             writer = new FileWriter(outputFile);
             template.process(data, writer);
             writer.close();
-            log.debug("Written release note content in full");
+            log.info("Completed release note");
         } catch (Throwable t) {
             if (writer != null) {
                 try {

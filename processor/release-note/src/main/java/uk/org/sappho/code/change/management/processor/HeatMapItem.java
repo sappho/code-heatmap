@@ -48,7 +48,9 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
 
         int weight = 0;
         for (IssueData issue : issues.keySet()) {
-            weight += 1; // TODO: replace issue.getWeight();
+            weight++;
+            if (issue.getType().equalsIgnoreCase("defect"))
+                weight += 2;
         }
         return weight;
     }
