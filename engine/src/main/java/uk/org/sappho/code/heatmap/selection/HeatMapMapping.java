@@ -1,4 +1,4 @@
-package uk.org.sappho.code.heatmap.mapping;
+package uk.org.sappho.code.heatmap.selection;
 
 public class HeatMapMapping {
 

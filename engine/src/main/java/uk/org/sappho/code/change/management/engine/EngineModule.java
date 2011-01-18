@@ -21,6 +21,7 @@ import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
 import uk.org.sappho.code.change.management.scm.SCM;
 import uk.org.sappho.code.change.management.scm.SCMException;
+import uk.org.sappho.code.heatmap.basic.BasicHeatMapModule;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.string.mapping.Mapper;
@@ -35,7 +36,7 @@ public class EngineModule extends AbstractModule {
     public void init(Configuration config) {
 
         this.config = config;
-        injector = Guice.createInjector(this);
+        injector = Guice.createInjector(this, new BasicHeatMapModule(config));
     }
 
     protected Configuration getConfiguration() {

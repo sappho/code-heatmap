@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
@@ -23,27 +24,27 @@ import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.engine.RawDataProcessing;
 import uk.org.sappho.code.change.management.engine.RawDataProcessingException;
 import uk.org.sappho.code.heatmap.HeatMapCollection;
-import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 
 public class ReleaseNote implements RawDataProcessing {
 
     private final Configuration config;
+    private final Provider<HeatMapCollection> heatMapProvider;
     private static final Logger log = Logger.getLogger(ReleaseNote.class);
 
     @Inject
-    public ReleaseNote(Configuration config) throws ConfigurationException {
+    public ReleaseNote(Configuration config, Provider<HeatMapCollection> heatMapProvider)
+            throws ConfigurationException {
 
         log.info("Using release note plugin");
         this.config = config;
+        this.heatMapProvider = heatMapProvider;
     }
 
     public void run(RawData rawData) throws RawDataProcessingException, ConfigurationException {
 
-        HeatMapSelector heatMapSelector = (HeatMapSelector) config
-                .getGroovyScriptObject("release.note.mapper.heatmap.selector");
-        HeatMapCollection heatMaps = new HeatMapCollection();
+        HeatMapCollection heatMaps = heatMapProvider.get();
         String release = null;
         for (String revisionKey : rawData.getRevisionKeys()) {
             RevisionData revisionData = rawData.getRevisionData(revisionKey);
@@ -59,7 +60,7 @@ public class ReleaseNote implements RawDataProcessing {
                 release = issueRelease;
             else if (!release.equals(issueRelease))
                 throw new RawDataProcessingException("Release is different to previous release for issue " + issueKey);
-            heatMaps.add(revisionData, issueData, heatMapSelector);
+            heatMaps.add(revisionData, issueData);
         }
         Writer writer = null;
         try {
