@@ -2,8 +2,6 @@ package uk.org.sappho.code.change.management.engine;
 
 import java.util.List;
 
-import com.google.inject.Inject;
-
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.Warnings;
 import uk.org.sappho.code.change.management.issues.IssueManagement;

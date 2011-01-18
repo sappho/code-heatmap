@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import uk.org.sappho.code.change.management.data.IssueData;
@@ -21,32 +20,25 @@ import uk.org.sappho.code.change.management.issues.IssueManagement;
 import uk.org.sappho.code.change.management.issues.IssueManagementException;
 import uk.org.sappho.code.change.management.scm.SCM;
 import uk.org.sappho.code.change.management.scm.SCMException;
-import uk.org.sappho.code.heatmap.basic.BasicHeatMapModule;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.string.mapping.Mapper;
 
 public class EngineModule extends AbstractModule {
 
-    private Configuration config;
+    private final Configuration config;
     private Injector injector;
     private RawData rawData = new RawData();
     private static final Logger log = Logger.getLogger(EngineModule.class);
 
-    public void init(Configuration config) {
+    public EngineModule(Configuration config) {
 
         this.config = config;
-        injector = Guice.createInjector(this, new BasicHeatMapModule(config));
     }
 
-    protected Configuration getConfiguration() {
+    public void setInjector(Injector injector) {
 
-        return config;
-    }
-
-    protected Injector getInjector() {
-
-        return injector;
+        this.injector = injector;
     }
 
     protected SCM getSCMPlugin() {

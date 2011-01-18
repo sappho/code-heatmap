@@ -8,6 +8,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.persistence.ConfigurationRawDataPersistence;
 import uk.org.sappho.code.change.management.scm.SCMException;
@@ -20,6 +23,7 @@ public class EngineModuleTest {
     @Mock
     private Configuration mockConfiguration;
 
+    private Injector injector;
     private EngineModule module;
 
     @Before
@@ -34,8 +38,9 @@ public class EngineModuleTest {
         Class<FakeRawDataProcessingPlugin> getRawDataProcessingPluginClass = mockConfiguration.getPlugin(
                 "raw.data.processing.plugin", "uk.org.sappho.code.change.management.processor");
         when(getRawDataProcessingPluginClass).thenReturn(FakeRawDataProcessingPlugin.class);
-        module = new EngineModule();
-        module.init(mockConfiguration);
+        module = new EngineModule(mockConfiguration);
+        injector = Guice.createInjector(module);
+        module.setInjector(injector);
     }
 
     @Test
@@ -51,6 +56,6 @@ public class EngineModuleTest {
 
         String filename = mockConfiguration.getProperty("raw.data.store.filename");
         when(filename).thenReturn("test.xml");
-        module.getInjector().getInstance(ConfigurationRawDataPersistence.class);
+        injector.getInstance(ConfigurationRawDataPersistence.class);
     }
 }

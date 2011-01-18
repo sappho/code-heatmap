@@ -4,7 +4,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import uk.org.sappho.code.change.management.engine.EngineModule;
+import uk.org.sappho.code.heatmap.basic.BasicHeatMapModule;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.configuration.SimpleConfiguration;
@@ -18,8 +22,10 @@ public class CodeChangeManagementApp {
         Configuration config = new SimpleConfiguration();
         for (String configFilename : args)
             config.load(configFilename);
-        EngineModule engineModule = new EngineModule();
-        engineModule.init(config);
+        EngineModule engineModule = new EngineModule(config);
+        BasicHeatMapModule basicHeatMapModule = new BasicHeatMapModule(config);
+        Injector injector = Guice.createInjector(engineModule, basicHeatMapModule);
+        engineModule.setInjector(injector);
         List<String> actions = config.getPropertyList("app.run.action");
         for (String action : actions) {
             log.info("Running " + action);
