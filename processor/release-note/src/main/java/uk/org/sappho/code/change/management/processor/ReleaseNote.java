@@ -23,6 +23,7 @@ import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.engine.RawDataProcessing;
 import uk.org.sappho.code.change.management.engine.RawDataProcessingException;
+import uk.org.sappho.code.change.management.processor.releasenote.Projects;
 import uk.org.sappho.code.heatmap.HeatMapCollection;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
@@ -44,6 +45,7 @@ public class ReleaseNote implements RawDataProcessing {
 
     public void run(RawData rawData) throws RawDataProcessingException, ConfigurationException {
 
+        Projects projects = new Projects();
         HeatMapCollection heatMaps = heatMapProvider.get();
         String release = null;
         for (String revisionKey : rawData.getRevisionKeys()) {
@@ -60,6 +62,7 @@ public class ReleaseNote implements RawDataProcessing {
                 release = issueRelease;
             else if (!release.equals(issueRelease))
                 throw new RawDataProcessingException("Release is different to previous release for issue " + issueKey);
+            projects.add(revisionData, issueData);
             heatMaps.add(revisionData, issueData);
         }
         Writer writer = null;
@@ -71,6 +74,7 @@ public class ReleaseNote implements RawDataProcessing {
             data.put("config", config);
             data.put("release", release);
             data.put("date", new SimpleDateFormat(dateFormat).format(GregorianCalendar.getInstance().getTime()));
+            data.put("projects", projects);
             data.put("heatMaps", heatMaps);
             data.put("warnings", rawData.getWarnings());
             freemarker.template.Configuration freemarkerConfig = new freemarker.template.Configuration();
