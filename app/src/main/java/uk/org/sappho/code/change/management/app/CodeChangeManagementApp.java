@@ -13,7 +13,7 @@ public class CodeChangeManagementApp {
 
     private static final Logger log = Logger.getLogger(CodeChangeManagementApp.class);
 
-    protected void run(String[] args) throws Throwable {
+    private void run(String[] args) throws Throwable {
 
         Configuration config = new SimpleConfiguration();
         for (String configFilename : args)
@@ -37,7 +37,14 @@ public class CodeChangeManagementApp {
                 engineModule.processRawData();
             else
                 throw new ConfigurationException("Action " + action + " is unrecognised");
+            memoryStats();
         }
+    }
+
+    private static void memoryStats() {
+
+        log.info("Total memory: " + Runtime.getRuntime().totalMemory() / 1024 + "K  Free memory: "
+                + Runtime.getRuntime().freeMemory() / 1024 + "K");
     }
 
     public static void main(String[] args) {
@@ -46,6 +53,7 @@ public class CodeChangeManagementApp {
             new CodeChangeManagementApp().run(args);
             log.info("Everything done");
         } catch (Throwable t) {
+            memoryStats();
             log.error("Error!", t);
         }
     }
