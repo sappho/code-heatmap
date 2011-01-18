@@ -18,7 +18,7 @@ public class Projects {
         String projectName = issueData.getProject();
         Project project = projects.get(projectName);
         if (project == null) {
-            project = new Project(projectName);
+            project = new Project();
             projects.put(projectName, project);
         }
         project.add(revisionData, issueData);
