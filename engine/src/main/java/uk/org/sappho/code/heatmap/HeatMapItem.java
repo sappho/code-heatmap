@@ -1,4 +1,4 @@
-package uk.org.sappho.code.change.management.processor;
+package uk.org.sappho.code.heatmap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,13 +9,13 @@ import uk.org.sappho.code.change.management.data.RevisionData;
 
 public class HeatMapItem implements Comparable<HeatMapItem> {
 
-    private final String configurableItemName;
+    private final String changedItemName;
     private final Map<IssueData, IssueData> issues = new HashMap<IssueData, IssueData>();
     private final Map<RevisionData, RevisionData> revisions = new HashMap<RevisionData, RevisionData>();
 
-    public HeatMapItem(String configurableItemName) {
+    public HeatMapItem(String changedItemName) {
 
-        this.configurableItemName = configurableItemName;
+        this.changedItemName = changedItemName;
     }
 
     public void add(RevisionData revisionData, IssueData issueData) {
@@ -24,9 +24,9 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         revisions.put(revisionData, revisionData);
     }
 
-    public String getHeatMapItemName() {
+    public String getChangedItemName() {
 
-        return configurableItemName;
+        return changedItemName;
     }
 
     public Set<IssueData> getIssues() {
@@ -39,7 +39,12 @@ public class HeatMapItem implements Comparable<HeatMapItem> {
         return issues.keySet().size();
     }
 
-    public int getChangeCount() {
+    public Set<RevisionData> getRevisions() {
+
+        return revisions.keySet();
+    }
+
+    public int getRevisionsCount() {
 
         return revisions.keySet().size();
     }

@@ -22,6 +22,7 @@ import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.engine.RawDataProcessing;
 import uk.org.sappho.code.change.management.engine.RawDataProcessingException;
+import uk.org.sappho.code.heatmap.HeatMapCollection;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
@@ -42,7 +43,7 @@ public class ReleaseNote implements RawDataProcessing {
 
         HeatMapSelector heatMapSelector = (HeatMapSelector) config
                 .getGroovyScriptObject("release.note.mapper.heatmap.selector");
-        HeatMaps heatMaps = new HeatMaps();
+        HeatMapCollection heatMaps = new HeatMapCollection();
         String release = null;
         for (String revisionKey : rawData.getRevisionKeys()) {
             RevisionData revisionData = rawData.getRevisionData(revisionKey);

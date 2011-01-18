@@ -1,4 +1,4 @@
-package uk.org.sappho.code.change.management.processor;
+package uk.org.sappho.code.heatmap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.heatmap.mapping.HeatMapMapping;
 import uk.org.sappho.code.heatmap.mapping.HeatMapSelector;
 
-public class HeatMaps {
+public class HeatMapCollection {
 
     private final Map<String, HeatMap> heatMaps = new HashMap<String, HeatMap>();
 
@@ -41,8 +41,8 @@ public class HeatMaps {
         return names;
     }
 
-    public final HeatMap getHeatMap(String heatMapName) {
+    public final HeatMap getHeatMap(String name) {
 
-        return heatMaps.get(heatMapName);
+        return heatMaps.get(name);
     }
 }

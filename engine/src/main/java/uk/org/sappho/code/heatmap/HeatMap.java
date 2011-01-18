@@ -1,10 +1,10 @@
-package uk.org.sappho.code.change.management.processor;
+package uk.org.sappho.code.heatmap;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RevisionData;
@@ -13,12 +13,12 @@ public class HeatMap {
 
     private final Map<String, HeatMapItem> heatMapItems = new HashMap<String, HeatMapItem>();
 
-    public void add(String configurableItemName, RevisionData revisionData, IssueData issueData) {
+    public void add(String changedItemName, RevisionData revisionData, IssueData issueData) {
 
-        HeatMapItem item = heatMapItems.get(configurableItemName);
+        HeatMapItem item = heatMapItems.get(changedItemName);
         if (item == null) {
-            item = new HeatMapItem(configurableItemName);
-            heatMapItems.put(configurableItemName, item);
+            item = new HeatMapItem(changedItemName);
+            heatMapItems.put(changedItemName, item);
         }
         item.add(revisionData, issueData);
     }
@@ -30,7 +30,7 @@ public class HeatMap {
 
     public List<HeatMapItem> getSortedHeatMapItems() {
 
-        List<HeatMapItem> list = new ArrayList<HeatMapItem>(heatMapItems.values());
+        List<HeatMapItem> list = getUnsortedHeatMapItems();
         Collections.sort(list);
         return list;
     }
