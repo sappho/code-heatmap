@@ -91,4 +91,8 @@ public class RawData {
     public Map<String, IssueData> getIssueDataMap() {
         return issueDataMap;
     }
+
+    public Map<String, RevisionData> getRevisionDataMap() {
+        return revisionDataMap;
+    }
 }

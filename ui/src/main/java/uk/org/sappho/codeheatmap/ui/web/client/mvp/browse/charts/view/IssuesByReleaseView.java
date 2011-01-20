@@ -1,8 +1,8 @@
-package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.cf.view;
+package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.view;
 
 import java.util.List;
 
-import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.cf.CumulativeFlowPresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.IssuesByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
 
@@ -17,13 +17,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
-public class CumulativeFlowView extends Composite implements CumulativeFlowPresenter.Display {
+public class IssuesByReleaseView extends Composite implements IssuesByReleasePresenter.Display {
 
     private final VerticalPanel container;
     private List<DataItem> data;
 
     @Inject
-    public CumulativeFlowView(CodeHeatmapResources resources) {
+    public IssuesByReleaseView(CodeHeatmapResources resources) {
         container = new VerticalPanel();
         container.addStyleName(resources.css().centerLayout());
         initWidget(container);

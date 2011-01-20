@@ -1,4 +1,4 @@
-package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.cf;
+package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts;
 
 import java.util.List;
 
@@ -6,15 +6,16 @@ import net.customware.gwt.dispatch.client.DispatchAsync;
 import net.customware.gwt.presenter.client.EventBus;
 import net.customware.gwt.presenter.client.widget.WidgetDisplay;
 import net.customware.gwt.presenter.client.widget.WidgetPresenter;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData;
 
 import com.google.inject.Inject;
 
-public class CumulativeFlowPresenter extends WidgetPresenter<CumulativeFlowPresenter.Display> {
+import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
+import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData;
+
+public class RevisionsByReleasePresenter extends WidgetPresenter<RevisionsByReleasePresenter.Display> {
 
     private final DispatchAsync dispatch;
-    private final HandleFetchedData handleFetchedData;
+    private final HandleDataForRevisionsByRelease handleDataForRevisionsByRelease;
 
     public interface Display extends WidgetDisplay, Runnable {
 
@@ -24,17 +25,17 @@ public class CumulativeFlowPresenter extends WidgetPresenter<CumulativeFlowPrese
     }
 
     @Inject
-    public CumulativeFlowPresenter(Display display, EventBus eventBus, DispatchAsync dispatch,
-            HandleFetchedData handleFetchedData) {
+    public RevisionsByReleasePresenter(Display display, EventBus eventBus, DispatchAsync dispatch,
+            HandleDataForRevisionsByRelease handleDataForRevisionsByRelease) {
         super(display, eventBus);
         this.dispatch = dispatch;
-        this.handleFetchedData = handleFetchedData;
+        this.handleDataForRevisionsByRelease = handleDataForRevisionsByRelease;
     }
 
     @Override
     protected void onRevealDisplay() {
         display.clear();
-        dispatch.execute(FetchData.CHANGES_BY_RELEASE, handleFetchedData);
+        dispatch.execute(FetchData.REVISIONS_BY_RELEASE, handleDataForRevisionsByRelease);
     }
 
     @Override

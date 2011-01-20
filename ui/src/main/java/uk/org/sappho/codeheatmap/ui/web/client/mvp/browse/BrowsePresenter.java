@@ -6,10 +6,11 @@ import net.customware.gwt.dispatch.client.DispatchAsync;
 import net.customware.gwt.presenter.client.EventBus;
 import net.customware.gwt.presenter.client.widget.WidgetDisplay;
 import net.customware.gwt.presenter.client.widget.WidgetPresenter;
-import uk.org.sappho.codeheatmap.ui.web.client.events.SearchCriteriaChangeEvent;
-import uk.org.sappho.codeheatmap.ui.web.shared.model.Party;
 
 import com.google.inject.Inject;
+
+import uk.org.sappho.codeheatmap.ui.web.client.events.SearchCriteriaChangeEvent;
+import uk.org.sappho.codeheatmap.ui.web.shared.model.Party;
 
 public class BrowsePresenter extends WidgetPresenter<BrowsePresenter.Display> {
 
