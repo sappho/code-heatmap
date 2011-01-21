@@ -7,7 +7,7 @@ import uk.org.sappho.codeheatmap.ui.web.client.events.SearchCriteriaChangeEvent;
 
 public class SearchTimer {
 
-    private Timer timer;
+    private final Timer timer;
 
     public SearchTimer(final TextBox searchTerm, final SearchCriteriaChangeEvent.Handler handler) {
         timer = new Timer() {

@@ -1,6 +1,7 @@
 package uk.org.sappho.codeheatmap.ui.web.server.handlers;
 
 import static ch.lambdaj.Lambda.by;
+import static ch.lambdaj.Lambda.convert;
 import static ch.lambdaj.Lambda.group;
 import static ch.lambdaj.Lambda.on;
 
@@ -22,16 +23,19 @@ import net.customware.gwt.dispatch.shared.DispatchException;
 
 import org.apache.log4j.Logger;
 
+import ch.lambdaj.function.convert.Converter;
 import ch.lambdaj.group.Group;
 
 import com.google.inject.Inject;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
+import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.data.persistence.ReaderRawDataPersistence;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchDataResult;
+import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData.FetchDataType;
 
 public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResult> {
 
@@ -52,12 +56,17 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
     public FetchDataResult execute(FetchData action, ExecutionContext context)
             throws DispatchException {
 
-        File dataFile = new File("WEB-INF/data/raw-data-all-frame-2010-12-14.zip");
+        File dataFile = new File("war/WEB-INF/data/raw-data-all-frame-2010-12-14.zip");
         try {
             if (dataFile.exists()) {
                 InputStream inputStream = getDataFileInputStream(dataFile);
                 RawData rawData = rawDataPersistence.load(inputStream);
-                List<DataItem> data = massageData(rawData);
+                List<DataItem> data = null;
+                if (action.getFetchDataType() == FetchDataType.ISSUES) {
+                    data = massageIssueData(rawData);
+                } else if (action.getFetchDataType() == FetchDataType.REVISIONS) {
+                    data = massageRevisionData(rawData);
+                }
                 return new FetchDataResult(data);
             } else {
                 LOG.error("Couldn't find data file: " + dataFile.getCanonicalPath());
@@ -69,7 +78,52 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
 
     }
 
-    private List<DataItem> massageData(RawData rawData) {
+    private List<DataItem> massageRevisionData(RawData rawData) {
+        Collection<RevisionData> revisions = rawData.getRevisionDataMap().values();
+        List<AugmentedRevisionData> revisionsWithReleases = convert(revisions, intoAugmentedRevisions(rawData));
+        Group<AugmentedRevisionData> releasesGroup = group(revisionsWithReleases,
+                by(on(AugmentedRevisionData.class).getMainRelease()),
+                by(on(AugmentedRevisionData.class).getType()));
+        ArrayList<String> releaseNames = new ArrayList<String>(releasesGroup.keySet());
+        Collections.sort(releaseNames, new SortedAsIfNumbers());
+        LOG.info("Found " + releaseNames.size() + " releases");
+
+        List<DataItem> data = new ArrayList<DataItem>();
+        for (String release : releaseNames) {
+            Group<AugmentedRevisionData> releaseGroup = releasesGroup.findGroup(release);
+            List<AugmentedRevisionData> changes = releaseGroup.find("change");
+            List<AugmentedRevisionData> defects = releaseGroup.find("defect");
+            if (release != null && !release.isEmpty()) {
+                data.add(new DataItem(release, changes.size(), defects.size()));
+            }
+        }
+        LOG.info("Finished massaging");
+        return data;
+
+    }
+
+    private Converter<RevisionData, AugmentedRevisionData> intoAugmentedRevisions(final RawData rawData) {
+        return new Converter<RevisionData, AugmentedRevisionData>() {
+            @Override
+            public AugmentedRevisionData convert(RevisionData from) {
+                AugmentedRevisionData aug = new AugmentedRevisionData(
+                        from.getIssueKey(),
+                        from.getDate(),
+                        from.getCommitComment(),
+                        from.getCommitter(),
+                        from.getChangedFiles(),
+                        from.getIssueKey());
+                IssueData issueData = rawData.getIssueData(aug.getIssueKey());
+                if (issueData != null) {
+                    aug.setMainRelease(issueData.getMainRelease());
+                    aug.setType(issueData.getType());
+                }
+                return aug;
+            }
+        };
+    }
+
+    private List<DataItem> massageIssueData(RawData rawData) {
 
         Collection<IssueData> issues = rawData.getIssueDataMap().values();
         Group<IssueData> releasesGroup = group(issues,
@@ -88,6 +142,7 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
                 data.add(new DataItem(release, changes.size(), defects.size()));
             }
         }
+        LOG.info("Finished massaging");
         return data;
     }
 

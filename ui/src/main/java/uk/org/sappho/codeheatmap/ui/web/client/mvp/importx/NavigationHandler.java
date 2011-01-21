@@ -1,10 +1,11 @@
 package uk.org.sappho.codeheatmap.ui.web.client.mvp.importx;
 
 import net.customware.gwt.dispatch.client.DispatchAsync;
-import uk.org.sappho.codeheatmap.ui.web.client.mvp.importx.ImportPresenter.Display;
-import uk.org.sappho.codeheatmap.ui.web.client.mvp.importx.ImportPresenter.Display.Page;
 
 import com.google.inject.Inject;
+
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.importx.ImportPresenter.Display;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.importx.ImportPresenter.Display.Page;
 
 public class NavigationHandler {
     private final Display display;

@@ -13,9 +13,10 @@ public class CodeHeatmapPlaceManager extends DefaultPlaceManager {
             MainPlace mainPlace, ImportPlace importPlace,
             ExportPlace exportPlace,
             BrowsePlace browsePlace,
-            CumulativeFlowPlace cumulativeFlowPlace) {
+            IssuesByReleasePlace issuesByReleasePlace,
+            RevisionsByReleasePlace revisionsByReleasePlace) {
         super(eventBus, tokenFormatter, mainPlace, importPlace, exportPlace, browsePlace,
-                cumulativeFlowPlace);
+                issuesByReleasePlace, revisionsByReleasePlace);
     }
 
 }
