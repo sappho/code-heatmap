@@ -43,7 +43,7 @@ public class CodeChangeManagementAppTest {
     }
 
     @Test
-    public void shouldRun() throws Throwable {
+    public void shouldRunSomeActions() throws Throwable {
 
         returnedActions.add("scan");
         returnedActions.add("validate");
@@ -56,7 +56,7 @@ public class CodeChangeManagementAppTest {
     }
 
     @Test(expected = ConfigurationException.class)
-    public void shouldFail() throws Throwable {
+    public void shouldFailDueToInvalidAction() throws Throwable {
 
         returnedActions.add("snafu");
         when(actions).thenReturn(returnedActions);
