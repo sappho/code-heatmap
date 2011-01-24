@@ -31,7 +31,7 @@ import com.google.inject.Inject;
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
-import uk.org.sappho.code.change.management.data.persistence.ReaderRawDataPersistence;
+import uk.org.sappho.code.change.management.data.persistence.file.ReaderRawDataPersistence;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchDataResult;

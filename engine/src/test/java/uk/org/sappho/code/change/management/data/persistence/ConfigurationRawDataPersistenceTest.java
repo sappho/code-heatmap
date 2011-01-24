@@ -16,6 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RawDataTest;
+import uk.org.sappho.code.change.management.data.persistence.file.ConfigurationRawDataPersistence;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 

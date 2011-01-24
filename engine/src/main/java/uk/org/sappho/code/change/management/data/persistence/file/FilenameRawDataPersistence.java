@@ -1,4 +1,4 @@
-package uk.org.sappho.code.change.management.data.persistence;
+package uk.org.sappho.code.change.management.data.persistence.file;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import uk.org.sappho.code.change.management.data.RawData;
 
-public class FilenameRawDataPersistence extends RawDataPersistence {
+public class FilenameRawDataPersistence extends AbstractRawDataPersistence {
 
     private final String filename;
 

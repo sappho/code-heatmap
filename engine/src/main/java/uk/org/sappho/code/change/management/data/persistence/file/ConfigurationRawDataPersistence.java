@@ -1,4 +1,4 @@
-package uk.org.sappho.code.change.management.data.persistence;
+package uk.org.sappho.code.change.management.data.persistence.file;
 
 import com.google.inject.Inject;
 

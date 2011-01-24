@@ -6,6 +6,8 @@ import java.util.zip.ZipException;
 
 import org.junit.Test;
 
+import uk.org.sappho.code.change.management.data.persistence.file.ReaderRawDataPersistence;
+
 public class ReaderRawDataPersistenceTest {
 
     @Test(expected = ZipException.class)

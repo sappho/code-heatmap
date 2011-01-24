@@ -1,50 +1,59 @@
 package uk.org.sappho.code.change.management.app;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.Module;
 
-import uk.org.sappho.code.change.management.engine.EngineModule;
-import uk.org.sappho.code.heatmap.basic.BasicHeatMapModule;
+import uk.org.sappho.code.change.management.engine.Engine;
 import uk.org.sappho.configuration.Configuration;
 import uk.org.sappho.configuration.ConfigurationException;
 import uk.org.sappho.configuration.SimpleConfiguration;
+import uk.org.sappho.configuration.SimpleConfigurationModule;
 
 public class CodeChangeManagementApp {
 
     private static final Logger log = Logger.getLogger(CodeChangeManagementApp.class);
+
+    protected void run(Configuration config) throws Throwable {
+
+        List<Module> modules = new ArrayList<Module>();
+        modules.add(new SimpleConfigurationModule(config));
+        List<String> moduleNames = config.getPropertyList("module");
+        for (String moduleName : moduleNames)
+            modules.add(config.getGuiceModule(moduleName));
+
+        Engine engine = Guice.createInjector(modules).getInstance(Engine.class);
+        List<String> actions = config.getPropertyList("app.run.action");
+        for (String action : actions) {
+            log.info("Running " + action);
+            if (action.equalsIgnoreCase("load"))
+                engine.loadRawData();
+            else if (action.equalsIgnoreCase("validate"))
+                engine.validateRawData();
+            else if (action.equalsIgnoreCase("save"))
+                engine.saveRawData();
+            else if (action.equalsIgnoreCase("scan"))
+                engine.scanSCM();
+            else if (action.equalsIgnoreCase("refresh"))
+                engine.refreshRawData();
+            else if (action.equalsIgnoreCase("process"))
+                engine.processRawData();
+            else
+                throw new ConfigurationException("Action " + action + " is unrecognised");
+            memoryStats();
+        }
+    }
 
     private void run(String[] args) throws Throwable {
 
         Configuration config = new SimpleConfiguration();
         for (String configFilename : args)
             config.load(configFilename);
-        EngineModule engineModule = new EngineModule(config);
-        BasicHeatMapModule basicHeatMapModule = new BasicHeatMapModule(config);
-        Injector injector = Guice.createInjector(engineModule, basicHeatMapModule);
-        engineModule.setInjector(injector);
-        List<String> actions = config.getPropertyList("app.run.action");
-        for (String action : actions) {
-            log.info("Running " + action);
-            if (action.equalsIgnoreCase("load"))
-                engineModule.loadRawData();
-            else if (action.equalsIgnoreCase("validate"))
-                engineModule.validateRawData();
-            else if (action.equalsIgnoreCase("save"))
-                engineModule.saveRawData();
-            else if (action.equalsIgnoreCase("scan"))
-                engineModule.scanSCM();
-            else if (action.equalsIgnoreCase("refresh"))
-                engineModule.refreshRawData();
-            else if (action.equalsIgnoreCase("process"))
-                engineModule.processRawData();
-            else
-                throw new ConfigurationException("Action " + action + " is unrecognised");
-            memoryStats();
-        }
+        run(config);
     }
 
     private static void memoryStats() {
