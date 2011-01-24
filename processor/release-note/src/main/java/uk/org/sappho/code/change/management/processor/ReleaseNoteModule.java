@@ -2,7 +2,7 @@ package uk.org.sappho.code.change.management.processor;
 
 import com.google.inject.AbstractModule;
 
-import uk.org.sappho.code.change.management.engine.RawDataProcessing;
+import uk.org.sappho.code.change.management.data.processing.RawDataProcessing;
 
 public class ReleaseNoteModule extends AbstractModule {
 

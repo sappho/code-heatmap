@@ -1,6 +1,8 @@
-package uk.org.sappho.code.change.management.engine;
+package uk.org.sappho.code.change.management.engine.standard;
 
 import com.google.inject.AbstractModule;
+
+import uk.org.sappho.code.change.management.engine.Engine;
 
 public class StandardEngineModule extends AbstractModule {
 
