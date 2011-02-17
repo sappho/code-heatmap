@@ -34,7 +34,7 @@ public class SubMenuWidget extends Composite implements Menu {
     @Override
     public void addMenuItem(SubMenuItem... menuItems) {
         for (SubMenuItem menuItem : menuItems) {
-            subMenu.add(new Hyperlink(menuItem.getCaption(), menuItem.getPlace().getName()));
+            subMenu.add(new Hyperlink(menuItem.getCaption(), menuItem.getNameToken()));
         }
     }
 }

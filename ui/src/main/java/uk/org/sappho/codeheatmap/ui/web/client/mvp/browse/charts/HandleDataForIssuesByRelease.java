@@ -9,10 +9,10 @@ import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchDataResult;
 
 public class HandleDataForIssuesByRelease extends DispatchCallback<FetchDataResult> {
 
-    private final IssuesByReleasePresenter.Display display;
+    private final IssuesByReleasePresenter.MyView display;
 
     @Inject
-    public HandleDataForIssuesByRelease(IssuesByReleasePresenter.Display display) {
+    public HandleDataForIssuesByRelease(IssuesByReleasePresenter.MyView display) {
         this.display = display;
     }
 

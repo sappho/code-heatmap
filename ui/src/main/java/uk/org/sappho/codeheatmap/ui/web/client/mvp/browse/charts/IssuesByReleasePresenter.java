@@ -2,21 +2,36 @@ package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts;
 
 import java.util.List;
 
-import net.customware.gwt.dispatch.client.DispatchAsync;
-import net.customware.gwt.presenter.client.EventBus;
-import net.customware.gwt.presenter.client.widget.WidgetDisplay;
-import net.customware.gwt.presenter.client.widget.WidgetPresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData;
 
+import com.google.gwt.event.shared.EventBus;
 import com.google.inject.Inject;
+import com.gwtplatform.dispatch.client.DispatchAsync;
+import com.gwtplatform.mvp.client.Presenter;
+import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.ProxyStandard;
+import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 
-public class IssuesByReleasePresenter extends WidgetPresenter<IssuesByReleasePresenter.Display> {
+public class IssuesByReleasePresenter extends
+        Presenter<IssuesByReleasePresenter.MyView, IssuesByReleasePresenter.MyProxy> {
+
+    public static final String nameToken = "ibr";
 
     private final DispatchAsync dispatch;
     private final HandleDataForIssuesByRelease handleDataForIssuesByRelease;
 
-    public interface Display extends WidgetDisplay, Runnable {
+    @ProxyStandard
+    @NameToken(nameToken)
+    public interface MyProxy extends Proxy<IssuesByReleasePresenter>, Place {
+
+    }
+
+    public interface MyView extends View, Runnable {
 
         void clear();
 
@@ -24,26 +39,18 @@ public class IssuesByReleasePresenter extends WidgetPresenter<IssuesByReleasePre
     }
 
     @Inject
-    public IssuesByReleasePresenter(Display display, EventBus eventBus, DispatchAsync dispatch,
+    public IssuesByReleasePresenter(EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatch,
             HandleDataForIssuesByRelease handleDataForIssuesByRelease) {
-        super(display, eventBus);
+        super(eventBus, view, proxy);
         this.dispatch = dispatch;
         this.handleDataForIssuesByRelease = handleDataForIssuesByRelease;
     }
 
     @Override
-    protected void onRevealDisplay() {
-        display.clear();
+    protected void revealInParent() {
+        RevealContentEvent.fire(this, BrowsePresenter.TYPE_SetBrowseContent, this);
+        getView().clear();
         dispatch.execute(FetchData.ISSUES_BY_RELEASE, handleDataForIssuesByRelease);
-    }
-
-    @Override
-    protected void onBind() {
-    }
-
-    @Override
-    protected void onUnbind() {
-
     }
 
 }

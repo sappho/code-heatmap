@@ -1,24 +1,36 @@
 package uk.org.sappho.codeheatmap.ui.web.client.gin;
 
-import net.customware.gwt.dispatch.client.gin.StandardDispatchModule;
-import net.customware.gwt.presenter.client.place.PlaceManager;
-
-import com.google.gwt.inject.client.GinModules;
-import com.google.gwt.inject.client.Ginjector;
-
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.IssuesByReleasePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.RevisionsByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
-import uk.org.sappho.codeheatmap.ui.web.client.place.MainPlace;
 import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
 
-@GinModules({ CodeHeatmapModule.class, StandardDispatchModule.class })
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.inject.client.GinModules;
+import com.google.gwt.inject.client.Ginjector;
+import com.google.inject.Provider;
+import com.gwtplatform.dispatch.client.gin.DispatchAsyncModule;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.ProxyFailureHandler;
+
+@GinModules({ DispatchAsyncModule.class, CodeHeatmapModule.class })
 public interface CodeHeatmapGinjector extends Ginjector {
 
-    MainPlace getMainPlace();
+    EventBus getEventBus();
 
-    MainPresenter getMainPresenter();
+    ProxyFailureHandler getProxyFailureHandler();
 
     PlaceManager getPlaceManager();
 
     CodeHeatmapResources getResources();
+
+    Provider<MainPresenter> getMainPresenter();
+
+    Provider<BrowsePresenter> getBrowsePresenter();
+
+    Provider<IssuesByReleasePresenter> getIBRPresenter();
+
+    Provider<RevisionsByReleasePresenter> getRBRPresenter();
 
 }

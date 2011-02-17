@@ -1,25 +1,19 @@
 package uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view;
 
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
+
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.inject.Inject;
 
-import uk.org.sappho.codeheatmap.ui.web.client.place.BrowsePlace;
-import uk.org.sappho.codeheatmap.ui.web.client.place.ExportPlace;
-import uk.org.sappho.codeheatmap.ui.web.client.place.ImportPlace;
-import uk.org.sappho.codeheatmap.ui.web.client.place.MainPlace;
-import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
-
 public class MenuWidget extends Composite {
 
     @Inject
-    public MenuWidget(CodeHeatmapResources resources,
-            MainPlace mainPlace,
-            ImportPlace importPlace,
-            ExportPlace exportPlace,
-            BrowsePlace browsePlace) {
+    public MenuWidget(CodeHeatmapResources resources) {
 
         HorizontalPanel menu = new HorizontalPanel();
         menu.setSize("960px", "3.4em");
@@ -30,10 +24,8 @@ public class MenuWidget extends Composite {
         logo.addStyleName(resources.css().logo());
         menu.add(logo);
         menu.setCellWidth(logo, "100%");
-        menu.add(new Hyperlink("Main", mainPlace.getName()));
-        menu.add(new Hyperlink("Import", importPlace.getName()));
-        menu.add(new Hyperlink("Export", exportPlace.getName()));
-        menu.add(new Hyperlink("Browse", browsePlace.getName()));
+        menu.add(new Hyperlink("Main", MainPresenter.nameToken));
+        menu.add(new Hyperlink("Browse", BrowsePresenter.nameToken));
         initWidget(menu);
     }
 }

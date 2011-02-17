@@ -2,7 +2,7 @@ package uk.org.sappho.codeheatmap.ui.web.shared.actions;
 
 import java.util.List;
 
-import net.customware.gwt.dispatch.shared.Result;
+import com.gwtplatform.dispatch.shared.Result;
 
 public class FetchDataResult implements Result {
 

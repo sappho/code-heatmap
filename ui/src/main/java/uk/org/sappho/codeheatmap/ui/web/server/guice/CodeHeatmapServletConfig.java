@@ -14,4 +14,5 @@ public class CodeHeatmapServletConfig extends GuiceServletContextListener {
                 new HandlersModule(),
                 new ServiceModule());
     }
+
 }

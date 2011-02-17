@@ -6,8 +6,9 @@ import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.IssuesByRelease
 import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
 
-import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
@@ -15,9 +16,10 @@ import com.google.gwt.visualization.client.visualizations.AreaChart;
 import com.google.gwt.visualization.client.visualizations.AreaChart.Options;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.gwtplatform.mvp.client.ViewImpl;
 
 @Singleton
-public class IssuesByReleaseView extends Composite implements IssuesByReleasePresenter.Display {
+public class IssuesByReleaseView extends ViewImpl implements IssuesByReleasePresenter.MyView {
 
     private final VerticalPanel container;
     private List<DataItem> data;
@@ -26,7 +28,7 @@ public class IssuesByReleaseView extends Composite implements IssuesByReleasePre
     public IssuesByReleaseView(CodeHeatmapResources resources) {
         container = new VerticalPanel();
         container.addStyleName(resources.css().centerLayout());
-        initWidget(container);
+        container.add(new Label("Issues by Release"));
     }
 
     @Override
@@ -63,5 +65,10 @@ public class IssuesByReleaseView extends Composite implements IssuesByReleasePre
     @Override
     public void setData(List<DataItem> data) {
         this.data = data;
+    }
+
+    @Override
+    public Widget asWidget() {
+        return container;
     }
 }

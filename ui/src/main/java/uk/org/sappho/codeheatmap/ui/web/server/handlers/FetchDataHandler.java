@@ -17,16 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipException;
 
-import net.customware.gwt.dispatch.server.ActionHandler;
-import net.customware.gwt.dispatch.server.ExecutionContext;
-import net.customware.gwt.dispatch.shared.DispatchException;
-
 import org.apache.log4j.Logger;
-
-import ch.lambdaj.function.convert.Converter;
-import ch.lambdaj.group.Group;
-
-import com.google.inject.Inject;
 
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
@@ -34,8 +25,15 @@ import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.data.persistence.file.ReaderRawDataPersistence;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchDataResult;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData.FetchDataType;
+import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchDataResult;
+import ch.lambdaj.function.convert.Converter;
+import ch.lambdaj.group.Group;
+
+import com.google.inject.Inject;
+import com.gwtplatform.dispatch.server.ExecutionContext;
+import com.gwtplatform.dispatch.server.actionhandler.ActionHandler;
+import com.gwtplatform.dispatch.shared.ActionException;
 
 public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResult> {
 
@@ -54,9 +52,9 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
 
     @Override
     public FetchDataResult execute(FetchData action, ExecutionContext context)
-            throws DispatchException {
+            throws ActionException {
 
-        File dataFile = new File("war/WEB-INF/data/raw-data-all-frame-2010-12-14.zip");
+        File dataFile = new File("WEB-INF/data/raw-data-all-frame-2011-02-17.zip");
         try {
             if (dataFile.exists()) {
                 InputStream inputStream = getDataFileInputStream(dataFile);
@@ -151,11 +149,6 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
         return new FileInputStream(dataFile);
     }
 
-    @Override
-    public void rollback(FetchData action, FetchDataResult result, ExecutionContext context)
-            throws DispatchException {
-    }
-
     private final class SortedAsIfNumbers implements Comparator<String> {
         @Override
         public int compare(String o1, String o2) {
@@ -172,5 +165,10 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
                 return 0;
             }
         }
+    }
+
+    @Override
+    public void undo(FetchData arg0, FetchDataResult arg1, ExecutionContext arg2) throws ActionException {
+
     }
 }

@@ -2,35 +2,51 @@ package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse;
 
 import java.util.Collection;
 
-import net.customware.gwt.dispatch.client.DispatchAsync;
-import net.customware.gwt.presenter.client.EventBus;
-import net.customware.gwt.presenter.client.widget.WidgetDisplay;
-import net.customware.gwt.presenter.client.widget.WidgetPresenter;
-
-import com.google.inject.Inject;
-
 import uk.org.sappho.codeheatmap.ui.web.client.events.SearchCriteriaChangeEvent;
-import uk.org.sappho.codeheatmap.ui.web.shared.model.Party;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.IssuesByReleasePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.RevisionsByReleasePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view.Menu;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view.SubMenuItem;
 
-public class BrowsePresenter extends WidgetPresenter<BrowsePresenter.Display> {
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.GwtEvent.Type;
+import com.google.inject.Inject;
+import com.gwtplatform.mvp.client.Presenter;
+import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.ContentSlot;
+import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.ProxyStandard;
+import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 
-    private final DispatchAsync dispatch;
+public class BrowsePresenter extends Presenter<BrowsePresenter.MyView, BrowsePresenter.MyProxy> {
 
-    public interface Display extends WidgetDisplay {
-        void setData(Collection<Party> parties);
+    public static final String nameToken = "browse";
+
+    private final Menu subMenu;
+
+    @ContentSlot
+    public static final Type<RevealContentHandler<?>> TYPE_SetBrowseContent = new Type<RevealContentHandler<?>>();
+
+    public interface MyView extends View {
+        void setData(Collection<String> data);
 
         void addSearchTermChangeHandler(SearchCriteriaChangeEvent.Handler searchCriteriaChangeHandler);
     }
 
-    @Inject
-    public BrowsePresenter(Display display, EventBus eventBus, DispatchAsync dispatch) {
-        super(display, eventBus);
-        this.dispatch = dispatch;
+    @ProxyStandard
+    @NameToken(nameToken)
+    public interface MyProxy extends Proxy<BrowsePresenter>, Place {
+
     }
 
-    @Override
-    protected void onRevealDisplay() {
-        runSearch("");
+    @Inject
+    public BrowsePresenter(EventBus eventBus, MyView view, MyProxy proxy, Menu subMenu) {
+        super(eventBus, view, proxy);
+        this.subMenu = subMenu;
     }
 
     private void runSearch(String searchTerm) {
@@ -38,12 +54,7 @@ public class BrowsePresenter extends WidgetPresenter<BrowsePresenter.Display> {
 
     @Override
     protected void onBind() {
-        display.addSearchTermChangeHandler(new SearchChangeHandler());
-    }
-
-    @Override
-    protected void onUnbind() {
-
+        getView().addSearchTermChangeHandler(new SearchChangeHandler());
     }
 
     private final class SearchChangeHandler implements SearchCriteriaChangeEvent.Handler {
@@ -51,6 +62,20 @@ public class BrowsePresenter extends WidgetPresenter<BrowsePresenter.Display> {
         public void onSearchCriteriaChanged(SearchCriteriaChangeEvent event) {
             runSearch(event.getSearchTerm());
         }
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
+        subMenu.clear();
+        subMenu.addMenuItem(new SubMenuItem("IBR", IssuesByReleasePresenter.nameToken));
+        subMenu.addMenuItem(new SubMenuItem("RBR", RevisionsByReleasePresenter.nameToken));
+    }
+
+    @Override
+    protected void revealInParent() {
+        runSearch("");
+        RevealContentEvent.fire(this, MainPresenter.TYPE_SetMainContent, this);
     }
 
 }

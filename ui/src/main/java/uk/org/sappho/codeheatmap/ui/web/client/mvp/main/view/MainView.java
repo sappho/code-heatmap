@@ -1,25 +1,26 @@
 package uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view;
 
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
+
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+import com.gwtplatform.mvp.client.ViewImpl;
 
-import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
-import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
+public class MainView extends ViewImpl implements MainPresenter.MyView {
 
-public class MainView extends Composite implements MainPresenter.Display {
-
+    private final DockLayoutPanel dockLayoutPanel;
     private final ScrollPanel contentWrapper;
 
     @Inject
     public MainView(CodeHeatmapResources resources, MenuWidget mainMenu, SubMenuWidget subMenuWidget) {
 
-        DockLayoutPanel dockLayoutPanel = new DockLayoutPanel(Unit.EM);
+        dockLayoutPanel = new DockLayoutPanel(Unit.EM);
 
         HorizontalPanel menuWrapper = new HorizontalPanel();
         menuWrapper.setWidth("100%");
@@ -48,17 +49,19 @@ public class MainView extends Composite implements MainPresenter.Display {
         contentWrapper.setWidth("100%");
         contentWrapper.addStyleName(resources.css().content());
         dockLayoutPanel.add(contentWrapper);
-
-        initWidget(dockLayoutPanel);
     }
 
     @Override
     public Widget asWidget() {
-        return this;
+        return dockLayoutPanel;
     }
 
     @Override
-    public void setContent(Widget content) {
-        contentWrapper.setWidget(content);
+    public void setInSlot(Object slot, Widget content) {
+        if (slot == MainPresenter.TYPE_SetMainContent) {
+            contentWrapper.setWidget(content);
+        } else {
+            super.setInSlot(slot, content);
+        }
     }
 }

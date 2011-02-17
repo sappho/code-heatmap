@@ -2,8 +2,12 @@ package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.view;
 
 import java.util.List;
 
-import com.google.gwt.user.client.ui.Composite;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.RevisionsByReleasePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
+import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
+
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
@@ -11,13 +15,10 @@ import com.google.gwt.visualization.client.visualizations.AreaChart;
 import com.google.gwt.visualization.client.visualizations.AreaChart.Options;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.RevisionsByReleasePresenter;
-import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
+import com.gwtplatform.mvp.client.ViewImpl;
 
 @Singleton
-public class RevisionsByReleaseView extends Composite implements RevisionsByReleasePresenter.Display {
+public class RevisionsByReleaseView extends ViewImpl implements RevisionsByReleasePresenter.MyView {
 
     private final VerticalPanel container;
     private List<DataItem> data;
@@ -26,7 +27,6 @@ public class RevisionsByReleaseView extends Composite implements RevisionsByRele
     public RevisionsByReleaseView(CodeHeatmapResources resources) {
         container = new VerticalPanel();
         container.addStyleName(resources.css().centerLayout());
-        initWidget(container);
     }
 
     @Override
@@ -63,5 +63,10 @@ public class RevisionsByReleaseView extends Composite implements RevisionsByRele
     @Override
     public void setData(List<DataItem> data) {
         this.data = data;
+    }
+
+    @Override
+    public Widget asWidget() {
+        return container;
     }
 }
