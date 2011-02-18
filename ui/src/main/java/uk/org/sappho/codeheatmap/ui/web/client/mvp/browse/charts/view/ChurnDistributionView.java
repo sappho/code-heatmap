@@ -5,7 +5,6 @@ import java.util.List;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.ChurnDistributionPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
 
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -52,7 +51,7 @@ public class ChurnDistributionView extends ViewImpl implements ChurnDistribution
 
         container.add(new Label("Churn"));
         container.add(chart);
-        container.add(new HTML("<p>Worst offenders: " + worstOffenders + "</p>"));
+        container.add(new Label(worstOffenders));
 
     }
 

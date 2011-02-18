@@ -21,17 +21,23 @@ public abstract class BaseDataAnalysis<A extends Action<R>, R extends Result> im
 
     private final ReaderRawDataPersistence rawDataPersistence;
 
+    private RawData rawData;
+
     public BaseDataAnalysis(ReaderRawDataPersistence rawDataPersistence) {
         this.rawDataPersistence = rawDataPersistence;
     }
 
     protected RawData getRawData() {
 
+        if (rawData != null) {
+            return rawData;
+        }
+
         File dataFile = new File("WEB-INF/data/raw-data-all-frame-2011-02-17.zip");
         try {
             if (dataFile.exists()) {
                 InputStream inputStream = getDataFileInputStream(dataFile);
-                RawData rawData = rawDataPersistence.load(inputStream);
+                rawData = rawDataPersistence.load(inputStream);
                 return rawData;
             } else {
                 LOG.error("Couldn't find data file: " + dataFile.getCanonicalPath());

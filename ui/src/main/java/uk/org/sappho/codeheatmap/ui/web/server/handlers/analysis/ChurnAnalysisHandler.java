@@ -1,6 +1,7 @@
 package uk.org.sappho.codeheatmap.ui.web.server.handlers.analysis;
 
 import static ch.lambdaj.Lambda.join;
+import static uk.org.sappho.codeheatmap.ui.web.server.handlers.utils.Normalisers.normaliseFilename;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,10 +42,10 @@ public class ChurnAnalysisHandler extends BaseDataAnalysis<ChurnAnalysis, ChurnA
 
         for (RevisionData revision : revisions) {
             for (String filename : revision.getChangedFiles()) {
-                if (!filename.endsWith(".java")) {
+                if (!filename.endsWith(".java") || revision.isMerge()) {
                     continue;
                 }
-                String normalisedFilename = normalise(filename);
+                String normalisedFilename = normaliseFilename(filename);
                 Integer count = filenameChangeCount.get(normalisedFilename);
                 if (count == null) {
                     filenameChangeCount.put(normalisedFilename, 1);
@@ -64,11 +65,6 @@ public class ChurnAnalysisHandler extends BaseDataAnalysis<ChurnAnalysis, ChurnA
         LOG.info(numbers.size() + " files found in churn analysis");
 
         return new ChurnAnalysisResult(numbers, join(worstOffenders.keySet()));
-    }
-
-    private String normalise(String filename) {
-        String[] split = filename.split("/");
-        return split[split.length - 2] + "/" + split[split.length - 1];
     }
 
     @Override

@@ -3,9 +3,11 @@ package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse;
 import java.util.Collection;
 
 import uk.org.sappho.codeheatmap.ui.web.client.events.SearchCriteriaChangeEvent;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.BadCommittersPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.ChurnDistributionPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.IssuesByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.RevisionsByReleasePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.TopChurnByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view.Menu;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view.SubMenuItem;
@@ -72,6 +74,8 @@ public class BrowsePresenter extends Presenter<BrowsePresenter.MyView, BrowsePre
         subMenu.addMenuItem(new SubMenuItem("Issues/Release", IssuesByReleasePresenter.nameToken));
         subMenu.addMenuItem(new SubMenuItem("Revision/Release", RevisionsByReleasePresenter.nameToken));
         subMenu.addMenuItem(new SubMenuItem("Churn Distribution", ChurnDistributionPresenter.nameToken));
+        subMenu.addMenuItem(new SubMenuItem("Bad Committers", BadCommittersPresenter.nameToken));
+        subMenu.addMenuItem(new SubMenuItem("Top Churn By Release", TopChurnByReleasePresenter.nameToken));
     }
 
     @Override

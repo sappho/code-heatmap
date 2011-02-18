@@ -1,12 +1,16 @@
 package uk.org.sappho.codeheatmap.ui.web.client.gin;
 
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.BadCommittersPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.ChurnDistributionPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.IssuesByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.RevisionsByReleasePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.TopChurnByReleasePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.view.BadCommittersView;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.view.ChurnDistributionView;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.view.IssuesByReleaseView;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.view.RevisionsByReleaseView;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.view.TopChurnByReleaseView;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.view.BrowseView;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.view.MainView;
@@ -51,6 +55,10 @@ public class CodeHeatmapModule extends AbstractPresenterModule {
                 RevisionsByReleaseView.class, RevisionsByReleasePresenter.MyProxy.class);
         bindPresenter(ChurnDistributionPresenter.class, ChurnDistributionPresenter.MyView.class,
                 ChurnDistributionView.class, ChurnDistributionPresenter.MyProxy.class);
+        bindPresenter(BadCommittersPresenter.class, BadCommittersPresenter.MyView.class,
+                BadCommittersView.class, BadCommittersPresenter.MyProxy.class);
+        bindPresenter(TopChurnByReleasePresenter.class, TopChurnByReleasePresenter.MyView.class,
+                TopChurnByReleaseView.class, TopChurnByReleasePresenter.MyProxy.class);
 
     }
 }

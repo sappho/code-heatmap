@@ -1,9 +1,11 @@
 package uk.org.sappho.codeheatmap.ui.web.client.gin;
 
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.BadCommittersPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.ChurnDistributionPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.IssuesByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.RevisionsByReleasePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.TopChurnByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
 
@@ -36,5 +38,9 @@ public interface CodeHeatmapGinjector extends Ginjector {
     Provider<RevisionsByReleasePresenter> getRBRPresenter();
 
     Provider<ChurnDistributionPresenter> getChurnDistributionPresenter();
+
+    Provider<BadCommittersPresenter> getBadCommittersPresenter();
+
+    Provider<TopChurnByReleasePresenter> getTopChurnByReleasePresenter();
 
 }
