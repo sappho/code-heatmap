@@ -7,11 +7,14 @@ public class FetchData extends UnsecuredActionImpl<FetchDataResult> {
 
     public static final Action<FetchDataResult> ISSUES_BY_RELEASE = new FetchData(FetchDataType.ISSUES);
     public static final Action<FetchDataResult> REVISIONS_BY_RELEASE = new FetchData(FetchDataType.REVISIONS);
+    public static final Action<FetchDataResult> CHURN = new FetchData(FetchDataType.CHURN);
+
     private FetchDataType fetchDataType;
 
     public enum FetchDataType {
         ISSUES,
-        REVISIONS
+        REVISIONS,
+        CHURN
     }
 
     public FetchData() {

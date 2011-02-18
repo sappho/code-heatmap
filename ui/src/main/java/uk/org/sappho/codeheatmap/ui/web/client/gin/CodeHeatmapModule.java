@@ -1,8 +1,10 @@
 package uk.org.sappho.codeheatmap.ui.web.client.gin;
 
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.ChurnDistributionPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.IssuesByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.RevisionsByReleasePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.view.ChurnDistributionView;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.view.IssuesByReleaseView;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.view.RevisionsByReleaseView;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.view.BrowseView;
@@ -47,6 +49,8 @@ public class CodeHeatmapModule extends AbstractPresenterModule {
                 IssuesByReleaseView.class, IssuesByReleasePresenter.MyProxy.class);
         bindPresenter(RevisionsByReleasePresenter.class, RevisionsByReleasePresenter.MyView.class,
                 RevisionsByReleaseView.class, RevisionsByReleasePresenter.MyProxy.class);
+        bindPresenter(ChurnDistributionPresenter.class, ChurnDistributionPresenter.MyView.class,
+                ChurnDistributionView.class, ChurnDistributionPresenter.MyProxy.class);
 
     }
 }

@@ -2,11 +2,15 @@ package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts;
 
 import java.util.List;
 
+import uk.org.sappho.codeheatmap.ui.web.client.dispatch.DispatchCallback;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData;
+import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchDataResult;
+import uk.org.sappho.codeheatmap.ui.web.shared.actions.ReleaseChangesDefects;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.visualization.client.VisualizationUtils;
+import com.google.gwt.visualization.client.visualizations.AreaChart;
 import com.google.inject.Inject;
 import com.gwtplatform.dispatch.client.DispatchAsync;
 import com.gwtplatform.mvp.client.Presenter;
@@ -23,7 +27,6 @@ public class IssuesByReleasePresenter extends
     public static final String nameToken = "ibr";
 
     private final DispatchAsync dispatch;
-    private final HandleDataForIssuesByRelease handleDataForIssuesByRelease;
 
     @ProxyStandard
     @NameToken(nameToken)
@@ -35,22 +38,26 @@ public class IssuesByReleasePresenter extends
 
         void clear();
 
-        void setData(List<DataItem> data);
+        void setData(List<ReleaseChangesDefects> data);
     }
 
     @Inject
-    public IssuesByReleasePresenter(EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatch,
-            HandleDataForIssuesByRelease handleDataForIssuesByRelease) {
+    public IssuesByReleasePresenter(EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatch) {
         super(eventBus, view, proxy);
         this.dispatch = dispatch;
-        this.handleDataForIssuesByRelease = handleDataForIssuesByRelease;
     }
 
     @Override
     protected void revealInParent() {
         RevealContentEvent.fire(this, BrowsePresenter.TYPE_SetBrowseContent, this);
         getView().clear();
-        dispatch.execute(FetchData.ISSUES_BY_RELEASE, handleDataForIssuesByRelease);
+        dispatch.execute(FetchData.ISSUES_BY_RELEASE, new DispatchCallback<FetchDataResult>() {
+            @Override
+            public void onSuccess(FetchDataResult result) {
+                getView().setData(result.getData());
+                VisualizationUtils.loadVisualizationApi(getView(), AreaChart.PACKAGE);
+            }
+        });
     }
 
 }

@@ -5,17 +5,12 @@ import static ch.lambdaj.Lambda.convert;
 import static ch.lambdaj.Lambda.group;
 import static ch.lambdaj.Lambda.on;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.zip.ZipException;
 
 import org.apache.log4j.Logger;
 
@@ -23,8 +18,8 @@ import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.data.persistence.file.ReaderRawDataPersistence;
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData;
+import uk.org.sappho.codeheatmap.ui.web.shared.actions.ReleaseChangesDefects;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData.FetchDataType;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchDataResult;
 import ch.lambdaj.function.convert.Converter;
@@ -32,17 +27,15 @@ import ch.lambdaj.group.Group;
 
 import com.google.inject.Inject;
 import com.gwtplatform.dispatch.server.ExecutionContext;
-import com.gwtplatform.dispatch.server.actionhandler.ActionHandler;
 import com.gwtplatform.dispatch.shared.ActionException;
 
-public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResult> {
+public class FetchDataHandler extends BaseDataAnalysis<FetchData, FetchDataResult> {
 
     private static final Logger LOG = Logger.getLogger(FetchDataHandler.class);
-    private final ReaderRawDataPersistence rawDataPersistence;
 
     @Inject
     public FetchDataHandler(ReaderRawDataPersistence rawDataPersistence) {
-        this.rawDataPersistence = rawDataPersistence;
+        super(rawDataPersistence);
     }
 
     @Override
@@ -54,29 +47,18 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
     public FetchDataResult execute(FetchData action, ExecutionContext context)
             throws ActionException {
 
-        File dataFile = new File("WEB-INF/data/raw-data-all-frame-2011-02-17.zip");
-        try {
-            if (dataFile.exists()) {
-                InputStream inputStream = getDataFileInputStream(dataFile);
-                RawData rawData = rawDataPersistence.load(inputStream);
-                List<DataItem> data = null;
-                if (action.getFetchDataType() == FetchDataType.ISSUES) {
-                    data = massageIssueData(rawData);
-                } else if (action.getFetchDataType() == FetchDataType.REVISIONS) {
-                    data = massageRevisionData(rawData);
-                }
-                return new FetchDataResult(data);
-            } else {
-                LOG.error("Couldn't find data file: " + dataFile.getCanonicalPath());
-                return null;
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        RawData rawData = getRawData();
+        List<ReleaseChangesDefects> data = null;
+        if (action.getFetchDataType() == FetchDataType.ISSUES) {
+            data = massageIssueData(rawData);
+        } else if (action.getFetchDataType() == FetchDataType.REVISIONS) {
+            data = massageRevisionData(rawData);
         }
+        return new FetchDataResult(data);
 
     }
 
-    private List<DataItem> massageRevisionData(RawData rawData) {
+    private List<ReleaseChangesDefects> massageRevisionData(RawData rawData) {
         Collection<RevisionData> revisions = rawData.getRevisionDataMap().values();
         List<AugmentedRevisionData> revisionsWithReleases = convert(revisions, intoAugmentedRevisions(rawData));
         Group<AugmentedRevisionData> releasesGroup = group(revisionsWithReleases,
@@ -86,13 +68,13 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
         Collections.sort(releaseNames, new SortedAsIfNumbers());
         LOG.info("Found " + releaseNames.size() + " releases");
 
-        List<DataItem> data = new ArrayList<DataItem>();
+        List<ReleaseChangesDefects> data = new ArrayList<ReleaseChangesDefects>();
         for (String release : releaseNames) {
             Group<AugmentedRevisionData> releaseGroup = releasesGroup.findGroup(release);
             List<AugmentedRevisionData> changes = releaseGroup.find("change");
             List<AugmentedRevisionData> defects = releaseGroup.find("defect");
             if (release != null && !release.isEmpty()) {
-                data.add(new DataItem(release, changes.size(), defects.size()));
+                data.add(new ReleaseChangesDefects(release, changes.size(), defects.size()));
             }
         }
         LOG.info("Finished massaging");
@@ -121,7 +103,7 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
         };
     }
 
-    private List<DataItem> massageIssueData(RawData rawData) {
+    private List<ReleaseChangesDefects> massageIssueData(RawData rawData) {
 
         Collection<IssueData> issues = rawData.getIssueDataMap().values();
         Group<IssueData> releasesGroup = group(issues,
@@ -131,22 +113,17 @@ public class FetchDataHandler implements ActionHandler<FetchData, FetchDataResul
         Collections.sort(releaseNames, new SortedAsIfNumbers());
         LOG.info("Found " + releaseNames.size() + " releases");
 
-        List<DataItem> data = new ArrayList<DataItem>();
+        List<ReleaseChangesDefects> data = new ArrayList<ReleaseChangesDefects>();
         for (String release : releaseNames) {
             Group<IssueData> releaseGroup = releasesGroup.findGroup(release);
             List<IssueData> changes = releaseGroup.find("change");
             List<IssueData> defects = releaseGroup.find("defect");
             if (release != null && !release.isEmpty()) {
-                data.add(new DataItem(release, changes.size(), defects.size()));
+                data.add(new ReleaseChangesDefects(release, changes.size(), defects.size()));
             }
         }
         LOG.info("Finished massaging");
         return data;
-    }
-
-    private InputStream getDataFileInputStream(File dataFile) throws IOException, ZipException {
-        LOG.info("Fetching data from: " + dataFile.getCanonicalFile());
-        return new FileInputStream(dataFile);
     }
 
     private final class SortedAsIfNumbers implements Comparator<String> {

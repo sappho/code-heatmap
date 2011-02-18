@@ -2,7 +2,6 @@ package uk.org.sappho.codeheatmap.ui.web.client.place;
 
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManagerImpl;
@@ -14,11 +13,6 @@ public class CodeHeatmapPlaceManager extends PlaceManagerImpl {
     @Inject
     public CodeHeatmapPlaceManager(EventBus eventBus, TokenFormatter tokenFormatter) {
         super(eventBus, tokenFormatter);
-    }
-
-    @Override
-    public void revealErrorPlace(String invalidHistoryToken) {
-        GWT.log("Reveal error place");
     }
 
     @Override

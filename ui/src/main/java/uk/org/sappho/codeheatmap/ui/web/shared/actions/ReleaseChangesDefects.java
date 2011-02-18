@@ -2,7 +2,7 @@ package uk.org.sappho.codeheatmap.ui.web.shared.actions;
 
 import java.io.Serializable;
 
-public class DataItem implements Serializable {
+public class ReleaseChangesDefects implements Serializable {
 
     private static final long serialVersionUID = -9192883656342874747L;
 
@@ -10,10 +10,10 @@ public class DataItem implements Serializable {
     private int changes;
     private int defects;
 
-    public DataItem() {
+    public ReleaseChangesDefects() {
     }
 
-    public DataItem(String release, int changes, int defects) {
+    public ReleaseChangesDefects(String release, int changes, int defects) {
         this.release = release;
         this.changes = changes;
         this.defects = defects;

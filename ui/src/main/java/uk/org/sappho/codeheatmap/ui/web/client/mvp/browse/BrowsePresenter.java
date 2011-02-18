@@ -3,6 +3,7 @@ package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse;
 import java.util.Collection;
 
 import uk.org.sappho.codeheatmap.ui.web.client.events.SearchCriteriaChangeEvent;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.ChurnDistributionPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.IssuesByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.RevisionsByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
@@ -68,8 +69,9 @@ public class BrowsePresenter extends Presenter<BrowsePresenter.MyView, BrowsePre
     protected void onReset() {
         super.onReset();
         subMenu.clear();
-        subMenu.addMenuItem(new SubMenuItem("IBR", IssuesByReleasePresenter.nameToken));
-        subMenu.addMenuItem(new SubMenuItem("RBR", RevisionsByReleasePresenter.nameToken));
+        subMenu.addMenuItem(new SubMenuItem("Issues/Release", IssuesByReleasePresenter.nameToken));
+        subMenu.addMenuItem(new SubMenuItem("Revision/Release", RevisionsByReleasePresenter.nameToken));
+        subMenu.addMenuItem(new SubMenuItem("Churn Distribution", ChurnDistributionPresenter.nameToken));
     }
 
     @Override

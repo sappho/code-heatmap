@@ -1,6 +1,7 @@
 package uk.org.sappho.codeheatmap.ui.web.client.gin;
 
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.ChurnDistributionPresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.IssuesByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts.RevisionsByReleasePresenter;
 import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
@@ -29,8 +30,11 @@ public interface CodeHeatmapGinjector extends Ginjector {
 
     Provider<BrowsePresenter> getBrowsePresenter();
 
+    // charts
     Provider<IssuesByReleasePresenter> getIBRPresenter();
 
     Provider<RevisionsByReleasePresenter> getRBRPresenter();
+
+    Provider<ChurnDistributionPresenter> getChurnDistributionPresenter();
 
 }
