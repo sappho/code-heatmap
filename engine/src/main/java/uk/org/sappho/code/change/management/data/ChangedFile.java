@@ -7,10 +7,13 @@ public class ChangedFile {
 
     @NotNull
     @NotEmpty
-    private final String filename;
+    private String filename;
     @NotNull
     @NotEmpty
-    private final Boolean isCreate;
+    private Boolean isCreate;
+
+    public ChangedFile() {
+    }
 
     public ChangedFile(String filename, Boolean isCreate) {
 
