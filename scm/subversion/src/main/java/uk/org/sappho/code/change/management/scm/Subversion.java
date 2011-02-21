@@ -17,6 +17,7 @@ import org.tigris.subversion.javahl.SVNClient;
 
 import com.google.inject.Inject;
 
+import uk.org.sappho.code.change.management.data.ChangedFile;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.configuration.Configuration;
@@ -64,6 +65,7 @@ public class Subversion implements SCM {
                 Map<String, Integer> nodeKindCache = new HashMap<String, Integer>();
                 long nodeCount = 0;
                 long fileCount = 0;
+                long addCount = 0;
                 long deleteCount = 0;
                 long badPathCount = 0;
                 long noFilesCount = 0;
@@ -82,7 +84,7 @@ public class Subversion implements SCM {
                     Date date = logMessage.getDate();
                     String commitComment = logMessage.getMessage();
                     String committer = logMessage.getAuthor();
-                    List<String> changedFiles = new ArrayList<String>();
+                    List<ChangedFile> changedFiles = new ArrayList<ChangedFile>();
                     for (ChangePath changePath : logMessage.getChangedPaths()) {
                         nodeCount++;
                         String path = changePath.getPath();
@@ -108,7 +110,10 @@ public class Subversion implements SCM {
                                 }
                             }
                             if (nodeKind == NodeKind.file) {
-                                changedFiles.add(path);
+                                boolean added = action == 'A';
+                                if (added)
+                                    addCount++;
+                                changedFiles.add(new ChangedFile(path, added));
                                 fileCount++;
                             }
                         } else {
@@ -125,9 +130,9 @@ public class Subversion implements SCM {
                     rawData.putRevisionData(revisionData);
                 }
                 log.info("Processed " + revisionCount + " revisions");
-                log.info("Stats: " + nodeCount + " nodes, " + fileCount + " files, " + deleteCount + " deletes, "
-                        + badPathCount + " bad paths, " + noFilesCount + " revisions with no file changes, "
-                        + nodeKindCacheHits + " cache hits");
+                log.info("Stats: " + nodeCount + " nodes, " + fileCount + " files, " + addCount + " adds, "
+                        + deleteCount + " deletes, " + badPathCount + " bad paths, " + noFilesCount
+                        + " revisions with no file changes, " + nodeKindCacheHits + " cache hits");
                 config.takeSnapshot();
                 config.setProperty(startRevPropProperty, "" + ++endRevision);
                 config.saveChanged(startRevPropProperty + ".save.filename");

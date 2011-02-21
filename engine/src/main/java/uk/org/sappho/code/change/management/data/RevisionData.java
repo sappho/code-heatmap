@@ -3,10 +3,9 @@ package uk.org.sappho.code.change.management.data;
 import java.util.Date;
 import java.util.List;
 
+import net.sf.oval.constraint.AssertValid;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
-
-import uk.org.sappho.validation.StringArrayConstraint;
 
 public class RevisionData {
 
@@ -28,14 +27,15 @@ public class RevisionData {
     @NotNull
     @NotEmpty
     private Boolean isMerge = false;
-    @StringArrayConstraint
-    private List<String> changedFiles;
+    @NotNull
+    @AssertValid
+    private List<ChangedFile> changedFiles;
 
     public RevisionData() {
     }
 
     public RevisionData(String revisionKey, Date date, String commitComment, String committer,
-            List<String> changedFiles) {
+            List<ChangedFile> changedFiles) {
 
         this.revisionKey = revisionKey;
         this.date = date;
@@ -64,7 +64,7 @@ public class RevisionData {
         return commitComment;
     }
 
-    public final List<String> getChangedFiles() {
+    public final List<ChangedFile> getChangedFiles() {
 
         return changedFiles;
     }

@@ -92,8 +92,8 @@ public class RawDataTest {
         String commitComment = issueKey + ": " + issueSummary;
         String committer = "sappho";
         String changedFile = "/sappho/fragments/Hymn to Aphrodite.txt";
-        List<String> changedFiles = new ArrayList<String>();
-        changedFiles.add(changedFile);
+        List<ChangedFile> changedFiles = new ArrayList<ChangedFile>();
+        changedFiles.add(new ChangedFile(changedFile, false));
         RevisionData revisionData = new RevisionData(revisionKey, revisionDate, commitComment, committer, changedFiles);
         revisionData.setIssueKey(issueKey);
         String issueType = "change";
