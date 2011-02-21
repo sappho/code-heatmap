@@ -2,49 +2,62 @@ package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.charts;
 
 import java.util.List;
 
-import net.customware.gwt.dispatch.client.DispatchAsync;
-import net.customware.gwt.presenter.client.EventBus;
-import net.customware.gwt.presenter.client.widget.WidgetDisplay;
-import net.customware.gwt.presenter.client.widget.WidgetPresenter;
-
-import com.google.inject.Inject;
-
-import uk.org.sappho.codeheatmap.ui.web.shared.actions.DataItem;
+import uk.org.sappho.codeheatmap.ui.web.client.dispatch.DispatchCallback;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchData;
+import uk.org.sappho.codeheatmap.ui.web.shared.actions.FetchDataResult;
+import uk.org.sappho.codeheatmap.ui.web.shared.actions.ReleaseChangesDefects;
 
-public class RevisionsByReleasePresenter extends WidgetPresenter<RevisionsByReleasePresenter.Display> {
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.visualization.client.VisualizationUtils;
+import com.google.gwt.visualization.client.visualizations.AreaChart;
+import com.google.inject.Inject;
+import com.gwtplatform.dispatch.client.DispatchAsync;
+import com.gwtplatform.mvp.client.Presenter;
+import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.ProxyStandard;
+import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+
+public class RevisionsByReleasePresenter extends
+        Presenter<RevisionsByReleasePresenter.MyView, RevisionsByReleasePresenter.MyProxy> {
+
+    public static final String nameToken = "rbr";
 
     private final DispatchAsync dispatch;
-    private final HandleDataForRevisionsByRelease handleDataForRevisionsByRelease;
 
-    public interface Display extends WidgetDisplay, Runnable {
+    @ProxyStandard
+    @NameToken(nameToken)
+    public interface MyProxy extends Proxy<RevisionsByReleasePresenter>, Place {
+
+    }
+
+    public interface MyView extends View, Runnable {
 
         void clear();
 
-        void setData(List<DataItem> data);
+        void setData(List<ReleaseChangesDefects> data);
     }
 
     @Inject
-    public RevisionsByReleasePresenter(Display display, EventBus eventBus, DispatchAsync dispatch,
-            HandleDataForRevisionsByRelease handleDataForRevisionsByRelease) {
-        super(display, eventBus);
+    public RevisionsByReleasePresenter(EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatch) {
+        super(eventBus, view, proxy);
         this.dispatch = dispatch;
-        this.handleDataForRevisionsByRelease = handleDataForRevisionsByRelease;
     }
 
     @Override
-    protected void onRevealDisplay() {
-        display.clear();
-        dispatch.execute(FetchData.REVISIONS_BY_RELEASE, handleDataForRevisionsByRelease);
-    }
-
-    @Override
-    protected void onBind() {
-    }
-
-    @Override
-    protected void onUnbind() {
-
+    protected void revealInParent() {
+        RevealContentEvent.fire(this, BrowsePresenter.TYPE_SetBrowseContent, this);
+        getView().clear();
+        dispatch.execute(FetchData.REVISIONS_BY_RELEASE, new DispatchCallback<FetchDataResult>() {
+            @Override
+            public void onSuccess(FetchDataResult result) {
+                getView().setData(result.getData());
+                VisualizationUtils.loadVisualizationApi(getView(), AreaChart.PACKAGE);
+            }
+        });
     }
 
 }

@@ -2,10 +2,13 @@
 <!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.0.3//EN" "http://google-web-toolkit.googlecode.com/svn/tags/2.0.3/distro-source/core/src/gwt-module.dtd">
 <module rename-to="codeheatmap">
 	<inherits name="com.google.gwt.user.User" />
+
 	<inherits name="com.google.gwt.inject.Inject" />
 	<inherits name="com.google.gwt.resources.Resources" />
-	<inherits name="net.customware.gwt.presenter.Presenter" />
-	<inherits name="net.customware.gwt.dispatch.Dispatch" />
+
+	<inherits name='com.gwtplatform.dispatch.Dispatch' />
+	<inherits name='com.gwtplatform.mvp.Mvp' />
+
 	<inherits name="com.google.gwt.visualization.Visualization" />
 	<inherits name="gwtupload.GWTUpload" />
 	<stylesheet src="Upload.css" />
@@ -13,4 +16,11 @@
 		class="uk.org.sappho.codeheatmap.ui.web.client.CodeHeatmapEntryPoint" />
 	<source path="client" />
 	<source path="shared" />
+
+
+	<define-configuration-property name="gin.ginjector"
+		is-multi-valued="false" />
+	<set-configuration-property name="gin.ginjector"
+		value="uk.org.sappho.codeheatmap.ui.web.client.gin.CodeHeatmapGinjector" />
+
 </module> 

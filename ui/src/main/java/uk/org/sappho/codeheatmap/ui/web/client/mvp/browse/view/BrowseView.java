@@ -3,13 +3,16 @@ package uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.view;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import uk.org.sappho.codeheatmap.ui.web.client.events.SearchCriteriaChangeEvent;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
+import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
+
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
@@ -17,23 +20,19 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.inject.Inject;
+import com.gwtplatform.mvp.client.ViewImpl;
 
-import uk.org.sappho.codeheatmap.ui.web.client.events.SearchCriteriaChangeEvent;
-import uk.org.sappho.codeheatmap.ui.web.client.mvp.browse.BrowsePresenter;
-import uk.org.sappho.codeheatmap.ui.web.client.resources.CodeHeatmapResources;
-import uk.org.sappho.codeheatmap.ui.web.shared.model.Party;
+public class BrowseView extends ViewImpl implements BrowsePresenter.MyView {
 
-public class BrowseView extends Composite implements BrowsePresenter.Display {
-
-    private ListDataProvider<Party> listDataProvider;
+    private ListDataProvider<String> listDataProvider;
     private final TextBox searchTerm;
+    private final VerticalPanel container;
 
     @Inject
     public BrowseView(CodeHeatmapResources resources) {
 
-        VerticalPanel container = new VerticalPanel();
+        container = new VerticalPanel();
         container.addStyleName(resources.css().centerLayout());
-        initWidget(container);
 
         HorizontalPanel searchContainer = new HorizontalPanel();
         searchContainer.setVerticalAlignment(HorizontalPanel.ALIGN_MIDDLE);
@@ -43,7 +42,7 @@ public class BrowseView extends Composite implements BrowsePresenter.Display {
         searchContainer.add(searchLabel);
         searchContainer.add(searchTerm);
 
-        CellTable<Party> table = createCellTable();
+        CellTable<String> table = createCellTable();
         table.addStyleName(resources.css().browseTable());
         table.setWidth("960px");
 
@@ -55,57 +54,29 @@ public class BrowseView extends Composite implements BrowsePresenter.Display {
         container.add(table);
     }
 
-    private CellTable<Party> createCellTable() {
-        CellTable<Party> table = new CellTable<Party>();
+    private CellTable<String> createCellTable() {
+        CellTable<String> table = new CellTable<String>();
         table.setPageSize(20);
-        TextColumn<Party> duns = new TextColumn<Party>() {
+        TextColumn<String> eg = new TextColumn<String>() {
             @Override
-            public String getValue(Party party) {
-                return party.getProperty("Duns");
+            public String getValue(String item) {
+                return item;
             }
         };
-        TextColumn<Party> businessName = new TextColumn<Party>() {
-            @Override
-            public String getValue(Party party) {
-                return party.getProperty("BusinessName");
-            }
-        };
-        TextColumn<Party> dbDelinquency = new TextColumn<Party>() {
-            @Override
-            public String getValue(Party party) {
-                return party.getProperty("DBDelinquency");
-            }
-        };
-        TextColumn<Party> dbFailureScore1 = new TextColumn<Party>() {
-            @Override
-            public String getValue(Party party) {
-                return party.getProperty("DBFailureScore1");
-            }
-        };
-        TextColumn<Party> ledgerCustom2 = new TextColumn<Party>() {
-            @Override
-            public String getValue(Party party) {
-                return party.getProperty("LedgerCustom2");
-            }
-        };
-        table.addColumn(duns, "AAA");
-        table.addColumn(businessName, "BBB");
-        table.addColumn(ledgerCustom2, "CCC");
-        table.addColumn(dbDelinquency, "DDD");
-        table.addColumn(dbFailureScore1, "EEE");
-        listDataProvider = new ListDataProvider<Party>();
+        table.addColumn(eg, "E.g.");
+        listDataProvider = new ListDataProvider<String>();
         listDataProvider.addDataDisplay(table);
         return table;
     }
 
     @Override
     public Widget asWidget() {
-        return this;
+        return container;
     }
 
     @Override
-    public void setData(Collection<Party> parties) {
-        listDataProvider.setList(new ArrayList<Party>(parties));
+    public void setData(Collection<String> data) {
+        listDataProvider.setList(new ArrayList<String>(data));
     }
 
     @Override
@@ -117,5 +88,15 @@ public class BrowseView extends Composite implements BrowsePresenter.Display {
                 searchTimer.notifyChanged();
             }
         });
+    }
+
+    @Override
+    public void setInSlot(Object slot, Widget content) {
+        if (slot == BrowsePresenter.TYPE_SetBrowseContent) {
+            container.clear();
+            container.add(content);
+        } else {
+            super.setInSlot(slot, content);
+        }
     }
 }

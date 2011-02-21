@@ -1,22 +1,23 @@
 package uk.org.sappho.codeheatmap.ui.web.client.place;
 
-import net.customware.gwt.presenter.client.EventBus;
-import net.customware.gwt.presenter.client.place.DefaultPlaceManager;
-import net.customware.gwt.presenter.client.place.TokenFormatter;
+import uk.org.sappho.codeheatmap.ui.web.client.mvp.main.MainPresenter;
 
+import com.google.gwt.event.shared.EventBus;
 import com.google.inject.Inject;
+import com.gwtplatform.mvp.client.proxy.PlaceManagerImpl;
+import com.gwtplatform.mvp.client.proxy.PlaceRequest;
+import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 
-public class CodeHeatmapPlaceManager extends DefaultPlaceManager {
+public class CodeHeatmapPlaceManager extends PlaceManagerImpl {
 
     @Inject
-    public CodeHeatmapPlaceManager(EventBus eventBus, TokenFormatter tokenFormatter,
-            MainPlace mainPlace, ImportPlace importPlace,
-            ExportPlace exportPlace,
-            BrowsePlace browsePlace,
-            IssuesByReleasePlace issuesByReleasePlace,
-            RevisionsByReleasePlace revisionsByReleasePlace) {
-        super(eventBus, tokenFormatter, mainPlace, importPlace, exportPlace, browsePlace,
-                issuesByReleasePlace, revisionsByReleasePlace);
+    public CodeHeatmapPlaceManager(EventBus eventBus, TokenFormatter tokenFormatter) {
+        super(eventBus, tokenFormatter);
+    }
+
+    @Override
+    public void revealDefaultPlace() {
+        revealPlace(new PlaceRequest(MainPresenter.nameToken));
     }
 
 }

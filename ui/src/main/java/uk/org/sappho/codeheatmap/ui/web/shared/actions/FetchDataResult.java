@@ -2,20 +2,21 @@ package uk.org.sappho.codeheatmap.ui.web.shared.actions;
 
 import java.util.List;
 
-import net.customware.gwt.dispatch.shared.Result;
+
+import com.gwtplatform.dispatch.shared.Result;
 
 public class FetchDataResult implements Result {
 
-    private List<DataItem> data;
+    private List<ReleaseChangesDefects> data;
 
     public FetchDataResult() {
     }
 
-    public FetchDataResult(List<DataItem> data) {
+    public FetchDataResult(List<ReleaseChangesDefects> data) {
         this.data = data;
     }
 
-    public List<DataItem> getData() {
+    public List<ReleaseChangesDefects> getData() {
         return data;
     }
 

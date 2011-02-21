@@ -1,16 +1,20 @@
 package uk.org.sappho.codeheatmap.ui.web.shared.actions;
 
-import net.customware.gwt.dispatch.shared.Action;
+import com.gwtplatform.dispatch.shared.Action;
+import com.gwtplatform.dispatch.shared.UnsecuredActionImpl;
 
-public class FetchData implements Action<FetchDataResult> {
+public class FetchData extends UnsecuredActionImpl<FetchDataResult> {
 
     public static final Action<FetchDataResult> ISSUES_BY_RELEASE = new FetchData(FetchDataType.ISSUES);
     public static final Action<FetchDataResult> REVISIONS_BY_RELEASE = new FetchData(FetchDataType.REVISIONS);
+    public static final Action<FetchDataResult> CHURN = new FetchData(FetchDataType.CHURN);
+
     private FetchDataType fetchDataType;
 
     public enum FetchDataType {
         ISSUES,
-        REVISIONS
+        REVISIONS,
+        CHURN
     }
 
     public FetchData() {
