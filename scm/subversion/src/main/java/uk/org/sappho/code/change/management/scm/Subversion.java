@@ -69,6 +69,7 @@ public class Subversion implements SCM {
                 long deleteCount = 0;
                 long badPathCount = 0;
                 long noFilesCount = 0;
+                long nodeKindCacheAdds = 0;
                 long nodeKindCacheHits = 0;
                 log.info("Reading Subversion history for " + targetURL + " from revision " + startRevision
                         + " to revision " + endRevision);
@@ -102,6 +103,7 @@ public class Subversion implements SCM {
                                     if (info.length == 1) {
                                         nodeKind = info[0].getKind();
                                         nodeKindCache.put(path, nodeKind);
+                                        nodeKindCacheAdds++;
                                     } else {
                                         rawData.getWarnings().add("Bad path",
                                                 "Unable to get Subversion data for path " + path);
@@ -132,7 +134,8 @@ public class Subversion implements SCM {
                 log.info("Processed " + revisionCount + " revisions");
                 log.info("Stats: " + nodeCount + " nodes, " + fileCount + " files, " + addCount + " adds, "
                         + deleteCount + " deletes, " + badPathCount + " bad paths, " + noFilesCount
-                        + " revisions with no file changes, " + nodeKindCacheHits + " cache hits");
+                        + " revisions with no file changes, " + nodeKindCacheAdds + " cache adds, " + nodeKindCacheHits
+                        + " cache hits");
                 config.takeSnapshot();
                 config.setProperty(startRevPropProperty, "" + ++endRevision);
                 config.saveChanged(startRevPropProperty + ".save.filename");
