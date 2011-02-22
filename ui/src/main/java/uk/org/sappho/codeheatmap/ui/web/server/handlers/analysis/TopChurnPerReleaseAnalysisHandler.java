@@ -15,6 +15,13 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ch.lambdaj.group.Group;
+
+import com.google.inject.Inject;
+import com.gwtplatform.dispatch.server.ExecutionContext;
+import com.gwtplatform.dispatch.shared.ActionException;
+
+import uk.org.sappho.code.change.management.data.ChangedFile;
 import uk.org.sappho.code.change.management.data.RawData;
 import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.change.management.data.persistence.file.ReaderRawDataPersistence;
@@ -22,11 +29,6 @@ import uk.org.sappho.codeheatmap.ui.web.server.handlers.AugmentedRevisionData;
 import uk.org.sappho.codeheatmap.ui.web.server.handlers.BaseDataAnalysis;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.analysis.TopChurnPerReleaseAnalysis;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.analysis.TopChurnPerReleaseAnalysisResult;
-import ch.lambdaj.group.Group;
-
-import com.google.inject.Inject;
-import com.gwtplatform.dispatch.server.ExecutionContext;
-import com.gwtplatform.dispatch.shared.ActionException;
 
 public class TopChurnPerReleaseAnalysisHandler extends
         BaseDataAnalysis<TopChurnPerReleaseAnalysis, TopChurnPerReleaseAnalysisResult> {
@@ -60,9 +62,9 @@ public class TopChurnPerReleaseAnalysisHandler extends
             List<AugmentedRevisionData> defects = releaseGroup.find("defect");
             FileCounter fileCounter = new FileCounter();
             for (AugmentedRevisionData defect : defects) {
-                for (String file : defect.getChangedFiles()) {
+                for (ChangedFile file : defect.getChangedFiles()) {
                     if (isProductionJava().matches(file)) {
-                        fileCounter.addOne(extractPackage(file));
+                        fileCounter.addOne(extractPackage(file.getFilename()));
                     }
                 }
             }

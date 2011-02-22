@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import uk.org.sappho.code.change.management.data.ChangedFile;
 import uk.org.sappho.codeheatmap.ui.web.shared.actions.analysis.CommitterStats;
 
 public class BadCommitters {
@@ -24,9 +25,9 @@ public class BadCommitters {
     Map<String, Stats> data = new HashMap<String, Stats>();
     Map<String, String> fileCreators = new HashMap<String, String>();
 
-    public void addChangeSet(List<String> changedFiles, Date commitDate, String committer, String issueKey,
+    public void addChangeSet(List<ChangedFile> changedFiles, Date commitDate, String committer, String issueKey,
             String issueType) {
-        for (String file : changedFiles) {
+        for (ChangedFile file : changedFiles) {
             addChange(file, commitDate, normaliseCommitter(committer), issueKey, issueType);
         }
     }
@@ -38,14 +39,14 @@ public class BadCommitters {
         return committer.toLowerCase();
     }
 
-    private void addChange(String file, Date commitDate, String committer, String issueKey, String issueType) {
+    private void addChange(ChangedFile file, Date commitDate, String committer, String issueKey, String issueType) {
         if (unrecognisedIssueType(issueType)) {
             throw new RuntimeException("Unrecognised issue type: " + issueType);
         }
-        if (!file.endsWith(".java") || file.contains("src/test/java")) {
+        if (!file.getFilename().endsWith(".java") || file.getFilename().contains("src/test/java")) {
             return;
         }
-        String normalisedFile = normaliseFilename(file);
+        String normalisedFile = normaliseFilename(file.getFilename());
         Stats thisCommitterStats = getStatsForCommitter(committer);
         if (!fileCreators.containsKey(normalisedFile) && issueType.equals(CHANGE)) {
             thisCommitterStats.scoreNewFile(normalisedFile);

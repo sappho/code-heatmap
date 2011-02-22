@@ -49,13 +49,13 @@ public class BadCommittersAnalysisHandler extends BaseDataAnalysis<BadCommitters
                         revisionsWithReleases);
         Collections.sort(excludeSCMAndMerges, byDate());
 
-        BadCommitters pad = new BadCommitters();
+        BadCommitters badCommitters = new BadCommitters();
         for (RevisionData revision : excludeSCMAndMerges) {
-            pad.addChangeSet(revision.getChangedFiles(), revision.getDate(), revision.getCommitter(),
+            badCommitters.addChangeSet(revision.getChangedFiles(), revision.getDate(), revision.getCommitter(),
                     revision.getIssueKey(), rawData.getIssueData(revision.getIssueKey()).getType());
         }
-        LOG.info("Found " + pad.getCommitters().size() + " committers in bad committers analysis");
-        return new BadCommittersAnalysisResult(pad.getList());
+        LOG.info("Found " + badCommitters.getCommitters().size() + " committers in bad committers analysis");
+        return new BadCommittersAnalysisResult(badCommitters.getList());
     }
 
     @Override

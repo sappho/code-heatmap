@@ -9,6 +9,7 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.org.sappho.code.change.management.data.ChangedFile;
 import uk.org.sappho.codeheatmap.ui.web.server.handlers.analysis.BadCommitters;
 
 public class BadCommittersTest {
@@ -22,7 +23,8 @@ public class BadCommittersTest {
 
     @Test
     public void firstCommitToAFile() {
-        pad.addChangeSet(asList("package/fileA.java"), new Date(), "joe", "ABC-1", BadCommitters.CHANGE);
+        pad.addChangeSet(asList(new ChangedFile("package/fileA.java", true)), new Date(), "joe", "ABC-1",
+                BadCommitters.CHANGE);
 
         assertThat(pad.getCommitters().contains("joe"), is(true));
         assertThat(pad.getFilesCreatedOrChanged("joe"), is(1));
@@ -31,8 +33,10 @@ public class BadCommittersTest {
 
     @Test
     public void secondCommitToAFileThatFixesADefect() {
-        pad.addChangeSet(asList("package/fileA.java"), new Date(), "joe", "ABC-1", BadCommitters.CHANGE);
-        pad.addChangeSet(asList("package/fileA.java"), new Date(), "fred", "ABC-2", BadCommitters.DEFECT);
+        pad.addChangeSet(asList(new ChangedFile("package/fileA.java", true)), new Date(), "joe", "ABC-1",
+                BadCommitters.CHANGE);
+        pad.addChangeSet(asList(new ChangedFile("package/fileA.java", false)), new Date(), "fred", "ABC-2",
+                BadCommitters.DEFECT);
 
         assertThat(pad.getCommitters().contains("joe"), is(true));
         assertThat(pad.getCommitters().contains("fred"), is(true));
@@ -43,8 +47,10 @@ public class BadCommittersTest {
 
     @Test
     public void twoCommitsByDifferentPeopleThatAreBothChanges() {
-        pad.addChangeSet(asList("package/fileA.java"), new Date(), "joe", "ABC-1", BadCommitters.CHANGE);
-        pad.addChangeSet(asList("package/fileA.java"), new Date(), "fred", "ABC-1", BadCommitters.CHANGE);
+        pad.addChangeSet(asList(new ChangedFile("package/fileA.java", false)), new Date(), "joe", "ABC-1",
+                BadCommitters.CHANGE);
+        pad.addChangeSet(asList(new ChangedFile("package/fileA.java", false)), new Date(), "fred", "ABC-1",
+                BadCommitters.CHANGE);
 
         assertThat(pad.getFilesCreatedOrChanged("joe"), is(1));
         assertThat(pad.getFilesCreatedOrChanged("fred"), is(0));
@@ -54,9 +60,12 @@ public class BadCommittersTest {
 
     @Test
     public void onlyScoreOncePerDefect() {
-        pad.addChangeSet(asList("package/fileA.java"), new Date(), "joe", "ABC-1", BadCommitters.CHANGE);
-        pad.addChangeSet(asList("package/fileA.java"), new Date(), "fred", "ABC-2", BadCommitters.DEFECT);
-        pad.addChangeSet(asList("package/fileA.java"), new Date(), "john", "ABC-2", BadCommitters.DEFECT);
+        pad.addChangeSet(asList(new ChangedFile("package/fileA.java", true)), new Date(), "joe", "ABC-1",
+                BadCommitters.CHANGE);
+        pad.addChangeSet(asList(new ChangedFile("package/fileA.java", false)), new Date(), "fred", "ABC-2",
+                BadCommitters.DEFECT);
+        pad.addChangeSet(asList(new ChangedFile("package/fileA.java", false)), new Date(), "john", "ABC-2",
+                BadCommitters.DEFECT);
 
         assertThat(pad.getFilesCreatedOrChanged("joe"), is(1));
         assertThat(pad.getFilesCreatedOrChanged("fred"), is(0));
