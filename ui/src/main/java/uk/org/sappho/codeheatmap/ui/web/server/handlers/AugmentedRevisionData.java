@@ -3,6 +3,7 @@ package uk.org.sappho.codeheatmap.ui.web.server.handlers;
 import java.util.Date;
 import java.util.List;
 
+import uk.org.sappho.code.change.management.data.ChangedFile;
 import uk.org.sappho.code.change.management.data.RevisionData;
 
 public class AugmentedRevisionData extends RevisionData {
@@ -11,7 +12,7 @@ public class AugmentedRevisionData extends RevisionData {
     private String type;
 
     public AugmentedRevisionData(String revisionKey, Date date, String commitComment, String committer,
-            List<String> changedFiles, String issueKey) {
+            List<ChangedFile> changedFiles, String issueKey) {
         super(revisionKey, date, commitComment, committer, changedFiles);
         setIssueKey(issueKey);
     }

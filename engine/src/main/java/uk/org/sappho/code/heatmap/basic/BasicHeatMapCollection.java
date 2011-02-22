@@ -8,6 +8,7 @@ import java.util.Map;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import uk.org.sappho.code.change.management.data.ChangedFile;
 import uk.org.sappho.code.change.management.data.IssueData;
 import uk.org.sappho.code.change.management.data.RevisionData;
 import uk.org.sappho.code.heatmap.HeatMap;
@@ -30,8 +31,8 @@ public class BasicHeatMapCollection implements HeatMapCollection {
 
     public void add(RevisionData revisionData, IssueData issueData) {
 
-        for (String changedFile : revisionData.getChangedFiles()) {
-            List<HeatMapMapping> mappings = heatMapSelector.map(changedFile);
+        for (ChangedFile changedFile : revisionData.getChangedFiles()) {
+            List<HeatMapMapping> mappings = heatMapSelector.map(changedFile.getFilename());
             for (HeatMapMapping mapping : mappings) {
                 String heatMapName = mapping.getName();
                 HeatMap heatMap = heatMaps.get(heatMapName);
