@@ -13,25 +13,6 @@
 	<name>Code Heatmap User Interface</name>
 	<packaging>war</packaging>
 
-	<repositories>
-		<repository>
-			<id>gwtplatform.snapshot.repo</id>
-			<name>Gwtplatform snapshot repository</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-			<layout>default</layout>
-		</repository>
-		<repository>
-			<id>Custom Compiled dependencies, including gin-r137 and htmlunit-r5662</id>
-			<url>http://maven.gwt-platform.googlecode.com/hg</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
-	</repositories>
-
 	<properties>
 		<gwtp-version>0.6-SNAPSHOT</gwtp-version>
 		<gwt.version>2.1.0</gwt.version>
