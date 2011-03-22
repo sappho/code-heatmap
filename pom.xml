@@ -127,7 +127,6 @@
 		<module>scm</module>
 		<module>issues</module>
 		<module>processor</module>
-		<module>ui</module>
 	</modules>
 
 </project>
